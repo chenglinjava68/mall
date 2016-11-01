@@ -173,7 +173,7 @@ public class Config {
 		SMS_SERVICE_TEMPLATE_SEVEN = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "SMS_SERVICE_TEMPLATE_SEVEN");
 		SMS_SERVICE_TEMPLATE_EIGHT = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "SMS_SERVICE_TEMPLATE_EIGHT");
 		SMS_SERVICE_TEMPLATE_NINE = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "SMS_SERVICE_TEMPLATE_NINE");
-		WX_PLATFORM_ID= Integer.parseInt(PropertiesUtil.readPropertiesTools(PROFILE_CXF, "WX_PLATFORM_ID"));
+		WX_PLATFORM_ID= Integer.parseInt(PropertiesUtil.readPropertiesTools(PROFILE_CXF, "wx_platform_id"));
 		
 		MEMBERGROW_X_AUTH_HEADER = PropertiesUtil.readPropertiesTools(PROFILE_CXF,"MEMBERGROW_X_AUTH_HEADER");
 		MEMBER_GROWVALUE_URL= PropertiesUtil.readPropertiesTools(PROFILE_CXF,"URL_MEMBERGROW_SERVICE");
