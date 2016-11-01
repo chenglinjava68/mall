@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd             
+	http://www.springframework.org/schema/aop   http://www.springframework.org/schema/aop/spring-aop-2.0.xsd             
+	http://www.springframework.org/schema/tx    http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+
+    
+    
+    <!-- 异常扫单任务 -->
+    <bean id="exceptiontask" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="exceptionFlowTask"/>
+        </property>
+        <property name="targetMethod">
+        	 <value>run</value>
+		</property>
+    </bean>
+    
+    <!--                                                                                                      -->
+    <!--                                                                                                      -->
+    <!--                                            触发器                                                                                                                                                                  -->
+    <!--                                                                                                      -->
+    <!--                                                                                                      -->
+    
+  
+    
+    <bean id="exceptionfit" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="exceptiontask"/>
+        </property>
+        <!-- 在16:00:00触发 -->
+        <property name="cronExpression">
+        	<value>${exceptionfitCron}</value><!-- 0 */10 * * * ? -->
+		</property>
+    </bean>
+
+	
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+	<bean id="startQuertz" lazy-init="true" autowire="no" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<!--可以加入多个调度 -->
+			<list>
+				<ref bean="exceptionfit" />
+			</list>
+		</property>
+	</bean>
+
+
+</beans>

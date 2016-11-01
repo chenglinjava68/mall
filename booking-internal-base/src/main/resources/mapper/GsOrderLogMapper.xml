@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.plateno.booking.internal.base.mapper.GsOrderLogMapper" >
+  <resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="trade_no" property="tradeNo" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="INTEGER" />
+    <result column="view_status" property="viewStatus" jdbcType="INTEGER" />
+    <result column="clientType" property="clienttype" jdbcType="INTEGER" />
+    <result column="status_desc" property="statusDesc" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="channel" property="channel" jdbcType="INTEGER" />
+    <result column="create_oprt" property="createOprt" jdbcType="INTEGER" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="update_oprt" property="updateOprt" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.plateno.booking.internal.base.pojo.GsOrderLog" extends="BaseResultMap" >
+    <result column="description" property="description" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, trade_no, status, view_status, clientType, status_desc, remark, create_time, 
+    channel, create_oprt, update_time, update_oprt
+  </sql>
+  <sql id="Blob_Column_List" >
+    description
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from gs_order_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from gs_order_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" >
+    delete from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into gs_order_log (trade_no, status, view_status, 
+      clientType, status_desc, remark, 
+      create_time, channel, create_oprt, 
+      update_time, update_oprt, description
+      )
+    values (#{tradeNo,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{viewStatus,jdbcType=INTEGER}, 
+      #{clienttype,jdbcType=INTEGER}, #{statusDesc,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{channel,jdbcType=INTEGER}, #{createOprt,jdbcType=INTEGER}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{updateOprt,jdbcType=INTEGER}, #{description,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into gs_order_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="tradeNo != null" >
+        trade_no,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="viewStatus != null" >
+        view_status,
+      </if>
+      <if test="clienttype != null" >
+        clientType,
+      </if>
+      <if test="statusDesc != null" >
+        status_desc,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="channel != null" >
+        channel,
+      </if>
+      <if test="createOprt != null" >
+        create_oprt,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="updateOprt != null" >
+        update_oprt,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="tradeNo != null" >
+        #{tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="viewStatus != null" >
+        #{viewStatus,jdbcType=INTEGER},
+      </if>
+      <if test="clienttype != null" >
+        #{clienttype,jdbcType=INTEGER},
+      </if>
+      <if test="statusDesc != null" >
+        #{statusDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="channel != null" >
+        #{channel,jdbcType=INTEGER},
+      </if>
+      <if test="createOprt != null" >
+        #{createOprt,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateOprt != null" >
+        #{updateOprt,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" resultType="java.lang.Integer" >
+    select count(*) from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update gs_order_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.tradeNo != null" >
+        trade_no = #{record.tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=INTEGER},
+      </if>
+      <if test="record.viewStatus != null" >
+        view_status = #{record.viewStatus,jdbcType=INTEGER},
+      </if>
+      <if test="record.clienttype != null" >
+        clientType = #{record.clienttype,jdbcType=INTEGER},
+      </if>
+      <if test="record.statusDesc != null" >
+        status_desc = #{record.statusDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.channel != null" >
+        channel = #{record.channel,jdbcType=INTEGER},
+      </if>
+      <if test="record.createOprt != null" >
+        create_oprt = #{record.createOprt,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateTime != null" >
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updateOprt != null" >
+        update_oprt = #{record.updateOprt,jdbcType=INTEGER},
+      </if>
+      <if test="record.description != null" >
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update gs_order_log
+    set id = #{record.id,jdbcType=BIGINT},
+      trade_no = #{record.tradeNo,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      view_status = #{record.viewStatus,jdbcType=INTEGER},
+      clientType = #{record.clienttype,jdbcType=INTEGER},
+      status_desc = #{record.statusDesc,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      channel = #{record.channel,jdbcType=INTEGER},
+      create_oprt = #{record.createOprt,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      update_oprt = #{record.updateOprt,jdbcType=INTEGER},
+      description = #{record.description,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update gs_order_log
+    set id = #{record.id,jdbcType=BIGINT},
+      trade_no = #{record.tradeNo,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=INTEGER},
+      view_status = #{record.viewStatus,jdbcType=INTEGER},
+      clientType = #{record.clienttype,jdbcType=INTEGER},
+      status_desc = #{record.statusDesc,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      channel = #{record.channel,jdbcType=INTEGER},
+      create_oprt = #{record.createOprt,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      update_oprt = #{record.updateOprt,jdbcType=INTEGER}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    update gs_order_log
+    <set >
+      <if test="tradeNo != null" >
+        trade_no = #{tradeNo,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="viewStatus != null" >
+        view_status = #{viewStatus,jdbcType=INTEGER},
+      </if>
+      <if test="clienttype != null" >
+        clientType = #{clienttype,jdbcType=INTEGER},
+      </if>
+      <if test="statusDesc != null" >
+        status_desc = #{statusDesc,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="channel != null" >
+        channel = #{channel,jdbcType=INTEGER},
+      </if>
+      <if test="createOprt != null" >
+        create_oprt = #{createOprt,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateOprt != null" >
+        update_oprt = #{updateOprt,jdbcType=INTEGER},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    update gs_order_log
+    set trade_no = #{tradeNo,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      view_status = #{viewStatus,jdbcType=INTEGER},
+      clientType = #{clienttype,jdbcType=INTEGER},
+      status_desc = #{statusDesc,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      channel = #{channel,jdbcType=INTEGER},
+      create_oprt = #{createOprt,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_oprt = #{updateOprt,jdbcType=INTEGER},
+      description = #{description,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
+    update gs_order_log
+    set trade_no = #{tradeNo,jdbcType=VARCHAR},
+      status = #{status,jdbcType=INTEGER},
+      view_status = #{viewStatus,jdbcType=INTEGER},
+      clientType = #{clienttype,jdbcType=INTEGER},
+      status_desc = #{statusDesc,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      channel = #{channel,jdbcType=INTEGER},
+      create_oprt = #{createOprt,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_oprt = #{updateOprt,jdbcType=INTEGER}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select resultMap="ResultMapWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" id="selectByExampleWithBLOBsWithRowbounds" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" id="selectByExampleWithRowbounds" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from gs_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+</mapper>

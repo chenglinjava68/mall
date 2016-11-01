@@ -1,0 +1,72 @@
+/**
+ * 
+ */
+package com.plateno.booking.internal.interceptor.adam.common.util;
+
+import java.util.UUID;
+
+import com.plateno.booking.internal.interceptor.adam.common.bean.ThreadHolder;
+
+
+/**
+ * @author user
+ *
+ */
+public class ThreadLocalHolder {
+
+	private static ThreadLocal<ThreadHolder> contextHolder = new ThreadLocal<ThreadHolder>(); // 线程本地环境
+
+	public static void initRunningAccount() {
+		if (null == contextHolder.get()) {
+			ThreadHolder th = new ThreadHolder();
+			contextHolder.set(th);
+		}
+		ThreadHolder th = contextHolder.get();
+		String runningAccountId = UUID.randomUUID().toString();
+		th.setRunningAccountId(runningAccountId);
+	}
+
+	public static String getRunningAccount() {
+		if (null == contextHolder.get()) {
+			initRunningAccount();
+		}
+		return contextHolder.get().getRunningAccountId();
+	}
+
+	public static Integer getRunningAccountFlag() {
+		if (null == contextHolder.get()) {
+			initRunningAccount();
+		}
+		return contextHolder.get().getRunningAccountFlag();
+	}
+
+	public static void setRunningAccountFlag(Integer runningAccountFlag) {
+		if (null == contextHolder.get()) {
+			initRunningAccount();
+		}
+		contextHolder.get().setRunningAccountFlag(runningAccountFlag);
+	}
+
+	public static Integer getRequestLogFlag() {
+		if (null == contextHolder.get()) {
+			initRunningAccount();
+		}
+		return contextHolder.get().getRequestLogFlag();
+	}
+
+	public static void setRequestLogFlag(Integer requestLogFlag) {
+		if (null == contextHolder.get()) {
+			initRunningAccount();
+		}
+		contextHolder.get().setRequestLogFlag(requestLogFlag);
+	}
+
+	public static ThreadHolder getThreadHolder() {
+		return contextHolder.get();
+	}
+
+	public static void setThreadHolder(ThreadHolder threadHolder) {
+		contextHolder.set(threadHolder);
+	}
+
+}

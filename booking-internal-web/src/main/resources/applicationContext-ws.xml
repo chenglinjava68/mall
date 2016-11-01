@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+     http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+     http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+	http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+     http://www.springframework.org/schema/context
+     http://www.springframework.org/schema/context/spring-context-3.1.xsd
+     http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd"
+	default-lazy-init="true">
+
+	<bean name="loggingInInterceptor"
+		class="com.plateno.www.webservice.interceptor.Log4jLoggingInInterceptor" />
+
+	<bean name="loggingOutInterceptor"
+		class="com.plateno.www.webservice.interceptor.Log4jLoggingOutInterceptor" />
+
+	<bean name="soapPreProtocolOutInterceptor"
+		class="org.apache.cxf.binding.soap.interceptor.SoapPreProtocolOutInterceptor" />
+	<bean name="soapHeaderSettingInterceptor"
+		class="com.plateno.www.webservice.interceptor.SOAPHeaderSettingInterceptor" />
+	<bean name="encodingInterceptor"
+		class="com.plateno.www.webservice.interceptor.EncodingInterceptor" />
+	<bean name="ccAuthenHeaderInterceptor"
+		class="com.plateno.www.webservice.interceptor.AuthenHeaderInterceptor">
+		<property name="namespace" value="http://config.7daysinn.cn" />
+	</bean>
+
+	<bean name="ignoreUnexpectedElementsHandler"
+		class="com.plateno.www.webservice.utils.IgnoreUnexpectedElementsHandler" />
+
+	<cxf:bus>
+		<!-- <cxf:inInterceptors>
+			<ref bean="loggingInInterceptor" />
+		</cxf:inInterceptors>
+		<cxf:outInterceptors>
+			<ref bean="loggingOutInterceptor" />
+		</cxf:outInterceptors> -->
+	</cxf:bus>
+	
+		<jaxws:client id="mebPointServiceSoap"
+		serviceClass="com.plateno.www.webservice.service.mebpoint.MebPointServiceSoap"
+		address="${POINT_SERVER_URL}">
+		<jaxws:outInterceptors>
+			<ref bean="encodingInterceptor" />
+			<ref bean="soapHeaderSettingInterceptor" />
+			<ref bean="soapPreProtocolOutInterceptor" />
+			<bean class="com.plateno.www.webservice.interceptor.AuthenHeaderInterceptor">
+				<property name="namespace" value="Point.7daysinn.cn" />
+				<property name="authenticate" value="${POINT_SERVER_TOKEN}" />
+			</bean>
+		</jaxws:outInterceptors>
+		<jaxws:properties>
+			<entry key="jaxb-validation-event-handler" value-ref="ignoreUnexpectedElementsHandler" />
+		</jaxws:properties>
+	</jaxws:client>
+	
+
+	<!-- <jaxws:client id="configCenterService"
+		serviceClass="com.plateno.www.webservice.service.configcenter.ConfigCenterSoap"
+		address="${configCenterService.url}">
+		<jaxws:outInterceptors>
+			<ref bean="encodingInterceptor" />
+			 <ref bean="loggingOutInterceptor" />
+			<ref bean="soapHeaderSettingInterceptor" />
+			<ref bean="ccAuthenHeaderInterceptor" />
+			<ref bean="soapPreProtocolOutInterceptor" />
+		</jaxws:outInterceptors>
+	</jaxws:client>
+
+	<bean id="configCenterServiceInitializer"
+		class="com.plateno.www.webservice.utils.ConfigCenterServiceInitializer">
+		<property name="configCenter" ref="configCenterService" />
+		<property name="authenHeaderInterceptor" ref="ccAuthenHeaderInterceptor" />
+		<property name="serviceName" value="${configCenterService.serviceName}" />
+		<property name="servicePassword" value="${configCenterService.servicePassword}" />
+	</bean> -->
+<!-- 
+	<bean id="bookService" class="com.plateno.www.webservice.utils.BaseServiceFactory">
+		<property name="configCenter" ref="configCenterService" />
+		<property name="appId" value="${bookService.appId}" />
+		<property name="systemId" value="${bookService.systemId}" />
+		<property name="serviceInterface"
+			value="com.plateno.www.webservice.service.roombook.BookServiceSoap" />
+		<property name="namespace" value="http://RoomBookService.7daysinn.cn" />
+		<property name="serviceName" value="${bookService.serviceName}" />
+		<property name="servicePassword" value="${bookService.servicePassword}" />
+	</bean>
+
+	<bean id="mebGiftService" class="com.plateno.www.webservice.utils.BaseServiceFactory">
+		<property name="configCenter" ref="configCenterService" />
+		<property name="appId" value="${mebGiftService.appId}" />
+		<property name="systemId" value="${mebGiftService.systemId}" />
+		<property name="serviceInterface"
+			value="com.plateno.www.webservice.service.mebgift.MebGiftServiceSoap" />
+		<property name="namespace" value="Gift.7daysinn.cn" />
+		<property name="serviceName" value="${mebGiftService.serviceName}" />
+		<property name="servicePassword" value="${mebGiftService.servicePassword}" />
+	</bean>
+ -->
+	<!-- 配置mebPointSoapService客户端 -->
+<!-- 	<bean id="mebPointService" class="com.plateno.www.webservice.utils.BaseServiceFactory">
+		<property name="configCenter" ref="configCenterService" />
+		<property name="appId" value="${mebPointService.appId}" />
+		<property name="systemId" value="${mebPointService.systemId}" />
+		<property name="serviceInterface"
+			value="com.plateno.www.webservice.service.mebpoint.MebPointServiceSoap" />
+		<property name="namespace" value="Point.7daysinn.cn" />
+		<property name="serviceName" value="${mebPointService.serviceName}" />
+		<property name="servicePassword" value="${mebPointService.servicePassword}" />
+	</bean> -->
+
+	
+	<!-- 配置currencyDepositService客户端 -->
+	<!-- 
+	<bean id="currencyDepositSoapService" class="com.plateno.www.webservice.utils.BaseServiceFactory">
+		<property name="configCenter" ref="configCenterService" />
+		<property name="appId" value="${currencyDepositService.appId}" />
+		<property name="systemId" value="${currencyDepositService.systemId}" />
+		<property name="serviceInterface"
+			value="com.plateno.www.webservice.service.currencydeposit.CurrencyDepositSvcSoap" />
+		<property name="outInterceptors">
+			<list>
+				<bean
+					class="com.plateno.www.webservice.interceptor.UserCredentialsHeaderInterceptor">
+					<property name="namespace" value="CurrencyDepositService.7daysinn.cn" />
+					<property name="userCredentials" value="${currencyDepositService.authenticateKey}" />
+				</bean>
+			</list>
+		</property>
+	</bean>
+	
+	
+	<jaxws:client id="memberOutService"
+		serviceClass="com.plateno.www.webservice.service.memberout.MemberOutSoap"
+		address="${memberOutService.url}">
+		<jaxws:outInterceptors>
+			<ref bean="encodingInterceptor" />
+			<ref bean="soapHeaderSettingInterceptor" />
+			<ref bean="soapPreProtocolOutInterceptor" />
+		</jaxws:outInterceptors>
+		<jaxws:properties>
+			<entry key="jaxb-validation-event-handler" value-ref="ignoreUnexpectedElementsHandler" />
+		</jaxws:properties>
+	</jaxws:client>
+-->
+	<jaxws:client id="userInterfaceService"
+		serviceClass="com.plateno.www.webservice.service.userinterface.UserInterfaceSoap"
+		address="${USER_INTERFACE_URL}">
+		<jaxws:outInterceptors>
+			<ref bean="encodingInterceptor" />
+			<ref bean="soapHeaderSettingInterceptor" />
+			<ref bean="soapPreProtocolOutInterceptor" />
+			<bean  class="com.plateno.www.webservice.interceptor.AuthenHeaderInterceptor">
+			   <property name="namespace" value="${USER_INTERFACE_NAMESPACE}" />
+			   <property name="authenticate" value="${USER_INTERFACE_PASSWORD}" />
+		   </bean>
+		</jaxws:outInterceptors>
+		<jaxws:properties>
+			<entry key="jaxb-validation-event-handler" value-ref="ignoreUnexpectedElementsHandler" />
+		</jaxws:properties>
+	</jaxws:client>
+	
+</beans>

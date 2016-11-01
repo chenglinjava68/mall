@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc 
+		http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+		http://www.springframework.org/schema/tx 
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/aop 
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/data/jpa 
+		http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<context:component-scan base-package="com.plateno.booking.internal" />
+	<context:annotation-config />
+	<aop:aspectj-autoproxy />
+    
+    
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE" />
+		<property name="ignoreResourceNotFound" value="true" />
+		<property name="locations">
+			<list>
+				<value>classpath:jdbc.properties</value>
+				<value>classpath:config.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	 <!-- 门票OTA服务实例 
+	<bean id="ticketStrategyMap" class="com.plateno.booking.internal.common.OwnerStrategyMap" >
+		 <property name="findOwnerStrategyMap">  
+       		 <map>  
+           		 <entry key="lvmamaService" value-ref="lvMaMaService"/>  
+         	</map>  
+    	</property>  
+	</bean> -->
+	
+ 	<!-- 酒店OTA服务实例 
+	<bean id="hotelStrategyMap" class="com.plateno.booking.internal.hotel.common.OwnerStrategyMap" >
+		 <property name="findOwnerStrategyMap">  
+       		 <map>  
+           		 <entry key="botaoService" value-ref="boTaoService"/>  
+         	</map>  
+    	</property>  
+	</bean> -->
+	
+	<import resource="classpath:applicationContext-mvc.xml"/>
+	<import resource="classpath:applicationContext-redis.xml"/>
+
+	<import resource="classpath:applicationContext-ws.xml"/>
+	<!-- <import resource="classpath:applicationContext-job.xml"/> -->
+	<import resource="classpath:applicationContext-dao.xml"/>
+	<import resource="classpath:applicationContext-email.xml"/>
+	
+	 <!-- 提供方应用名称信息，这个相当于起一个名字，我们dubbo管理页面比较清晰是哪个应用暴露出来的 -->  
+<!--    <dubbo:application name="dubbo_provider"></dubbo:application>  
+   使用zookeeper注册中心暴露服务地址    
+   <dubbo:registry address="zookeeper://10.100.112.197:2181" check="false" subscribe="false" register=""></dubbo:registry>  
+  要暴露的服务接口    
+  <dubbo:service interface="com.plateno.booking.internal.service.order.DubboTestService" ref="dubboTestService" />     -->
+
+
+</beans>

@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.plateno.booking.internal.base.mapper.MOrderLogMapper" >
+  <resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.MOrderLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="info" property="info" jdbcType="VARCHAR" />
+    <result column="interface_name" property="interfaceName" jdbcType="VARCHAR" />
+    <result column="channel" property="channel" jdbcType="INTEGER" />
+    <result column="up_time" property="upTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="ResultMapWithBLOBs" type="com.plateno.booking.internal.base.pojo.MOrderLogWithBLOBs" extends="BaseResultMap" >
+    <result column="exception" property="exception" jdbcType="LONGVARCHAR" />
+    <result column="request" property="request" jdbcType="LONGVARCHAR" />
+    <result column="response" property="response" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, info, interface_name, channel, up_time
+  </sql>
+  <sql id="Blob_Column_List" >
+    exception, request, response
+  </sql>
+  <select id="selectByExampleWithBLOBs" resultMap="ResultMapWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from m_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from m_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from m_order_log
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from m_order_log
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogExample" >
+    delete from m_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogWithBLOBs" >
+    insert into m_order_log (id, info, interface_name, 
+      channel, up_time, exception, 
+      request, response)
+    values (#{id,jdbcType=BIGINT}, #{info,jdbcType=VARCHAR}, #{interfaceName,jdbcType=VARCHAR}, 
+      #{channel,jdbcType=INTEGER}, #{upTime,jdbcType=TIMESTAMP}, #{exception,jdbcType=LONGVARCHAR}, 
+      #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogWithBLOBs" >
+    insert into m_order_log
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="info != null" >
+        info,
+      </if>
+      <if test="interfaceName != null" >
+        interface_name,
+      </if>
+      <if test="channel != null" >
+        channel,
+      </if>
+      <if test="upTime != null" >
+        up_time,
+      </if>
+      <if test="exception != null" >
+        exception,
+      </if>
+      <if test="request != null" >
+        request,
+      </if>
+      <if test="response != null" >
+        response,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="info != null" >
+        #{info,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceName != null" >
+        #{interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        #{channel,jdbcType=INTEGER},
+      </if>
+      <if test="upTime != null" >
+        #{upTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exception != null" >
+        #{exception,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="request != null" >
+        #{request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="response != null" >
+        #{response,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogExample" resultType="java.lang.Integer" >
+    select count(*) from m_order_log
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update m_order_log
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.info != null" >
+        info = #{record.info,jdbcType=VARCHAR},
+      </if>
+      <if test="record.interfaceName != null" >
+        interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.channel != null" >
+        channel = #{record.channel,jdbcType=INTEGER},
+      </if>
+      <if test="record.upTime != null" >
+        up_time = #{record.upTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.exception != null" >
+        exception = #{record.exception,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.request != null" >
+        request = #{record.request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.response != null" >
+        response = #{record.response,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map" >
+    update m_order_log
+    set id = #{record.id,jdbcType=BIGINT},
+      info = #{record.info,jdbcType=VARCHAR},
+      interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      channel = #{record.channel,jdbcType=INTEGER},
+      up_time = #{record.upTime,jdbcType=TIMESTAMP},
+      exception = #{record.exception,jdbcType=LONGVARCHAR},
+      request = #{record.request,jdbcType=LONGVARCHAR},
+      response = #{record.response,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update m_order_log
+    set id = #{record.id,jdbcType=BIGINT},
+      info = #{record.info,jdbcType=VARCHAR},
+      interface_name = #{record.interfaceName,jdbcType=VARCHAR},
+      channel = #{record.channel,jdbcType=INTEGER},
+      up_time = #{record.upTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogWithBLOBs" >
+    update m_order_log
+    <set >
+      <if test="info != null" >
+        info = #{info,jdbcType=VARCHAR},
+      </if>
+      <if test="interfaceName != null" >
+        interface_name = #{interfaceName,jdbcType=VARCHAR},
+      </if>
+      <if test="channel != null" >
+        channel = #{channel,jdbcType=INTEGER},
+      </if>
+      <if test="upTime != null" >
+        up_time = #{upTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="exception != null" >
+        exception = #{exception,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="request != null" >
+        request = #{request,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="response != null" >
+        response = #{response,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.MOrderLogWithBLOBs" >
+    update m_order_log
+    set info = #{info,jdbcType=VARCHAR},
+      interface_name = #{interfaceName,jdbcType=VARCHAR},
+      channel = #{channel,jdbcType=INTEGER},
+      up_time = #{upTime,jdbcType=TIMESTAMP},
+      exception = #{exception,jdbcType=LONGVARCHAR},
+      request = #{request,jdbcType=LONGVARCHAR},
+      response = #{response,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.MOrderLog" >
+    update m_order_log
+    set info = #{info,jdbcType=VARCHAR},
+      interface_name = #{interfaceName,jdbcType=VARCHAR},
+      channel = #{channel,jdbcType=INTEGER},
+      up_time = #{upTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

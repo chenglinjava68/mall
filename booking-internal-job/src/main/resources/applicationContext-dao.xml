@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd  
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+
+	
+	 <!-- <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="driverClass" value="${jdbc.driverClassName}"/>
+        <property name="jdbcUrl" value="${jdbc.url}"/>
+        <property name="user" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+        <property name="minPoolSize" value="0" />
+        <property name="maxPoolSize" value="50" />
+        <property name="acquireIncrement" value="5" />
+        <property name="maxIdleTime" value="10" />
+        <property name="testConnectionOnCheckout"  value="false"/>
+        <property name="initialPoolSize"  value="5"/>
+    </bean> -->
+    
+    <!-- 数据源配置, 使用 BoneCP 数据库连接池 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+  		<!-- 数据源驱动类可不写，Druid默认会自动根据URL识别DriverClass -->
+  		<property name="driverClassName" value="${jdbc.driverClassName}" />
+ 
+   		 <!-- 基本属性 url、user、password -->
+    	<property name="url" value="${jdbc.url}" />
+    	<property name="username" value="${jdbc.username}" />
+    	<property name="password" value="${jdbc.password}" />
+ 
+    	<!-- 配置初始化大小、最小、最大 -->
+    	<property name="initialSize" value="30" />
+    	<property name="minIdle" value="30" />
+    	<property name="maxActive" value="1000" />
+ 
+    	<!-- 配置获取连接等待超时的时间 -->
+    	<property name="maxWait" value="60000" />
+ 
+    	<!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+    	<property name="timeBetweenEvictionRunsMillis" value="60000" />
+ 
+    	<!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+    	<property name="minEvictableIdleTimeMillis" value="300000" />
+ 
+    	<property name="validationQuery" value="SELECT 'x' from dual" />
+    	<property name="testWhileIdle" value="true" />
+    	<property name="testOnBorrow" value="false" />
+    	<property name="testOnReturn" value="false" />
+    	<property name="removeAbandoned" value="true" />
+
+ 		<property name="removeAbandonedTimeout" value="7200" />
+    	
+    	<property name="poolPreparedStatements" value="true" />
+		<property name="maxPoolPreparedStatementPerConnectionSize" value="50" />
+    	<!-- 配置监控统计拦截的filters -->
+ 		 <property name="filters" value="stat" />
+	</bean>
+	
+	<!-- 映射xml位置 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="mapperLocations" value="classpath*:mapper/**/*.xml" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageHelper">
+					<property name="properties">
+						<value>
+							dialect=mysql
+							reasonable=false
+							rowBoundsWithCount=true
+							offsetAsPageNum=true
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	
+	<bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.plateno.booking.internal.dao.mapper,com.plateno.booking.internal.base.mapper" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+	</bean>
+	
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    
+</beans>
