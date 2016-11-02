@@ -177,7 +177,7 @@ public class MallExceptionFlowService {
 			}
 			
 			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-				logger.error(String.format("退款支付网关订单支付中, trandNo:s%, code:s%", orderPayLog.getTrandNo(), response.getCode()));
+				logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
 				return;
 			}
 			
@@ -212,14 +212,14 @@ public class MallExceptionFlowService {
 			
 			OrderProduct productByOrderNo = getProductByOrderNo(orderNo);
 			if(productByOrderNo == null) {
-				logger.error(String.format("orderNo:s%, 退款退库存失败, 找不到购买的商品信息", orderNo));
+				logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
 			} else {
 				//更新库存
-				logger.info(String.format("orderNo:s%， 退还库存，skuid:s%, count:s%", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+				logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
 				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
 				if(!modifyStock){
-					logger.error(String.format("orderNo:s%, 调用商品服务失败", orderNo));
-					LogUtils.sysLoggerInfo(String.format("orderNo:s%, 调用商品服务失败", orderNo));
+					logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+					LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
 				}
 				
 				final Order dbOrder = order;
@@ -323,7 +323,7 @@ public class MallExceptionFlowService {
 			}
 			
 			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING) || response.getCode().equals(PayGateCode.UNKNOWN_STATUS)) {
-				logger.error(String.format("支付网关订单不是最终状态, trandNo:s%, code:s%", orderPayLog.getTrandNo(), response.getCode()));
+				logger.error(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
 				return;
 			}
 				

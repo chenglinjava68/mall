@@ -161,7 +161,7 @@ public class PayService {
 			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
 			orderPayLogMapper.updateByExampleSelective(record, example);
 		} else {
-			logger.info(String.format("支付网关支付回调，非最终状态, orderNo:s%, code:s%", notifyReturn.getOrderNo(), notifyReturn.getCode()));
+			logger.info(String.format("支付网关支付回调，非最终状态, orderNo:%s, code:%s", notifyReturn.getOrderNo(), notifyReturn.getCode()));
 		}
 		
 	}

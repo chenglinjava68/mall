@@ -567,7 +567,7 @@ public class MOrderService{
 			logger.error("支付网关申请退款异常:" + refundLogList.get(0).getTrandNo(), e);
 		}
 		
-		logger.info(String.format("orderNo:s%, 网关申请退款, 返回:s%", refundLogList.get(0).getTrandNo(), JsonUtils.toJsonString(response)));
+		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", refundLogList.get(0).getTrandNo(), JsonUtils.toJsonString(response)));
 		
 		return updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
 		
