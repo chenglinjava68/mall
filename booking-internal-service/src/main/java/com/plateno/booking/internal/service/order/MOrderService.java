@@ -382,12 +382,13 @@ public class MOrderService{
 			//SkuBean skubean=mallGoodsService.getSkuProperty(book.getGoodsId().toString());
 			//SkuStock stock=mallGoodsService.getSkuStock(book.getGoodsId().toString(), book.getSkuProperties());
 			ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(book.getGoodsId().toString());
-			if(book.getSellStrategy().equals(1)){
+			/*if(book.getSellStrategy().equals(1)){
 				if(book.getTotalAmount().equals((book.getQuantity()*pskubean.getRegularPrice()))){
 				}
-			}
+			}*/
 			ordes.setResource(book.getResource());
-			ordes.setAmount(book.getTotalAmount());
+			//商品非积分的总的价格，不包含运费
+			ordes.setAmount(book.getQuantity()*pskubean.getRegularPrice());
 			//ordes.setChanelid(book.getChanelId());
 			//渠道从商品服务获取
 			ordes.setChanelid(pskubean.getChannelId());
@@ -400,8 +401,12 @@ public class MOrderService{
 			ordes.setPayTime(new Date());
 			ordes.setPayType(1);// 默认1微信支付、2支付宝支付
 			ordes.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
-			if(pskubean.getSellStrategy()==2)	ordes.setPoint(pskubean.getFavorPoints());
-			ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
+			if(pskubean.getSellStrategy()==2) {
+				//ordes.setPoint(pskubean.getFavorPoints());
+				ordes.setPoint(book.getPoint());
+			}
+			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
+			ordes.setPayMoney(book.getTotalAmount());
 
 			ordes.setRefundAmount(0);
 			ordes.setSid(0);

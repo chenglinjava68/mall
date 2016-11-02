@@ -97,8 +97,8 @@ public class MApiService {
 				}
 			}else{
 				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()+pskubean.getExpressFee()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDER_ERROR.getMessage());
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
 					return output;
 				}
 			}
@@ -107,6 +107,21 @@ public class MApiService {
 				output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
 				output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
 				return output;
+			}
+			
+			//判断金额总金额是否对应
+			if(addBookingParam.getShippingType().equals(1)){
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
+			}else{
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()+pskubean.getExpressFee()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
 			}
 		}
 		
