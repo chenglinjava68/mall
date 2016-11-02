@@ -63,7 +63,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("6");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("5");
 		System.out.println(productAndskuStock);
 		
 	}

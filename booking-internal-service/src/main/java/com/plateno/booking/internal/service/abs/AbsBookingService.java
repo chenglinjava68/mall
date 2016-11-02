@@ -17,6 +17,9 @@ public class AbsBookingService {
 	 * @return
 	 */
 	protected static String getBookingService(Integer channelSourceType, String action) {
+		
+		//统一使用101, 目前所有渠道使用的service相同
+		channelSourceType = ServiceEnum.PLATENO_ADD_BOOKING.getChannel();
 
 		String channelSourceTypeStr = "";
 		if (null != channelSourceType) {
