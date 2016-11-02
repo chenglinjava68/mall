@@ -13,6 +13,11 @@ public class PayGateCode {
 	public static final String SUCCESS = "0000";
 	
 	/**
+	 * 交易失败
+	 */
+	public static final String FAIL = "0100";
+	
+	/**
 	 * 处理中
 	 */
 	public static final String HADNLING = "1000";
@@ -21,4 +26,9 @@ public class PayGateCode {
 	 * 用户支付中
 	 */
 	public static final String PAY_HADNLING = "0600";
+	
+	/**
+	 * 未知状态
+	 */
+	public static final String UNKNOWN_STATUS = "1004";
 }

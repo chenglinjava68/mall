@@ -204,7 +204,10 @@ public class MallExceptionFlowService {
 		OrderPayLogExample example=new OrderPayLogExample();
 		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1);
 		List<OrderPayLog> listpayLog=orderPayLogMapper.selectByExample(example);
-		if(CollectionUtils.isEmpty(listpayLog))		return;
+		if(CollectionUtils.isEmpty(listpayLog))	{
+			logger.error("订单状态异常, 订单状态支付中，但是找不到支付流水, orderNo:" + order.getOrderNo());
+			return;
+		}
 		
 		boolean success = false;
 		for(OrderPayLog orderPayLog:listpayLog){
@@ -216,8 +219,8 @@ public class MallExceptionFlowService {
 				return;
 			}
 			
-			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-				logger.error(String.format("支付网关订单支付中, trandNo:s%, code:s%", orderPayLog.getTrandNo(), response.getCode()));
+			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING) || response.getCode().equals(PayGateCode.UNKNOWN_STATUS)) {
+				logger.error(String.format("支付网关订单不是最终状态, trandNo:s%, code:s%", orderPayLog.getTrandNo(), response.getCode()));
 				return;
 			}
 				

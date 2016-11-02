@@ -137,7 +137,7 @@ public class PayService {
 			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
 			orderPayLogMapper.updateByExampleSelective(record, example);
 			
-		} else { //支付失败
+		} else if(PayGateCode.FAIL.equals(notifyReturn.getCode())) { //支付失败
 			
 			//更新订单的状态,支付失败
 			Order order = new Order();
@@ -160,6 +160,8 @@ public class PayService {
 			OrderPayLogExample example = new OrderPayLogExample();
 			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
 			orderPayLogMapper.updateByExampleSelective(record, example);
+		} else {
+			logger.info(String.format("支付网关支付回调，非最终状态, orderNo:s%, code:s%", notifyReturn.getOrderNo(), notifyReturn.getCode()));
 		}
 		
 	}
