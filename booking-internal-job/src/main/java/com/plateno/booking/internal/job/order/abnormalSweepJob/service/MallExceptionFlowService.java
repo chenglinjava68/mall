@@ -138,6 +138,7 @@ public class MallExceptionFlowService {
 		if(CollectionUtils.isEmpty(listpayLog))		return;
 		
 		boolean success = false;
+		boolean fail = false;
 		for(OrderPayLog orderPayLog:listpayLog){
 			
 			//获取网关的订单状态
@@ -152,18 +153,20 @@ public class MallExceptionFlowService {
 				return;
 			}
 			
-			if(response.getCode().equals(BookingConstants.GATEWAY_REFUND_SUCCESS_CODE)){
+			if(response.getCode().equals(BookingConstants.GATEWAY_REFUND_SUCCESS_CODE)){ //退款成功
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
 				orderPayLogMapper.updateByExampleSelective(record, example);
 				
 				success=true;
-			}else{
+			}else if((response.getCode().equals(PayGateCode.REFUND_FAIL) || response.getCode().equals(PayGateCode.REQUEST_EXCEPTION))){ //退款失败
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
 				orderPayLogMapper.updateByExampleSelective(record, example);
+				
+				fail = true;
 			}
 		}
 		
@@ -175,13 +178,15 @@ public class MallExceptionFlowService {
 			returnPoint(order);
 			
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
-		}else{
+			//更新账单状态
+			orderService.updateOrderStatusByNo(record, order.getOrderNo());
+		}else if(fail){
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
 			record.setRefundFailReason("网关退款失败");
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
+			//更新账单状态
+			orderService.updateOrderStatusByNo(record, order.getOrderNo());
 		}
-		//更新账单状态
-		orderService.updateOrderStatusByNo(record, order.getOrderNo());
 	  }
 
 

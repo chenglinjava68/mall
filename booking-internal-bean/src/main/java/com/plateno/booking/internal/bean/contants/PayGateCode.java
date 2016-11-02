@@ -31,4 +31,19 @@ public class PayGateCode {
 	 * 未知状态
 	 */
 	public static final String UNKNOWN_STATUS = "1004";
+	
+	/**
+	 * 退款成功
+	 */
+	public static final String REFUND_SUCCESS = "0010";
+	
+	/**
+	 * 退款失败
+	 */
+	public static final String REFUND_FAIL = "0020";
+	
+	/**
+	 * 请求异常
+	 */
+	public static final String REQUEST_EXCEPTION = "0900";
 }
