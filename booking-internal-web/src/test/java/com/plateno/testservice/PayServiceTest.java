@@ -1,5 +1,6 @@
 package com.plateno.testservice;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
@@ -21,6 +23,7 @@ import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.common.util.http.HttpUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
+import com.plateno.booking.internal.service.order.PayService;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 /**
@@ -30,32 +33,33 @@ import com.plateno.booking.internal.wechat.model.ProductSkuBean;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
-public class MOrderBAOTAOMallBookingServiceTest {
+public class PayServiceTest {
 	
 	@Autowired
-	private BOTAOMallBookingService service;
+	private PayService service;
 	
 	@Test
-	public void testAddBooking() throws OrderException, Exception{
+	public void testPullerPay() throws OrderException, Exception{
 		
-		MAddBookingParam addBookingParam = new MAddBookingParam();
-		addBookingParam.setGoodsId(10L);
-		addBookingParam.setTotalAmount(1001);
-		addBookingParam.setQuantity(1);
-		addBookingParam.setConsigneeName("Zhangsan");
-		addBookingParam.setConsigneeMobile("13999999999");
-		addBookingParam.setConsigneeAddress("宇宙");
-		addBookingParam.setShippingType(2);
-		addBookingParam.setPlatformId(1);
-		addBookingParam.setName("李四");
-		addBookingParam.setMobile("13777777777");
-		addBookingParam.setMemberId(14785236);
-		addBookingParam.setResource(2);
-		addBookingParam.setSellStrategy(2);
-		addBookingParam.setPoint(9);
+		MOrderParam param = new MOrderParam();
+		param.setOrderNo("O1478076012273383901");
 		
-		ResultVo<MAddBookResponse> addBooking = service.addBooking(addBookingParam);
-		System.out.println(addBooking);
+		ResultVo<Object> pullerPay = service.pullerPay(param);
+		System.out.println(pullerPay);
 	}
 	
+	@Test
+	public void testPayNotify() throws OrderException, Exception{
+		
+		NotifyReturn notifyReturn = new NotifyReturn();
+		notifyReturn.setCode("0000");
+		notifyReturn.setOrderNo("L1478079390564470911");
+		notifyReturn.setSignData("342434");
+		notifyReturn.setMessage("");
+		notifyReturn.setReferenceId("32323232323");
+		notifyReturn.setOrderAmount(5000);
+		
+		service.payNotify(notifyReturn );
+	}
+
 }
