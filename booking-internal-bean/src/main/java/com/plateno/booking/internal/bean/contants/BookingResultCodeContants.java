@@ -229,6 +229,11 @@ public interface BookingResultCodeContants {
 		
 		GATEWAY_ERROR("910", "调用网关退款失败"),
 		
+		/**
+		 * 支付网关退款中
+		 */
+		REFUND_HANDLING("911", "支付网关退款中"),
+		
 		SYSTEM_ORDER_NULL("502","删除失败,账单信息不存在,请核实信息"), 
 		SYSTEM_ORDER_STATUS_DELETE_ERROR("503","账单所处状态,不支持被删除"), 
 		SYSTEM_ORDER_STATUS_CANCEL_ERROR("504","账单所处状态,不支持被取消"), 

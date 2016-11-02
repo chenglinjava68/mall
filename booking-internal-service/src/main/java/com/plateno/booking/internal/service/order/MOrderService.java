@@ -541,13 +541,10 @@ public class MOrderService{
 		
 		//查询退款的申请的支付流水
 		logExample=new OrderPayLogExample();
-		logExample.createCriteria().andOrderIdEqualTo(dbOrder.getId()).andTypeEqualTo(2);
+		logExample.createCriteria().andOrderIdEqualTo(dbOrder.getId()).andTypeEqualTo(2).andStatusEqualTo(1);
 		List<OrderPayLog> refundLogList = orderPayLogMapper.selectByExample(logExample);
 		if(CollectionUtils.isEmpty(refundLogList)) {
-			throw new Exception("申请退款的支付流水不存在");
-		}
-		if(refundLogList.size() !=1 && !refundLogList.get(0).getStatus().equals(1)) {
-			throw new Exception(String.format("存在多个退款支付流水或申请退款的支付流水状态非初始化：%s", refundLogList.get(0).getStatus()));
+			throw new Exception("申请退款且状态是初始化的支付流水不存在");
 		}
 		
 		//封装退款参数
@@ -558,69 +555,78 @@ public class MOrderService{
 		refundOrderParam.setOrderNo(listPayLog.get(0).getTrandNo()); //原交易订单号
 		
 		//调用支付网关退款
-		RefundOrderResponse response = paymentService.refundOrder(refundOrderParam);
-		
-		if(null != response && response.getCode().equals("0000") && response.getReferenceId()!=null){ //退款成功
-			//退款流水更新状态
-			refundSucess(orderParam, dbOrder, call, logExample);
-
-		}else{ //退款状态不确定，定义为退款中
-			return updatePaystatusRefunding(orderParam, output, dbOrder,
-					call, logExample);
+		RefundOrderResponse response = null;
+		try {
+			response = paymentService.refundOrder(refundOrderParam);
+		} catch (Exception e) {
+			logger.error("支付网关申请退款异常:" + refundLogList.get(0).getTrandNo(), e);
 		}
 		
-		//积分返还
-		returnPoint(dbOrder);
+		logger.info(String.format("orderNo:s%, 网关申请退款, 返回:s%", refundLogList.get(0).getTrandNo(), JsonUtils.toJsonString(response)));
 		
-		//更新库存
-		final ProductSkuBean bean = updateStock(orderParam, output);
-		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-			return output;
-		}
+		return updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
 		
-		//发送退款短信
-		taskExecutor.execute(new Runnable() {
-			@Override
-			public void run() {
-				
-				SmsMessageReq messageReq = new SmsMessageReq();
-				Map<String, String> params = new HashMap<String, String>();
-				if(dbOrder.getPoint()>0){
-					messageReq.setPhone(dbOrder.getMobile());
-					params.put("orderCode", dbOrder.getOrderNo());
-					params.put("name", bean.getTitle());
-					params.put("money", dbOrder.getPayMoney()+"");
-					params.put("jf",dbOrder.getPoint()+"");
-					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
-				}else{
-					params.remove("jf");
-					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
-				}
-				Boolean res=sendService.sendMessage(messageReq);
-				
-				//记录短信日志
-				SmsLog smslog=new SmsLog();
-				smslog.setCreateTime(new Date());
-				smslog.setIsSuccess(res==true?1:0);
-				smslog.setContent(bean.getTitle());
-				smslog.setObjectNo(dbOrder.getOrderNo());
-				smslog.setPhone(dbOrder.getMobile());
-				smslog.setUpdateTime(new Date());
-				smsLogMapper.insertSelective(smslog);
-				
-			}
-		});
-		
-		MOperateLogParam paramlog=new MOperateLogParam();
-		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
-		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUserName(orderParam.getOperateUsername());
-		paramlog.setOrderCode(orderParam.getOrderNo());
-		paramlog.setPlateForm(orderParam.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
-		operateLogService.saveOperateLog(paramlog);		
-		
-		return output;
+//		if(null != response && response.getCode().equals("0000") && response.getReferenceId()!=null){ //退款成功
+//			//退款流水更新状态
+//			refundSucess(orderParam, dbOrder, call, logExample);
+//
+//		}else{ //退款状态不确定，定义为退款中
+//			return updatePaystatusRefunding(orderParam, output, dbOrder,
+//					call, logExample);
+//		}
+//		
+//		//积分返还
+//		returnPoint(dbOrder);
+//		
+//		//更新库存
+//		final ProductSkuBean bean = updateStock(orderParam, output);
+//		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+//			return output;
+//		}
+//		
+//		//发送退款短信
+//		taskExecutor.execute(new Runnable() {
+//			@Override
+//			public void run() {
+//				
+//				SmsMessageReq messageReq = new SmsMessageReq();
+//				Map<String, String> params = new HashMap<String, String>();
+//				if(dbOrder.getPoint()>0){
+//					messageReq.setPhone(dbOrder.getMobile());
+//					params.put("orderCode", dbOrder.getOrderNo());
+//					params.put("name", bean.getTitle());
+//					params.put("money", dbOrder.getPayMoney()+"");
+//					params.put("jf",dbOrder.getPoint()+"");
+//					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
+//				}else{
+//					params.remove("jf");
+//					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
+//				}
+//				Boolean res=sendService.sendMessage(messageReq);
+//				
+//				//记录短信日志
+//				SmsLog smslog=new SmsLog();
+//				smslog.setCreateTime(new Date());
+//				smslog.setIsSuccess(res==true?1:0);
+//				smslog.setContent(bean.getTitle());
+//				smslog.setObjectNo(dbOrder.getOrderNo());
+//				smslog.setPhone(dbOrder.getMobile());
+//				smslog.setUpdateTime(new Date());
+//				smsLogMapper.insertSelective(smslog);
+//				
+//			}
+//		});
+//		
+//		MOperateLogParam paramlog=new MOperateLogParam();
+//		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
+//		paramlog.setOperateUserid(orderParam.getOperateUserid());
+//		paramlog.setOperateUserName(orderParam.getOperateUsername());
+//		paramlog.setOrderCode(orderParam.getOrderNo());
+//		paramlog.setPlateForm(orderParam.getPlateForm());
+//		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
+//		operateLogService.saveOperateLog(paramlog);		
+//		
+//		return output;
 	}
 
 
@@ -645,20 +651,20 @@ public class MOrderService{
 			final MOrderParam orderParam, ResultVo<Object> output,
 			final Order dbOrder, CallMethod<Order> call,
 			OrderPayLogExample logExample) throws Exception {
-		OrderPayLog payLog=new OrderPayLog();
+		/*OrderPayLog payLog=new OrderPayLog();
 		payLog.setStatus(3);
 		payLog.setPoint(dbOrder.getPoint());
-		orderPayLogMapper.updateByExampleSelective(payLog, logExample);
-		//返回退款错误的码
-		output.setResultCode(getClass(), MsgCode.GATEWAY_ERROR.getMsgCode());
-		output.setResultMsg(MsgCode.GATEWAY_ERROR.getMessage());
+		orderPayLogMapper.updateByExampleSelective(payLog, logExample);*/
+		//一律看成请求成功，具体结果看job同步结果
+		output.setResultCode(getClass(), MsgCode.REFUND_HANDLING.getMsgCode());
+		output.setResultMsg(MsgCode.REFUND_HANDLING.getMessage());
 		
 		//更新为退款中
 		Order order = new Order();
 		order.setUpTime(new Date());
 		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_10);//退款中
 		updateOrderStatusByNo(order, call);
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_10, "退款操作", "退款失败，OTA退款中", 0,ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode());
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_10, "退款操作", "OTA退款中", 0,ViewStatusEnum.VIEW_STATUS_GATE_REFUNDING.getCode());
 		return output;
 	}
 

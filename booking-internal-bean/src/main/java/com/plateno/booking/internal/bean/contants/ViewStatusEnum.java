@@ -14,7 +14,9 @@ public enum ViewStatusEnum {
 	VIEW_STATUS_RECEI(20,"已收货"),
 	VIEW_STATUS_WATIDELIVER(22,"待发货"),
 	VIEW_STATUS_COMPLETE(21,"已完成"),
-	VIEW_STATUS_PAYFAIL(23,"支付失败");
+	VIEW_STATUS_PAYFAIL(23,"支付失败"),
+	VIEW_STATUS_GATE_REFUNDING(24,"退款中"),
+	;
 	
 	private Integer code;
 	private String codeName;

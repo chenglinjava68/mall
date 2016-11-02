@@ -2,21 +2,30 @@ package com.plateno.booking.internal.job.order.abnormalSweepJob.service;
 
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
+import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
+import com.plateno.booking.internal.base.pojo.OrderProduct;
+import com.plateno.booking.internal.base.pojo.OrderProductExample;
+import com.plateno.booking.internal.base.pojo.SmsLog;
+import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
@@ -24,10 +33,14 @@ import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
+import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
+import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.sms.SMSSendService;
+import com.plateno.booking.internal.sms.model.SmsMessageReq;
 
 @Service
 public class MallExceptionFlowService {
@@ -52,6 +65,21 @@ public class MallExceptionFlowService {
 	
 	@Autowired
 	private OrderPayLogMapper orderPayLogMapper;
+	
+	@Autowired
+	private MallGoodsService mallGoodsService;
+	
+	@Autowired
+	private OrderProductMapper orderProductMapper;
+	
+	@Autowired
+	private TaskExecutor taskExecutor;
+	
+	@Autowired
+	private SMSSendService sendService;
+	
+	@Autowired
+	private SmsLogMapper smsLogMapper;
 
 	
 	@SuppressWarnings("unchecked")
@@ -172,24 +200,77 @@ public class MallExceptionFlowService {
 		
 		Order record = new Order();
 		record.setRefundSuccesstime(new Date());
+		String orderNo = order.getOrderNo();
 		if(success){
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
+			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
+			//更新账单状态
+			orderService.updateOrderStatusByNo(record, orderNo);
+			
 			//退款归还下单积分
 			returnPoint(order);
 			
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
-			//更新账单状态
-			orderService.updateOrderStatusByNo(record, order.getOrderNo());
+			OrderProduct productByOrderNo = getProductByOrderNo(orderNo);
+			if(productByOrderNo == null) {
+				logger.error(String.format("orderNo:s%, 退款退库存失败, 找不到购买的商品信息", orderNo));
+			} else {
+				//更新库存
+				logger.info(String.format("orderNo:s%， 退还库存，skuid:s%, count:s%", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
+				if(!modifyStock){
+					logger.error(String.format("orderNo:s%, 调用商品服务失败", orderNo));
+					LogUtils.sysLoggerInfo(String.format("orderNo:s%, 调用商品服务失败", orderNo));
+				}
+				
+				final Order dbOrder = order;
+				final OrderProduct product = productByOrderNo;
+				//发送退款短信
+				taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						
+						SmsMessageReq messageReq = new SmsMessageReq();
+						Map<String, String> params = new HashMap<String, String>();
+						if(dbOrder.getPoint() > 0){
+							messageReq.setPhone(dbOrder.getMobile());
+							params.put("orderCode", dbOrder.getOrderNo());
+							params.put("name", product.getProductName());
+							params.put("money", dbOrder.getPayMoney()+"");
+							params.put("jf",dbOrder.getPoint()+"");
+							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
+						}else{
+							params.remove("jf");
+							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
+						}
+						Boolean res=sendService.sendMessage(messageReq);
+						
+						//记录短信日志
+						SmsLog smslog=new SmsLog();
+						smslog.setCreateTime(new Date());
+						smslog.setIsSuccess(res==true?1:0);
+						smslog.setContent(product.getProductName());
+						smslog.setObjectNo(dbOrder.getOrderNo());
+						smslog.setPhone(dbOrder.getMobile());
+						smslog.setUpdateTime(new Date());
+						smsLogMapper.insertSelective(smslog);
+						
+					}
+				});
+			}
 		}else if(fail){
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
 			record.setRefundFailReason("网关退款失败");
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
 			//更新账单状态
-			orderService.updateOrderStatusByNo(record, order.getOrderNo());
+			orderService.updateOrderStatusByNo(record, orderNo);
 		}
 	  }
 
 
+	/**
+	 * 返还积分
+	 * @param order
+	 */
 	private void returnPoint(Order order) {
 		if(order.getPoint()>0){
 			ValueBean vb=new ValueBean();
@@ -199,6 +280,23 @@ public class MallExceptionFlowService {
 			vb.setChannelid(order.getChanelid());
 			pointService.mallAddPoint(vb);
 		}
+	}
+	
+	/**
+	 * 获取订单的商品信息
+	 * @param orderNo
+	 * @return
+	 */
+	public OrderProduct getProductByOrderNo(String orderNo) {
+		OrderProductExample orderProductExample=new OrderProductExample();
+		orderProductExample.createCriteria().andOrderNoEqualTo(orderNo);
+		@SuppressWarnings("unchecked")
+		List<OrderProduct> productOrderList = orderProductMapper.selectByExample(orderProductExample);
+		if(CollectionUtils.isEmpty(productOrderList)) {
+			return null;
+		}
+		
+		return productOrderList.get(0);
 	}
 	
 	
