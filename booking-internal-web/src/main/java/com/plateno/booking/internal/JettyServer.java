@@ -4,13 +4,16 @@ import java.net.InetSocketAddress;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import com.alibaba.druid.filter.Filter;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.common.configload.ConfigLoader;
+import com.plateno.booking.internal.filter.LogMDCFilter;
 
 
 
@@ -33,6 +36,11 @@ public class JettyServer {
 			DispatcherServlet servlet = new DispatcherServlet();
 			servlet.setContextConfigLocation("classpath:applicationContext.xml");
 			context.addServlet(new ServletHolder(servlet),"/");
+			
+			LogMDCFilter logMDCFilter = new LogMDCFilter();
+			FilterHolder holder = new FilterHolder(logMDCFilter);
+			context.addFilter(holder , "/*", null);
+			
 			server.setHandler(context);
 			server.start();
 			
