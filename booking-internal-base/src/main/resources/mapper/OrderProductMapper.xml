@@ -15,6 +15,8 @@
     <result column="point" property="point" jdbcType="INTEGER" />
     <result column="sell_strategy" property="sellStrategy" jdbcType="INTEGER" />
     <result column="dis_images" property="disImages" jdbcType="VARCHAR" />
+    <result column="price_strategy" property="priceStrategy" jdbcType="TINYINT" />
+    <result column="price_strategy_desc" property="priceStrategyDesc" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -76,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_no, skuid, sku_count, price, product_id, product_name, product_property, 
-    create_time, up_time, point, sell_strategy, dis_images
+    create_time, up_time, point, sell_strategy, dis_images, price_strategy, price_strategy_desc
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderProductExample" >
     select
@@ -115,12 +117,12 @@
     insert into m_order_product (order_no, skuid, sku_count, 
       price, product_id, product_name, 
       product_property, create_time, up_time, 
-      point, sell_strategy, dis_images
+      point, sell_strategy, dis_images, price_strategy, price_strategy_desc
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{skuid,jdbcType=INTEGER}, #{skuCount,jdbcType=INTEGER}, 
       #{price,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, 
       #{productProperty,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP}, 
-      #{point,jdbcType=INTEGER}, #{sellStrategy,jdbcType=INTEGER}, #{disImages,jdbcType=VARCHAR}
+      #{point,jdbcType=INTEGER}, #{sellStrategy,jdbcType=INTEGER}, #{disImages,jdbcType=VARCHAR}, #{priceStrategy,jdbcType=TINYINT}, #{priceStrategyDesc,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.OrderProduct" >
@@ -165,6 +167,12 @@
       <if test="disImages != null" >
         dis_images,
       </if>
+      <if test="priceStrategy != null" >
+        price_strategy,
+      </if>
+      <if test="priceStrategyDesc != null" >
+        price_strategy_desc,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -202,6 +210,12 @@
       </if>
       <if test="disImages != null" >
         #{disImages,jdbcType=VARCHAR},
+      </if>
+      <if test="priceStrategy != null" >
+        #{priceStrategy,jdbcType=INTEGER},
+      </if>
+      <if test="priceStrategyDesc != null" >
+        #{priceStrategyDesc,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>

@@ -438,10 +438,15 @@ public class MOrderService{
 			op.setSkuid(book.getGoodsId().intValue());
 			op.setCreateTime(new Date());
 			op.setUpTime(new Date());
-			if(pskubean.getSellStrategy()==2)	op.setPoint(pskubean.getFavorPoints());
+			if(pskubean.getSellStrategy()==2) {
+				op.setPoint(pskubean.getFavorPoints());
+			} else {
+				op.setPoint(0);
+			}
 			op.setSellStrategy(pskubean.getSellStrategy());
 			op.setDisImages(pskubean.getImgPath());
-			
+			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
+			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
 			
 			MLogistics logistics=new MLogistics();
 			logistics.setOrderNo(orderNo);

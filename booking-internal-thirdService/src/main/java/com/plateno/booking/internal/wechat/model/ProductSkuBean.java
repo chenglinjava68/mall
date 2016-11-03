@@ -37,6 +37,15 @@ public class ProductSkuBean implements java.io.Serializable {
 	private Integer status; //1 上架 2下架 状态为2，禁止下单
 	
 	/**
+	 * 价格策略	1 默认价格 2 促销价
+	 */
+	private Integer priceStrategy;
+	/**
+	 * 价格策略名称
+	 */
+	private String priceName;
+	
+	/**
 	 * 渠道号
 	 */
 	private Integer channelId; 
@@ -63,6 +72,22 @@ public class ProductSkuBean implements java.io.Serializable {
 
 	public void setImgPath(String imgPath) {
 		this.imgPath = imgPath;
+	}
+
+	public Integer getPriceStrategy() {
+		return priceStrategy;
+	}
+
+	public void setPriceStrategy(Integer priceStrategy) {
+		this.priceStrategy = priceStrategy;
+	}
+
+	public String getPriceName() {
+		return priceName;
+	}
+
+	public void setPriceName(String priceName) {
+		this.priceName = priceName;
 	}
 
 	public static class  SkuPropertyInfos implements java.io.Serializable{
@@ -183,6 +208,18 @@ public class ProductSkuBean implements java.io.Serializable {
 	public void setStatus(Integer status) {
 		this.status = status;
 	}
-	
-	
+
+	@Override
+	public String toString() {
+		return "ProductSkuBean [skuPropertyInfos=" + skuPropertyInfos
+				+ ", productId=" + productId + ", title=" + title
+				+ ", category=" + category + ", properties=" + properties
+				+ ", expressFee=" + expressFee + ", marketPrice=" + marketPrice
+				+ ", regularPrice=" + regularPrice + ", favorPrice="
+				+ favorPrice + ", favorPoints=" + favorPoints + ", imgPath="
+				+ imgPath + ", sellStrategy=" + sellStrategy + ", stock="
+				+ stock + ", status=" + status + ", priceStrategy="
+				+ priceStrategy + ", priceName=" + priceName + ", channelId="
+				+ channelId + "]";
+	}
 }

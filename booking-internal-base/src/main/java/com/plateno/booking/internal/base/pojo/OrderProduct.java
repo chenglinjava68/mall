@@ -29,10 +29,36 @@ public class OrderProduct implements Serializable {
     private Integer sellStrategy;
 
     private String disImages;
+    
+    /**
+     * 价格策略, 1-默认价格，2-促销价
+     */
+    private Integer priceStrategy;
+    
+    /**
+     * 价格策略描述
+     */
+    private String priceStrategyDesc;
 
     private static final long serialVersionUID = 1L;
 
-    public Integer getId() {
+    public Integer getPriceStrategy() {
+		return priceStrategy;
+	}
+
+	public void setPriceStrategy(Integer priceStrategy) {
+		this.priceStrategy = priceStrategy;
+	}
+
+	public String getPriceStrategyDesc() {
+		return priceStrategyDesc;
+	}
+
+	public void setPriceStrategyDesc(String priceStrategyDesc) {
+		this.priceStrategyDesc = priceStrategyDesc;
+	}
+
+	public Integer getId() {
         return id;
     }
 
