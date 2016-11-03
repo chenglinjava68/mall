@@ -10,7 +10,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
 
-import com.alibaba.druid.filter.Filter;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.common.configload.ConfigLoader;
 import com.plateno.booking.internal.filter.LogMDCFilter;

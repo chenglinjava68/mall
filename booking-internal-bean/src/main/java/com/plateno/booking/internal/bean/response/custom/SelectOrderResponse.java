@@ -32,6 +32,16 @@ public class SelectOrderResponse implements java.io.Serializable{
 	
 	private Integer resource;
 	
+	/**
+	 * 实际支付的金额
+	 */
+	private int payMoney;
+	
+	/**
+	 * 退款金额（如果已经生成退款金额，就是实际退款的金额，否则是可以退款的金额）
+	 */
+	private int refundAmount;
+	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -144,8 +154,19 @@ public class SelectOrderResponse implements java.io.Serializable{
 		this.disImage = disImage;
 	}
 
-	
-	
-	
+	public int getPayMoney() {
+		return payMoney;
+	}
 
+	public void setPayMoney(int payMoney) {
+		this.payMoney = payMoney;
+	}
+
+	public int getRefundAmount() {
+		return refundAmount;
+	}
+
+	public void setRefundAmount(int refundAmount) {
+		this.refundAmount = refundAmount;
+	}
 }

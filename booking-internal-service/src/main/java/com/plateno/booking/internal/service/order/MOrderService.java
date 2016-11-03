@@ -204,6 +204,19 @@ public class MOrderService{
 		sc.setMobile(order.getMobile());
 		sc.setPayType(order.getPayType());
 		sc.setCreateTime(order.getCreateTime().getTime());
+		
+		sc.setPayMoney(order.getPayMoney());
+		
+		//退款金额（如果已经生成退款金额，就是实际退款的金额，否则是可以退款的金额）
+		int refundAmount = 0;
+		if(order.getRefundAmount() != null && order.getRefundAmount() > 0) {
+			refundAmount = order.getRefundAmount();
+		} else {
+			refundAmount = order.getPayMoney();
+		}
+		
+		sc.setRefundAmount(refundAmount);
+		
 		list.add(sc);
 	}
 	

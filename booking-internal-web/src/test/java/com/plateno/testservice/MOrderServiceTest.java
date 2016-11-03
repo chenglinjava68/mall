@@ -83,7 +83,7 @@ public class MOrderServiceTest {
 		
 		
 		SelectOrderParam param = new SelectOrderParam();
-		param.setChannelId(2);
+		param.setChannelId(1);
 		param.setRequstPlatenoform(3);
 		
 		ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage = service.queryOrderByPage(param);
