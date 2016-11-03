@@ -89,7 +89,7 @@ public class MApiService {
 		}
 		
 		if(addBookingParam.getSellStrategy().equals(1)){
-			if(addBookingParam.getShippingType().equals(1)){
+			/*if(addBookingParam.getShippingType().equals(1)){
 				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()))){
 					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
 					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
@@ -101,7 +101,36 @@ public class MApiService {
 					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
 					return output;
 				}
+			}*/
+			
+			//pskubean.getExpressFee() > 0 代表需要邮费
+			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
+				if(!addBookingParam.getShippingType().equals(2)) {
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
+					return output;
+				}
+				
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()+pskubean.getExpressFee()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
+			} else {
+				
+				if(!addBookingParam.getShippingType().equals(1)) {
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
+					return output;
+				}
+				
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
 			}
+			
 		}else{
 			if(pointService.getPointSum(addBookingParam.getMemberId())<addBookingParam.getPoint()){
 				output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
@@ -110,7 +139,7 @@ public class MApiService {
 			}
 			
 			//判断金额总金额是否对应
-			if(addBookingParam.getShippingType().equals(1)){
+			/*if(addBookingParam.getShippingType().equals(1)){
 				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()))){
 					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
 					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
@@ -118,6 +147,34 @@ public class MApiService {
 				}
 			}else{
 				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()+pskubean.getExpressFee()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
+			}*/
+			
+			//pskubean.getExpressFee() > 0 代表需要邮费
+			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
+				if(!addBookingParam.getShippingType().equals(2)) {
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
+					return output;
+				}
+				
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()+pskubean.getExpressFee()))){
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+					return output;
+				}
+			} else {
+				
+				if(!addBookingParam.getShippingType().equals(1)) {
+					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
+					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
+					return output;
+				}
+				
+				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()))){
 					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
 					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
 					return output;
