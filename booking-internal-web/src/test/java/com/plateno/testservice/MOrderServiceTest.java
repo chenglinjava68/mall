@@ -1,7 +1,9 @@
 package com.plateno.testservice;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -85,6 +87,9 @@ public class MOrderServiceTest {
 		SelectOrderParam param = new SelectOrderParam();
 		param.setChannelId(1);
 		param.setRequstPlatenoform(3);
+		List<Integer> statusList = new ArrayList<>();
+		statusList.add(2);
+		param.setStatusList(statusList);
 		
 		ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage = service.queryOrderByPage(param);
 		System.out.println(queryOrderByPage);

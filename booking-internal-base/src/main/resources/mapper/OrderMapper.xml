@@ -595,6 +595,13 @@
      <if test="record.channelId != null" >
    	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
      </if>
+     <if test="record.statusList != null and record.statusList.size() > 0">
+		<![CDATA[ and pay_status in  ]]>
+		<foreach item="item" index="index" collection="record.statusList"
+			open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</if>
      
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
@@ -633,6 +640,14 @@
       <if test="record.channelId != null" >
    	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
      </if>
+     
+     <if test="record.statusList != null and record.statusList.size() > 0">
+		<![CDATA[ and pay_status in  ]]>
+		<foreach item="item" index="index" collection="record.statusList"
+			open="(" separator="," close=")">
+			#{item}
+		</foreach>
+	</if>
 				
   </select>
   

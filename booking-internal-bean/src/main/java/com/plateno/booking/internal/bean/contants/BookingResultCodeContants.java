@@ -176,6 +176,11 @@ public interface BookingResultCodeContants {
 	public final static Integer PAY_STATUS_9 = 9;
 	public final static Integer PAY_STATUS_10 = 10;
 	public final static Integer PAY_STATUS_11 = 11;
+	
+	/**
+	 * 支付失败的状态过期，支付失败 --> 待付款
+	 */
+	@Deprecated
 	public final static Integer PAY_STATUS_12 = 12;
 	public final static Integer PAY_STATUS_13 = 13;
 	

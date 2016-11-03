@@ -1,11 +1,14 @@
 package com.plateno.rpctest;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
+import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.common.util.http.HttpUtils;
@@ -18,7 +21,7 @@ import com.plateno.booking.internal.common.util.json.JsonUtils;
  */
 public class MallRpcTest {
 	
-	private final static String BASE_URL = "---http://localhost:9970/booking-internal-web";
+	private final static String BASE_URL = "http://localhost:9970/booking-internal-web";
 	
 	/**
 	 * 下单
@@ -80,6 +83,25 @@ public class MallRpcTest {
 		param.setOrderNo("O1474959953609872686");
 		
 		String url = BASE_URL+ "/mOrderService/consentRefund";
+		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));
+		
+		System.out.println("返 结果：" + response);
+	}
+	
+	/**
+	 *  拉起支付
+	 * @throws IOException
+	 */
+	@Test
+	public void testQueryOrderByPage() throws IOException {
+		SelectOrderParam param = new SelectOrderParam();
+		param.setChannelId(1);
+		param.setRequstPlatenoform(3);
+		List<Integer> statusList = new ArrayList<>();
+		statusList.add(3);
+		param.setStatusList(statusList);
+		
+		String url = BASE_URL+ "/mOrderService/queryOrderByPage";
 		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));
 		
 		System.out.println("返 结果：" + response);

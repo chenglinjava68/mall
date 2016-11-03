@@ -141,7 +141,7 @@ public class PayService {
 			
 			//更新订单的状态,支付失败
 			Order order = new Order();
-			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_12);
+			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			order.setUpTime(new Date());
 			List<Integer> list = new ArrayList<>(1);
 			list.add(BookingResultCodeContants.PAY_STATUS_11);
@@ -162,8 +162,8 @@ public class PayService {
 			orderPayLogMapper.updateByExampleSelective(record, example);
 		} else {
 			logger.info(String.format("支付网关支付回调，非最终状态, orderNo:%s, code:%s", notifyReturn.getOrderNo(), notifyReturn.getCode()));
+			throw new RuntimeException("支付网关支付回调，非最终状态");
 		}
-		
 	}
 	
 	

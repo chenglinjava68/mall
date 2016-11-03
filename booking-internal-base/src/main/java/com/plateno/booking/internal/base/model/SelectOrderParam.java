@@ -1,5 +1,8 @@
 package com.plateno.booking.internal.base.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class SelectOrderParam implements java.io.Serializable{
 
@@ -24,6 +27,11 @@ public class SelectOrderParam implements java.io.Serializable{
 	private Integer pageNo;
 
 	private Integer pageNumber;
+	
+	/**
+	 * 多个状态
+	 */
+	private List<Integer> statusList = new ArrayList<>();
 	
 	/**
 	 * 供应商的渠道
@@ -127,6 +135,14 @@ public class SelectOrderParam implements java.io.Serializable{
 
 	public void setChannelId(Integer channelId) {
 		this.channelId = channelId;
+	}
+
+	public List<Integer> getStatusList() {
+		return statusList;
+	}
+
+	public void setStatusList(List<Integer> statusList) {
+		this.statusList = statusList;
 	}
 	
 }

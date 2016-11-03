@@ -347,8 +347,8 @@ public class MallExceptionFlowService {
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
 		}else{
-			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_12);
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_12, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
 		}
 		//更新账单状态
 		orderService.updateOrderStatusByNo(record, order.getOrderNo());
