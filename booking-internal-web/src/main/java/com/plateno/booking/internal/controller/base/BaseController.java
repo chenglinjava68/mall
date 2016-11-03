@@ -52,7 +52,7 @@ public class BaseController{
 		}else{
 			response.setResultMsg(e.getMessage());
 		}
-		log.error(String.format("请求异常[%s]",e));
+		log.error(String.format("请求异常[%s]",e), e);
 		return response;
 	}
 	
