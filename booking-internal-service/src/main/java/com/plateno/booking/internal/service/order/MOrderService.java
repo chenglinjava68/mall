@@ -582,7 +582,18 @@ public class MOrderService{
 		
 		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", refundLogList.get(0).getTrandNo(), JsonUtils.toJsonString(response)));
 		
-		return updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
+		MOperateLogParam paramlog=new MOperateLogParam();
+		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
+		paramlog.setOperateUserid(orderParam.getOperateUserid());
+		paramlog.setOperateUserName(orderParam.getOperateUsername());
+		paramlog.setOrderCode(orderParam.getOrderNo());
+		paramlog.setPlateForm(orderParam.getPlateForm());
+		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
+		operateLogService.saveOperateLog(paramlog);		
+
+		output = updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
+		
+		return output;
 		
 //		if(null != response && response.getCode().equals("0000") && response.getReferenceId()!=null){ //退款成功
 //			//退款流水更新状态
