@@ -1233,25 +1233,18 @@ public class MOrderService{
 			orderInfo.setOrderDetailRemark("已完成，已确认收货，欢迎下次购买");
 		}else if(order.getPayStatus().equals(6)){
 			orderInfo.setOrderDetailRemark("退款中，您的退款正在申请中");
-			orderInfo.setRefundTime(order.getRefundTime().getTime());
 		}else if(order.getPayStatus().equals(7)){
 			orderInfo.setOrderDetailRemark("已退款，退款金额￥"+order.getPayMoney()+"元,+积分,"+order.getPoint()+"已原路退回您支付时使用的账户");
-			orderInfo.setRefundAmount(order.getPayMoney());
-			orderInfo.setRefundTime(order.getRefundTime() == null ? 0 : order.getRefundTime().getTime());
-			orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? 0 : order.getRefundSuccesstime().getTime());
 		}else if(order.getPayStatus().equals(8) || order.getPayStatus().equals(BookingConstants.PAY_STATUS_13)){
 			orderInfo.setOrderDetailRemark("审核不通过，如有问题，请联系铂涛会客服");
-			orderInfo.setFailReason(order.getRefundFailReason());
-			orderInfo.setRefundTime(order.getRefundTime() == null ? 0 : order.getRefundTime().getTime());
-			orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? 0 : order.getRefundSuccesstime().getTime());
-			orderInfo.setRefundAmount(order.getPayMoney());
 		}else if(order.getPayStatus().equals(BookingConstants.PAY_STATUS_13)){ //退款失败
 			orderInfo.setOrderDetailRemark("审核失败，如有问题，请联系铂涛会客服");
-			orderInfo.setFailReason(order.getRefundFailReason());
-			orderInfo.setRefundTime(order.getRefundTime() == null ? 0 : order.getRefundTime().getTime());
-			orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? 0 : order.getRefundSuccesstime().getTime());
-			orderInfo.setRefundAmount(order.getPayMoney());
 		}
+		orderInfo.setFailReason(order.getRefundFailReason());
+		orderInfo.setRefundTime(order.getRefundTime() == null ? null : order.getRefundTime().getTime());
+		orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? null : order.getRefundSuccesstime().getTime());
+		orderInfo.setRefundAmount(order.getPayMoney());
+		orderInfo.setRefundReason(order.getRefundReason());
 		
 		orderDetail.setOrderInfo(orderInfo);
 		return orderDetail;

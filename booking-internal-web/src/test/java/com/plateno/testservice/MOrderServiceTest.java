@@ -66,7 +66,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1477969364866126107");
+		orderParam.setOrderNo("O1478144276890105203");
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
 	}
@@ -75,7 +75,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("10");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("9");
 		System.out.println(productAndskuStock);
 		
 	}
