@@ -79,7 +79,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> cancelOrder(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("取消订单,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		return mOrderService.cancelOrder(param);
+		return mOrderService.cancelOrderLock(param);
 	}
 	
 	

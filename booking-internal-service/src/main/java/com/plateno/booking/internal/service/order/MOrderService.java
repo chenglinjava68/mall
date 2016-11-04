@@ -66,6 +66,8 @@ import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResp
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
+import com.plateno.booking.internal.common.util.redis.RedisLock;
+import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
@@ -739,8 +741,32 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@Transactional
-	public ResultVo<Object> cancelOrder(final MOrderParam orderParam) throws Exception{
+	@SuppressWarnings("unchecked")
+	@Transactional(rollbackFor=OrderException.class)
+	public ResultVo<Object> cancelOrderLock(final MOrderParam orderParam) throws Exception{
+		
+		String lockName = "MALL_CANEL_ORDER_" + orderParam.getOrderNo();
+		
+		Holder holder = new RedisLock.Holder() {
+			@Override
+			public Object exec() throws Exception {
+				//取消订单
+				return cancelOrder(orderParam);
+			}
+		};
+		
+		return (ResultVo<Object>) RedisLock.lockExec(lockName, holder );
+	}
+
+
+	/**
+	 * 取消订单
+	 * @param orderParam
+	 * @return
+	 * @throws Exception
+	 */
+	private ResultVo<Object> cancelOrder(final MOrderParam orderParam)
+			throws Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
 		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
@@ -767,12 +793,20 @@ public class MOrderService{
 		
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, "取消操作", "取消成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode());
 
+		//退还积分
 		if(listOrder.get(0).getPoint()>0){
 			ValueBean vb=new ValueBean();
 			vb.setPointvalue(listOrder.get(0).getPoint());
 			vb.setMebId(listOrder.get(0).getMemberId());
 			vb.setTrandNo(listOrder.get(0).getOrderNo());
 			pointService.mallAddPoint(vb);
+		}
+		
+		//退还库存
+		try {
+			updateStock(orderParam, output);
+		} catch (Exception e) {
+			logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
 		}
 
 		return output;

@@ -138,7 +138,13 @@ public class MallGoodsService {
 	}
 	
 	
-
+	/**
+	 * 退还库存
+	 * @param goodId
+	 * @param quantity
+	 * @return
+	 * @throws OrderException
+	 */
 	public boolean modifyStock(String goodId,Integer quantity) throws OrderException {
 		String response = "";
 		try {

@@ -23,6 +23,12 @@
 			<version>${com.plateno.booking}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>com.plateno</groupId>
+			<artifactId>booking-internal-interceptor</artifactId>
+			<version>${com.plateno.booking}</version>
+		</dependency>
+		
 		<!-- poi -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>

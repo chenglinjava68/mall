@@ -30,6 +30,7 @@ import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
+import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
@@ -103,6 +104,9 @@ public class MallExceptionFlowService {
 			
 			returnPoint(order);
 			
+			//退还库存
+			calcelOrderReturnSku(order.getOrderNo());
+			
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_2, "已取消", "订单取消成功",0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(),"扫单job维护");
 		}
 		
@@ -115,6 +119,26 @@ public class MallExceptionFlowService {
 
 		List<Order> orderPayingList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_11);
 		handleEach(orderPayingList);
+	}
+
+	/**
+	 * 取消订单退还库存
+	 * @param orderNo
+	 * @throws OrderException
+	 */
+	private void calcelOrderReturnSku(String orderNo) throws OrderException {
+		OrderProduct productByOrderNo = getProductByOrderNo(orderNo);
+		if(productByOrderNo == null) {
+			logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
+		} else {
+			//更新库存
+			logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+			boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
+			if(!modifyStock){
+				logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+				LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+			}
+		}
 	}
 		
 	

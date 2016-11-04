@@ -138,5 +138,16 @@ public class MOrderServiceTest {
 		});
 		
 	}
+	
+	
+	@Test
+	public void testCancelOrder() throws OrderException, Exception{
+		
+		MOrderParam orderParam = new MOrderParam();
+		orderParam.setOrderNo("O1478154702609388278");
+		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
+		System.out.println(userRefund);
+		
+	}
 
 }
