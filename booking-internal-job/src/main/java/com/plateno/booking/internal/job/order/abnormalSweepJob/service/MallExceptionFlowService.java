@@ -86,18 +86,30 @@ public class MallExceptionFlowService {
 	@SuppressWarnings("unchecked")
 	public void handleException() throws Exception {
 		
+		logger.info("处理已发货订单开始...");
+		
 		//查询已发货的订单，如果大于15天则更新为已收货4==>5
 		List<Order> orderEList=orderMapper.getOrderByStatus(BookingResultCodeContants.PAY_STATUS_4, 15);
 		for(Order order:orderEList){
+			
+			logger.info(String.format("已发货-->已完成, orderNo:%s", order.getOrderNo()));
+			
 			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);
 			order.setUpTime(new Date());
 			orderMapper.updateByPrimaryKeySelective(order);
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_5, "已完成", "已完成",0,ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(),"扫单job维护");
 		}
 		
+		logger.info("处理已发货订单结束");
+		
+		logger.info("处理未支付订单开始...");
+		
 		//超过30分钟未支付 ==> 1 --> 2
 		List<Order> orderList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_1);
 		for(Order order:orderList){
+			
+			logger.info(String.format("未支付 -->取消, orderNo:%s", order.getOrderNo()));
+			
 			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
 			order.setUpTime(new Date());
 			orderMapper.updateByPrimaryKeySelective(order);
@@ -110,15 +122,26 @@ public class MallExceptionFlowService {
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_2, "已取消", "订单取消成功",0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(),"扫单job维护");
 		}
 		
+		logger.info("处理未支付订单结束");
+		
+		logger.info("处理退款中订单开始...");
+		
 		//退款中的订单
 		List<Order> orderTList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_10);
 		handleEach(orderTList);
 		
-	
+		logger.info("处理退款中订单结束");
+		
+		logger.info("处理支付中订单开始...");
+		
 		//支付中的订单
 
 		List<Order> orderPayingList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_11);
 		handleEach(orderPayingList);
+		
+		logger.info("处理支付中订单结束");
+		
+		logger.info("处理退款中订单开始...");
 	}
 
 	/**
@@ -183,6 +206,8 @@ public class MallExceptionFlowService {
 	private void handleGateWayefund(Order order)throws Exception{
 		if(!validate(order,BookingConstants.PAY_STATUS_10)) 
 			return ;
+		
+		logger.info(String.format("退款中订单处理开始, orderNo:%s", order.getOrderNo()));
 		
 		OrderPayLogExample example=new OrderPayLogExample();
 		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2);
@@ -327,6 +352,8 @@ public class MallExceptionFlowService {
 	private void handlePaying(Order order)throws Exception{
 		if(!validate(order,BookingConstants.PAY_STATUS_11)) 
 			return ;
+		
+		logger.info(String.format("支付中订单处理开始, orderNo:%s", order.getOrderNo()));
 		
 		OrderPayLogExample example=new OrderPayLogExample();
 		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1);
