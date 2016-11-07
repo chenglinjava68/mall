@@ -12,8 +12,7 @@ public class MOrderParam implements Serializable {
 	
 	private static final long serialVersionUID = 1205169223416028536L;
 	
-
-	private String memberId; // 会员 id
+	private Integer memberId; // 会员 id
 	
 	@NotNull(message = "订单编号不能为空")
 	@NotEmpty(message = "订单编号不能为空")
@@ -35,11 +34,11 @@ public class MOrderParam implements Serializable {
 	
 	
 
-	public String getMemberId() {
+	public Integer getMemberId() {
 		return memberId;
 	}
 
-	public void setMemberId(String memberId) {
+	public void setMemberId(Integer memberId) {
 		this.memberId = memberId;
 	}
 

@@ -610,6 +610,10 @@
      	<![CDATA[  AND pay_status != 9]]>
      </if>
      
+     <if test="record.memberId != null and record.memberId != ''" >
+     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
+     </if>
+     
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
         LIMIT #{record.pageNo,jdbcType=INTEGER} ,#{record.pageNumber,jdbcType=INTEGER}
@@ -663,6 +667,10 @@
      <if test="record.queryDel == null or record.queryDel == false" >
      	<![CDATA[  AND pay_status != 9]]>
      </if>
+     
+     <if test="record.memberId != null and record.memberId != ''" >
+     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
+     </if>
 				
   </select>
   
@@ -711,6 +719,14 @@
 	     where o.pay_status= #{status,jdbcType=INTEGER} and l.create_time < date_sub(now(), interval 5 MINUTE)
 	     group by o.id
 	  ]]>
+  </select>
+  
+  <select id="getOrderByNoAndMemberId" resultMap="BaseResultMap" >
+  	<![CDATA[ 
+    	select *
+    	from m_order
+     	where order_no= #{orderNo,jdbcType=VARCHAR} and member_id = #{memberId,jdbcType=INTEGER}
+  	]]>
   </select>
   
 </mapper>

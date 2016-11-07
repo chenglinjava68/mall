@@ -33,7 +33,7 @@ public class MOrderValidate {
 		}
 		
 		if(param.getRequstPlatenoform().equals(1)){
-			if ( param.getMemberId() == null || param.getMemberId()=="") {
+			if ( param.getMemberId() == null || param.getMemberId().equals("")) {
 				vo.setResultCode(getClass(), MsgCode.BAD_REQUEST_MEMBERID.getMsgCode());
 				vo.setResultMsg("会员id不能为空");
 				return vo;

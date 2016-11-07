@@ -36,5 +36,12 @@ public interface OrderMapper extends BaseMapper {
 	 */
 	List<Order> getPayingAndPayLogPre5Min(@Param("status")Integer  status);
 
+	/**
+	 * 根据订单号和会员ID查询
+	 * @param orderNo
+	 * @param orderNo
+	 * @return
+	 */
+	List<Order> getOrderByNoAndMemberId(@Param("orderNo")String orderNo, @Param("memberId")Integer memberId);
 	
 }

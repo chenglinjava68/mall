@@ -45,6 +45,7 @@ public class MallRpcTest {
 	public void testPullerPay() throws IOException {
 		MOrderParam param = new MOrderParam();
 		param.setOrderNo("O1474959953609872686");
+		param.setMemberId(121212);
 		
 		String url = BASE_URL+ "/mOrderService/pullerPay";
 		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));

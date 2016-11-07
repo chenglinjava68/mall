@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
+import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
@@ -61,6 +62,15 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<OrderDetail> getOrderDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("查询订单详情,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		if(param.getMemberId() == null) {
+			ResultVo<OrderDetail> out = new ResultVo<OrderDetail>();
+			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			out.setResultMsg("请输入会员ID");
+			return out;
+		} 
+		
 		return mOrderService.getOrderDetail(param);
 	}
 	
@@ -70,7 +80,23 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> removeOrder(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("删除订单,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		ResultVo<Object> out = needMemberId(param);
+		if(!out.success()) {
+			return out;
+		}
+		
 		return mOrderService.deleteOrder(param);
+	}
+	
+	private ResultVo<Object> needMemberId(MOrderParam param) {
+		ResultVo<Object> result = new ResultVo<Object>();
+		if(param.getMemberId() == null) {
+			result.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			result.setResultMsg("请输入会员ID");
+		} 
+		return result;
 	}
 	
 
@@ -79,6 +105,13 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> cancelOrder(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("取消订单,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		ResultVo<Object> out = needMemberId(param);
+		if(!out.success()) {
+			return out;
+		}
+		
 		return mOrderService.cancelOrderLock(param);
 	}
 	
@@ -105,6 +138,13 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> enterReceipt(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("确定收货的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		ResultVo<Object> out = needMemberId(param);
+		if(!out.success()) {
+			return out;
+		}
+		
 		return mOrderService.enterReceipt(param);
 	}
 	
@@ -114,6 +154,13 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> userRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("用户申请退款的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		ResultVo<Object> out = needMemberId(param);
+		if(!out.success()) {
+			return out;
+		}
+		
 		return mOrderService.userRefund(param);
 	}
 	
@@ -140,6 +187,13 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> pullerPay(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("拉起支付,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		ResultVo<Object> out = needMemberId(param);
+		if(!out.success()) {
+			return out;
+		}
+		
 		return payService.pullerPay(param);
 	}
 	
@@ -148,6 +202,15 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<OrderDetail> getPaySuccessDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("购买成功页面参数请求:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		
+		//必须输入会员ID
+		if(param.getMemberId() == null) {
+			ResultVo<OrderDetail> out = new ResultVo<OrderDetail>();
+			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			out.setResultMsg("请输入会员ID");
+			return out;
+		} 
+		
 		return mOrderService.getPaySuccessDetail(param);
 	}
 	
