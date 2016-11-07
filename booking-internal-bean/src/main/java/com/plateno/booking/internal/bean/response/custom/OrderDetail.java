@@ -301,6 +301,11 @@ public class OrderDetail implements java.io.Serializable{
 	public static class ProductInfo implements java.io.Serializable{
 		
 		private static final long serialVersionUID = 7221564211594276296L;
+		
+		/**
+		 * 商品ID
+		 */
+		private Integer productId;
 
 		private String productName;
 		
@@ -328,6 +333,14 @@ public class OrderDetail implements java.io.Serializable{
 
 		public Integer getPoint() {
 			return point;
+		}
+
+		public Integer getProductId() {
+			return productId;
+		}
+
+		public void setProductId(Integer productId) {
+			this.productId = productId;
 		}
 
 		public void setPoint(Integer point) {

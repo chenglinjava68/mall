@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.service.api;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,11 +9,9 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
-import com.plateno.booking.internal.bean.request.custom.OrderParam;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
-import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
@@ -25,7 +24,7 @@ import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 @Service
 public class MApiService {
 	
-	private final static Logger logger = Logger.getLogger(MApiService.class);
+	private final static Logger logger = LoggerFactory.getLogger(MApiService.class);
 	
 	@Autowired
 	private MOrderValidate morderValidate;
@@ -68,7 +67,7 @@ public class MApiService {
 		try {
 			pskubean = mallGoodsService.getProductAndskuStock(addBookingParam.getGoodsId().toString());
 		} catch (OrderException e) {
-			e.printStackTrace();
+			logger.info("查询商品信息失败", e);
 			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMsgCode());
 			output.setResultMsg(MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMessage());
 			return output;	

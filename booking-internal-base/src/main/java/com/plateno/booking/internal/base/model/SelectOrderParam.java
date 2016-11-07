@@ -34,6 +34,11 @@ public class SelectOrderParam implements java.io.Serializable{
 	private List<Integer> statusList = new ArrayList<>();
 	
 	/**
+	 * 是否查询删除的订单
+	 */
+	private Boolean queryDel = true;
+	
+	/**
 	 * 供应商的渠道
 	 */
 	private Integer channelId;
@@ -51,6 +56,14 @@ public class SelectOrderParam implements java.io.Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Boolean getQueryDel() {
+		return queryDel;
+	}
+
+	public void setQueryDel(Boolean queryDel) {
+		this.queryDel = queryDel;
 	}
 
 	public Long getBookingStartDate() {

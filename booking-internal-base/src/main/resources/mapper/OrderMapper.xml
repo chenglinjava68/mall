@@ -606,6 +606,9 @@
 	<if test="record.name != null and record.name != ''" >
    	  AND name LIKE CONCAT('%',#{record.name},'%')
      </if>
+     <if test="record.queryDel == null or record.queryDel == false" >
+     	<![CDATA[  AND pay_status != 9]]>
+     </if>
      
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
@@ -655,6 +658,10 @@
 	
 	<if test="record.name != null and record.name != ''" >
    	  AND name LIKE CONCAT('%',#{record.name},'%')
+     </if>
+     
+     <if test="record.queryDel == null or record.queryDel == false" >
+     	<![CDATA[  AND pay_status != 9]]>
      </if>
 				
   </select>

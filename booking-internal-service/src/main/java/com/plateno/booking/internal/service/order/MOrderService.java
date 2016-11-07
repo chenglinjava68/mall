@@ -161,6 +161,12 @@ public class MOrderService{
 		if(vo!=null){
 			return vo;
 		}
+		
+		//商城前端查询，不显示删除的订单
+		if(param.getRequstPlatenoform() == 1) {
+			param.setQueryDel(false);
+		}
+		
 		List<Order> orderReturns = mallOrderMapper.getPageOrders(param);
 		vo=new ResultVo<LstOrder<SelectOrderResponse>>();
 		if (CollectionUtils.isEmpty(orderReturns)){
@@ -193,7 +199,7 @@ public class MOrderService{
 		if(CollectionUtils.isNotEmpty(listProduct)){
 			sc.setGoodsName(listProduct.get(0).getProductName());
 			sc.setGoodsProperties(listProduct.get(0).getProductProperty());
-			sc.setQuatity(listProduct.size());
+			sc.setQuatity(listProduct.get(0).getSkuCount());
 			sc.setDisImage(listProduct.get(0).getDisImages());
 		}
 		sc.setPoint(order.getPoint());
@@ -1208,6 +1214,7 @@ public class MOrderService{
 		if(CollectionUtils.isNotEmpty(list)){
 			for(OrderProduct orderProduct:list){
 				ProductInfo productInfo=new ProductInfo();
+				productInfo.setProductId(orderProduct.getProductId());
 				productInfo.setCount(orderProduct.getSkuCount());
 				productInfo.setPrice(orderProduct.getPrice());
 				productInfo.setProductName(orderProduct.getProductName());
