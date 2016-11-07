@@ -691,4 +691,19 @@
 		GROUP BY d.product_id
 		
   </select>
+  
+  <select id="getPayingAndPayLogPre5Min" resultMap="BaseResultMap" >
+	  <![CDATA[ 
+	    select o.*
+	    from 
+	    	m_order o 
+	    left join 
+	    	order_pay_log l 
+	    on 
+	    	o.id = l.order_id and l.status = 1
+	     where o.pay_status= #{status,jdbcType=INTEGER} and l.create_time < date_sub(now(), interval 5 MINUTE)
+	     group by o.id
+	  ]]>
+  </select>
+  
 </mapper>

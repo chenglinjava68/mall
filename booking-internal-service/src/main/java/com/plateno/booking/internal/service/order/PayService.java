@@ -133,6 +133,7 @@ public class PayService {
 			record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
 			record.setUpTime(new Date());
 			record.setReferenceid(StringUtils.trimToEmpty(notifyReturn.getReferenceId()));
+			record.setRemark("支付成功");
 			OrderPayLogExample example = new OrderPayLogExample();
 			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
 			orderPayLogMapper.updateByExampleSelective(record, example);
@@ -157,6 +158,7 @@ public class PayService {
 			record.setStatus(BookingConstants.BILL_LOG_FAIL);
 			record.setUpTime(new Date());
 			record.setReferenceid(StringUtils.trimToEmpty(notifyReturn.getReferenceId()));
+			record.setRemark(String.format("支付失败:%s", notifyReturn.getMessage()));
 			OrderPayLogExample example = new OrderPayLogExample();
 			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
 			orderPayLogMapper.updateByExampleSelective(record, example);

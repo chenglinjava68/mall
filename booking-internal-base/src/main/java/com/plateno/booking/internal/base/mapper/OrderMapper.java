@@ -30,5 +30,11 @@ public interface OrderMapper extends BaseMapper {
 	
 	List<ProdSellAmountData> getPruSellAmountByPreDay(@Param("days")Integer  days);
 
+	/**
+	 * 查询支付中的订单，且流水在5分钟前生成（避免太快查询，支付网关还没有生成订单）
+	 * @return
+	 */
+	List<Order> getPayingAndPayLogPre5Min(@Param("status")Integer  status);
+
 	
 }

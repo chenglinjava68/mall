@@ -128,7 +128,7 @@ public class MallExceptionFlowService {
 		logger.info("处理退款中订单开始...");
 		
 		//退款中的订单
-		List<Order> orderTList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_10);
+		List<Order> orderTList=orderMapper.getOrderByStatus(BookingResultCodeContants.PAY_STATUS_10, 0);
 		handleEach(orderTList);
 		
 		logger.info("处理退款中订单结束");
@@ -137,7 +137,7 @@ public class MallExceptionFlowService {
 		
 		//支付中的订单
 
-		List<Order> orderPayingList=orderMapper.getPre30Min(BookingResultCodeContants.PAY_STATUS_11);
+		List<Order> orderPayingList=orderMapper.getPayingAndPayLogPre5Min(BookingResultCodeContants.PAY_STATUS_11);
 		handleEach(orderPayingList);
 		
 		logger.info("处理支付中订单结束");
@@ -241,6 +241,9 @@ public class MallExceptionFlowService {
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+				record.setRemark("退款成功");
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
 				orderPayLogMapper.updateByExampleSelective(record, example);
 				
 				success=true;
@@ -250,7 +253,10 @@ public class MallExceptionFlowService {
 				
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
+				record.setRemark(String.format("退款失败:%s", response.getMessage()));
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
 				orderPayLogMapper.updateByExampleSelective(record, example);
 				
 				fail = true;
@@ -385,7 +391,7 @@ public class MallExceptionFlowService {
 			//获取网关的订单状态
 			PayQueryResponse response = paymentService.payOrderQuery(orderPayLog.getTrandNo());
 			
-			logger.info(String.format("orderNo:%s, 查询支付网关支付状态:%s", order.getOrderNo()), JsonUtils.toJsonString(response));
+			logger.info("orderNo:{}, 查询支付网关支付状态:{}", order.getOrderNo(), JsonUtils.toJsonString(response));
 			
 			if (response == null || StringUtils.isBlank(response.getCode())) {
 				logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
@@ -402,6 +408,9 @@ public class MallExceptionFlowService {
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+				record.setRemark("支付成功");
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
 				orderPayLogMapper.updateByExampleSelective(record, example);
 				
 				success=true;
@@ -410,6 +419,9 @@ public class MallExceptionFlowService {
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+				record.setRemark(String.format("支付失败:%s", response.getMessage()));
 				orderPayLogMapper.updateByExampleSelective(record, example);
 			}
 		}
