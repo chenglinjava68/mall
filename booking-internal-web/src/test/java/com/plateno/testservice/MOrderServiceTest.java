@@ -85,12 +85,12 @@ public class MOrderServiceTest {
 		
 		
 		SelectOrderParam param = new SelectOrderParam();
-		param.setRequstPlatenoform(3);
+		param.setRequstPlatenoform(2);
 		/*param.setChannelId(1);
 		List<Integer> statusList = new ArrayList<>();
 		statusList.add(2);
 		param.setStatusList(statusList);*/
-		param.setName("李四");
+		param.setName("四");
 		
 		ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage = service.queryOrderByPage(param);
 		System.out.println(queryOrderByPage);
