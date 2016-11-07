@@ -35,6 +35,7 @@ import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.common.util.LogUtils;
+import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.member.PointService;
@@ -220,6 +221,9 @@ public class MallExceptionFlowService {
 			
 			//获取网关的订单状态
 			RefundQueryResponse response = paymentService.refundOrderQuery(orderPayLog.getTrandNo());
+			
+			logger.info(String.format("orderNo:%s, 查询退款状态，返回：%s", order.getOrderNo(), JsonUtils.toJsonString(response)));
+			
 			if (response == null || StringUtils.isBlank(response.getCode())) {
 				logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
 				return;
@@ -231,6 +235,9 @@ public class MallExceptionFlowService {
 			}
 			
 			if(response.getCode().equals(BookingConstants.GATEWAY_REFUND_SUCCESS_CODE)){ //退款成功
+				
+				logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
+				
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
@@ -238,6 +245,9 @@ public class MallExceptionFlowService {
 				
 				success=true;
 			}else if((response.getCode().equals(PayGateCode.REFUND_FAIL) || response.getCode().equals(PayGateCode.REQUEST_EXCEPTION))){ //退款失败
+				
+				logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
+				
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
@@ -251,6 +261,9 @@ public class MallExceptionFlowService {
 		record.setRefundSuccesstime(new Date());
 		String orderNo = order.getOrderNo();
 		if(success){
+			
+			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
+			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
 			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
 			//更新账单状态
@@ -307,6 +320,9 @@ public class MallExceptionFlowService {
 				});
 			}
 		}else if(fail){
+			
+			logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
+			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
 			record.setRefundFailReason("网关退款失败");
 			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
@@ -368,6 +384,9 @@ public class MallExceptionFlowService {
 			
 			//获取网关的订单状态
 			PayQueryResponse response = paymentService.payOrderQuery(orderPayLog.getTrandNo());
+			
+			logger.info(String.format("orderNo:%s, 查询支付网关支付状态:%s", order.getOrderNo()), JsonUtils.toJsonString(response));
+			
 			if (response == null || StringUtils.isBlank(response.getCode())) {
 				logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
 				return;
@@ -379,6 +398,7 @@ public class MallExceptionFlowService {
 			}
 				
 			if(response.getCode().equals(BookingConstants.GATEWAY_PAY_SUCCESS_CODE)){
+				logger.info(String.format("orderNo:%s, 支付成功", order.getOrderNo()));
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
@@ -386,6 +406,7 @@ public class MallExceptionFlowService {
 				
 				success=true;
 			}else{
+				logger.info(String.format("orderNo:%s, 支付失败", order.getOrderNo()));
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
