@@ -38,7 +38,20 @@ public class SelectOrderParam implements java.io.Serializable{
 	 */
 	private Integer channelId;
 	
+	/**
+	 * 下单人姓名
+	 */
+	private String name;
+	
 	private boolean showLimit = true;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 
 	public Long getBookingStartDate() {
 		return bookingStartDate;

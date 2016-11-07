@@ -602,6 +602,10 @@
 			#{item}
 		</foreach>
 	</if>
+	
+	<if test="record.name != null and record.name != ''" >
+   	  AND name = #{record.name,jdbcType=VARCHAR}
+     </if>
      
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
@@ -648,6 +652,10 @@
 			#{item}
 		</foreach>
 	</if>
+	
+	<if test="record.name != null and record.name != ''" >
+   	  AND name = #{record.name,jdbcType=VARCHAR}
+     </if>
 				
   </select>
   

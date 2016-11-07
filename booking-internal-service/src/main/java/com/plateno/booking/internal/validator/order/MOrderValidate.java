@@ -25,6 +25,13 @@ public class MOrderValidate {
 	
 	public ResultVo<LstOrder<SelectOrderResponse>> customQueryValidate(SelectOrderParam param,LstOrder<SelectOrderResponse> vos){
 		ResultVo<LstOrder<SelectOrderResponse>> vo = new ResultVo<LstOrder<SelectOrderResponse>>();
+		
+		if(param.getRequstPlatenoform() == null){
+			vo.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			vo.setResultMsg("请输入请求来源");
+			return vo;
+		}
+		
 		if(param.getRequstPlatenoform().equals(1)){
 			if ( param.getMemberId() == null || param.getMemberId()=="") {
 				vo.setResultCode(getClass(), MsgCode.BAD_REQUEST_MEMBERID.getMsgCode());
