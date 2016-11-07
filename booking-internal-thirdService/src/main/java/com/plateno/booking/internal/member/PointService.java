@@ -128,7 +128,7 @@ public class PointService {
 	public int getPointSum(Integer mebId){
 		int ree = 0;
 		try {
-			ree = mebPointServiceSoap.getPointSum(mebId, EPointState.FREEZE);
+			ree = mebPointServiceSoap.getPointSum(mebId, EPointState.USABLE);
 		}catch(Exception e){
 			logger.info(String.format("积分查询时,接口发生异常，请联系管理员:%s", e));
 		}

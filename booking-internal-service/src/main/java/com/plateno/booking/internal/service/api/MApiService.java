@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.api;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import com.plateno.booking.internal.bean.request.custom.OrderParam;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
+import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
@@ -22,6 +24,8 @@ import com.plateno.booking.internal.wechat.model.ProductSkuBean;
  */
 @Service
 public class MApiService {
+	
+	private final static Logger logger = Logger.getLogger(MApiService.class);
 	
 	@Autowired
 	private MOrderValidate morderValidate;
@@ -132,7 +136,9 @@ public class MApiService {
 			}
 			
 		}else{
-			if(pointService.getPointSum(addBookingParam.getMemberId())<addBookingParam.getPoint()){
+			int point = pointService.getPointSum(addBookingParam.getMemberId());
+			if(point < addBookingParam.getPoint()){
+				logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), point, addBookingParam.getMemberId()));
 				output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
 				output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
 				return output;
