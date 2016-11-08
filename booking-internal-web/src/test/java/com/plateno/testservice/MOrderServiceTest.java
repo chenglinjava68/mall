@@ -1,9 +1,6 @@
 package com.plateno.testservice;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
@@ -14,11 +11,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
-import com.plateno.booking.internal.base.pojo.SmsLog;
 import com.plateno.booking.internal.bean.config.Config;
+import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
+import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
@@ -87,7 +85,7 @@ public class MOrderServiceTest {
 		SelectOrderParam param = new SelectOrderParam();
 		param.setRequstPlatenoform(2);
 		param.setOrderNo("O1478499130284514088");
-		param.setMemberId("181295316");
+		//param.setMemberId("181295316");
 		/*param.setChannelId(1);
 		List<Integer> statusList = new ArrayList<>();
 		statusList.add(2);
@@ -151,6 +149,37 @@ public class MOrderServiceTest {
 		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
 		System.out.println(userRefund);
 		
+	}
+	
+	@Test
+	public void testModifyOrder() throws OrderException, Exception{
+		ModifyOrderParams modifyOrderParams = new ModifyOrderParams();
+		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_6);
+		modifyOrderParams.setOrderNo("O1478568730093888087");
+		modifyOrderParams.setRemark("测试修改状态");
+		modifyOrderParams.setOperateUserid("32323");
+		modifyOrderParams.setOperateUsername("xiaoming");
+		modifyOrderParams.setPlateForm(1);
+		ResultVo<Object> modifyOrder = service.modifyOrder(modifyOrderParams );
+		
+		if(modifyOrder.success() && modifyOrderParams.getNewStatus() == BookingConstants.PAY_STATUS_6) {
+			MOrderParam orderParam = new MOrderParam();
+			orderParam.setOrderNo(modifyOrderParams.getOrderNo());
+			orderParam.setMemberId((int)modifyOrder.getData());
+			orderParam.setRefundRemark("");
+			orderParam.setOperateUserid(modifyOrderParams.getOperateUserid());
+			orderParam.setOperateUsername(modifyOrderParams.getOperateUsername());
+			orderParam.setPlateForm(modifyOrderParams.getPlateForm());
+			
+			try {
+				ResultVo<Object> refundOrder = service.refundOrder(orderParam);
+				System.out.println(String.format("orderNo:%s, 执行退款，结果：%s", modifyOrderParams.getOrderNo(), refundOrder));
+			} catch (Throwable e) {
+				System.out.println("退款审核失败:" + modifyOrderParams.getOrderNo());
+			}
+		}
+		
+		System.out.println(modifyOrder);
 	}
 
 }

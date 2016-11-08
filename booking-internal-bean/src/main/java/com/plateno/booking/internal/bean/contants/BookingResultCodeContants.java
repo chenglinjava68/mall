@@ -243,7 +243,7 @@ public interface BookingResultCodeContants {
 		SYSTEM_ORDER_STATUS_DELETE_ERROR("503","账单所处状态,不支持被删除"), 
 		SYSTEM_ORDER_STATUS_CANCEL_ERROR("504","账单所处状态,不支持被取消"), 
 
-		SYSTEM_ORDER_STATUS_ERROR("505","	取消账单所处状态,不支持被修改"), 
+		SYSTEM_ORDER_STATUS_ERROR("505", "订单所处状态,不支持被修改"), 
 
 		SYSTEM_SEND_MESSAGE_STATUS_ERROR("504","发送短信失败,账单所处状态有误,还未完成支付"), 
 		SYSTEM_SEND_MESSAGE_TICKET_ERROR("505", "发送短信失败,门票已被使用"),

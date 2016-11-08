@@ -286,7 +286,11 @@ public class MOrderService{
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> modifyOrder(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
+		
+		logger.info("修改订单，参数:" + JsonUtils.toJsonString(modifyOrderParams));
+		
 		ResultVo<Object> output = new ResultVo<Object>();
 		List<Order> listOrder=mallOrderMapper.getOrderByNo(modifyOrderParams.getOrderNo());
 		if(CollectionUtils.isEmpty(listOrder)) {
@@ -298,19 +302,45 @@ public class MOrderService{
 		Order order=listOrder.get(0);
 		orderValidate.checkModifyOrder(order, output);
 		
+		if(modifyOrderParams.getNewStatus().equals(BookingConstants.PAY_STATUS_6)){//如果状态要变成退款中,需要修改一下字段
+			
+			//退款中和审核中状态，不支持直接触发支付网关退款
+			if (BookingResultCodeContants.PAY_STATUS_6 == order.getPayStatus() || BookingResultCodeContants.PAY_STATUS_10 == order.getPayStatus()) {
+				logger.info(String.format("orderNo:%s, now status:%s, 不支持直接退款", order.getOrderNo(), order.getPayStatus()));
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("审核中和退款中，不支持直接退款");
+				return output;
+			}
+			
+			order.setRefundReason(modifyOrderParams.getRemark());
+			order.setRefundAmount(order.getPayMoney());
+			order.setRefundTime(new Date());
+			order.setRefundPoint(order.getPoint());
+			order.setUpTime(new Date());
+			order.setRefundReason(modifyOrderParams.getRemark());
+			
+			//插入支付流水
+			OrderPayLog orderPayLog=new OrderPayLog();
+			orderPayLog.setAmount(-order.getPayMoney());
+			orderPayLog.setType(2);//支出
+			orderPayLog.setPoint(order.getPoint());
+			orderPayLog.setClientType(1);
+			orderPayLog.setCreateTime(new Date());
+			orderPayLog.setTrandNo(StringUtil.getCurrentAndRamobe("L"));
+			orderPayLog.setReferenceid("");
+			orderPayLog.setRemark(modifyOrderParams.getRemark());
+			orderPayLog.setStatus(1);//状态 1初始化，2成功，3失败
+			orderPayLog.setUpTime(new Date());
+			orderPayLog.setOrderId(order.getId());
+			orderPayLogMapper.insertSelective(orderPayLog);
+		}
+		
 		order.setPayStatus(modifyOrderParams.getNewStatus());
 		order.setRemark(modifyOrderParams.getRemark());
 		order.setUpTime(new Date());
-
-		if(modifyOrderParams.getNewStatus().equals(6)){//如果状态要变成退款中,需要修改一下字段
-			order.setRefundReason(modifyOrderParams.getRemark());
-			order.setRefundAmount(modifyOrderParams.getRefundAmount());
-			order.setRefundTime(new Date());
-			order.setRefundPoint(modifyOrderParams.getPoint());
-		}
 		
 		if(mallOrderMapper.updateByPrimaryKeySelective(order)>0)
-		orderLogService.saveGSOrderLog(modifyOrderParams.getOrderNo(), modifyOrderParams.getNewStatus(), "客服修改状态", "客服修改状成功", 0,ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		orderLogService.saveGSOrderLog(modifyOrderParams.getOrderNo(), modifyOrderParams.getNewStatus(), "客服修改状态", "客服修改状成功:" + StringUtils.trimToEmpty(modifyOrderParams.getRemark()), 0,ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
 
 		
 		MOperateLogParam paramlog=new MOperateLogParam();
@@ -319,9 +349,10 @@ public class MOrderService{
 		paramlog.setOperateUserName(modifyOrderParams.getOperateUsername());
 		paramlog.setOrderCode(modifyOrderParams.getOrderNo());
 		paramlog.setPlateForm(modifyOrderParams.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.ORDER_MODIFY.getOperateName());
+		paramlog.setRemark(OperateLogEnum.ORDER_MODIFY.getOperateName() + ":" + StringUtils.trimToEmpty(modifyOrderParams.getRemark()));
 		operateLogService.saveOperateLog(paramlog);
 		
+		output.setData(order.getMemberId());
 		return output;
 	}
 	
@@ -528,7 +559,10 @@ public class MOrderService{
 	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=Exception.class)
-	public ResultVo<Object> refundOrder(final MOrderParam orderParam) throws Exception{
+	public ResultVo<Object> refundOrder(MOrderParam orderParam) throws Exception{
+		
+		logger.info(String.format("确认退款，参数:%s", JsonUtils.toJsonString(orderParam)));
+		
 		ResultVo<Object> output = new ResultVo<Object>();
 		final List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
 		if(CollectionUtils.isEmpty(listOrder)) {
@@ -539,6 +573,7 @@ public class MOrderService{
 		final Order dbOrder=listOrder.get(0);
 		orderValidate.checkRefund(dbOrder, output);
 		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+			logger.info("output:" + output);
 			return output;
 		}
 		
@@ -555,11 +590,12 @@ public class MOrderService{
 			return output;
 		}
 		
+		final String orderNo = orderParam.getOrderNo();
 		//构造sql的过滤语句
 		CallMethod<Order> call = new CallMethod<Order>() {
 			@Override
 			 void call(Criteria criteria, Order order) throws Exception { 
-				invoke(criteria,"andOrderNoEqualTo",orderParam.getOrderNo());
+				invoke(criteria,"andOrderNoEqualTo", orderNo);
 			}
 		};
 		

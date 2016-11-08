@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
+import com.plateno.booking.internal.bean.contants.BookingConstants;
+import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
@@ -245,7 +248,49 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> modifyOrder(@RequestBody @Valid ModifyOrderParams param,BindingResult result) throws Exception{
 		log.info("修改订单日志参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		return mOrderService.modifyOrder(param);
+		
+		if(StringUtils.isBlank(param.getOperateUserid())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作人ID");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getOperateUsername())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作用户");
+			return response;
+		}
+		
+		if(param.getPlateForm() == null) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作平台");
+			return response;
+		}
+		
+		ResultVo<Object> out = mOrderService.modifyOrder(param);
+		
+		//如果改成审核中，直接调用审核通过退款
+		if(out.success() && param.getNewStatus() == BookingConstants.PAY_STATUS_6) {
+			MOrderParam orderParam = new MOrderParam();
+			orderParam.setOrderNo(param.getOrderNo());
+			orderParam.setMemberId((int)out.getData());
+			orderParam.setRefundRemark(param.getRemark());
+			orderParam.setOperateUserid(param.getOperateUserid());
+			orderParam.setOperateUsername(param.getOperateUsername());
+			orderParam.setPlateForm(param.getPlateForm());
+			
+			try {
+				ResultVo<Object> refundOrder = mOrderService.refundOrder(orderParam);
+				log.info(String.format("orderNo:%s, 执行退款，结果：%s", param.getOrderNo(), refundOrder));
+			} catch (Exception e) {
+				log.error("退款审核失败:" + param.getOrderNo(), e);
+			}
+		}
+		
+		return out;
 	}
 	
 	
