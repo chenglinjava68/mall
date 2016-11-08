@@ -6,7 +6,8 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -25,6 +26,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgC
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
+import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -32,7 +34,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 @Service
 public class PayService {
 	
-	private final static Logger logger = Logger.getLogger(PayService.class);
+	private final static Logger logger = LoggerFactory.getLogger(PayService.class);
 	
 	@Autowired
 	private OrderPayLogMapper orderPayLogMapper;
@@ -96,8 +98,10 @@ public class PayService {
 	 * @param notifyReturn
 	 * @throws Exception 
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor=Exception.class)
 	public void payNotify(NotifyReturn notifyReturn) throws Exception {
+		
+		logger.info("支付网关回调:{}", JsonUtils.toJsonString(notifyReturn));
 
 		//查询订单是否存在
 		BillOrderDetail bill = this.getOrderNoByTradeNo(notifyReturn.getOrderNo());
@@ -114,6 +118,8 @@ public class PayService {
 		
 		//支付成功
 		if (PayGateCode.SUCCESS.equals(notifyReturn.getCode())) {
+			
+			logger.info("orderNo:{}, 支付成功", bill.getOrderNo());
 			
 			//更新订单状态
 			Order order = new Order();
@@ -139,6 +145,8 @@ public class PayService {
 			orderPayLogMapper.updateByExampleSelective(record, example);
 			
 		} else if(PayGateCode.FAIL.equals(notifyReturn.getCode())) { //支付失败
+			
+			logger.info("orderNo:{}, 支付失败", bill.getOrderNo());
 			
 			//更新订单的状态,支付失败
 			Order order = new Order();

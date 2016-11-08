@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
@@ -31,6 +32,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
+import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
@@ -38,6 +40,7 @@ import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
+import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.MOrderService;
@@ -111,7 +114,7 @@ public class MallExceptionFlowService {
 			
 			logger.info(String.format("未支付 -->取消, orderNo:%s", order.getOrderNo()));
 			
-			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
+			/*order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
 			order.setUpTime(new Date());
 			orderMapper.updateByPrimaryKeySelective(order);
 			
@@ -120,7 +123,15 @@ public class MallExceptionFlowService {
 			//退还库存
 			calcelOrderReturnSku(order.getOrderNo());
 			
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_2, "已取消", "订单取消成功",0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_2, "已取消", "订单取消成功",0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(),"扫单job维护");*/
+			
+			MOrderParam orderParam = new MOrderParam();
+			orderParam.setOrderNo(order.getOrderNo());
+			orderParam.setMemberId(order.getMemberId());
+			orderParam.setType(1);//超时取消
+			ResultVo<Object> result = orderService.cancelOrderLock(orderParam);
+
+			logger.info("取消订单结果, orderNo:{}, result:{}", order.getOrderNo(), result);
 		}
 		
 		logger.info("处理未支付订单结束");
@@ -203,8 +214,13 @@ public class MallExceptionFlowService {
 	}
 	
 
-	
-	private void handleGateWayefund(Order order)throws Exception{
+	/**
+	 * 退款处理
+	 * @param order
+	 * @throws Exception
+	 */
+	@Transactional(rollbackFor=OrderException.class)
+	public void handleGateWayefund(Order order)throws Exception{
 		if(!validate(order,BookingConstants.PAY_STATUS_10)) 
 			return ;
 		
@@ -324,7 +340,6 @@ public class MallExceptionFlowService {
 						smslog.setPhone(dbOrder.getMobile());
 						smslog.setUpdateTime(new Date());
 						smsLogMapper.insertSelective(smslog);
-						
 					}
 				});
 			}
@@ -373,8 +388,13 @@ public class MallExceptionFlowService {
 		return productOrderList.get(0);
 	}
 	
-	
-	private void handlePaying(Order order)throws Exception{
+	/**
+	 * 支付中处理
+	 * @param order
+	 * @throws Exception
+	 */
+	@Transactional(rollbackFor=OrderException.class)
+	public void handlePaying(Order order)throws Exception{
 		if(!validate(order,BookingConstants.PAY_STATUS_11)) 
 			return ;
 		

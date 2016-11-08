@@ -10,7 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
@@ -89,7 +90,7 @@ import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 @ServiceErrorCode(BookingConstants.CODE_DB_BOOK_ERROR)
 public class MOrderService{
 
-	protected final static Logger logger = Logger.getLogger(MOrderService.class);
+	protected final static Logger logger = LoggerFactory.getLogger(MOrderService.class);
 	
 	@Autowired
 	private MOrderValidate orderValidate;
@@ -860,12 +861,16 @@ public class MOrderService{
 		};
 		Order order = new Order();
 		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
+		order.setUpTime(new Date());
 		updateOrderStatusByNo(order, call);
 		
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, "取消操作", "取消成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
 
 		//退还积分
 		if(listOrder.get(0).getPoint()>0){
+			
+			logger.info("取消订单，退还积分，orderNo:{}, point:{}", listOrder.get(0).getOrderNo(), listOrder.get(0).getPoint());
+			
 			ValueBean vb=new ValueBean();
 			vb.setPointvalue(listOrder.get(0).getPoint());
 			vb.setMebId(listOrder.get(0).getMemberId());
@@ -875,6 +880,7 @@ public class MOrderService{
 		
 		//退还库存
 		try {
+			logger.info("取消订单，退还库存，orderNo:{}", listOrder.get(0).getOrderNo());
 			updateStock(orderParam, output);
 		} catch (Exception e) {
 			logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
