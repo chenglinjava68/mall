@@ -778,7 +778,7 @@ public class MOrderService{
 	private void returnPoint(final Order dbOrder) {
 		if(dbOrder.getPoint()>0){
 			ValueBean vb=new ValueBean();
-			vb.setPointvalue(dbOrder.getPoint());
+			vb.setPointvalue(dbOrder.getRefundPoint());
 			vb.setMebId(dbOrder.getMemberId());
 			vb.setTrandNo(dbOrder.getOrderNo());
 			pointService.mallAddPoint(vb);
