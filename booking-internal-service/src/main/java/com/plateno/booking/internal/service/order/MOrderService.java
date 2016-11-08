@@ -604,6 +604,7 @@ public class MOrderService{
 		logExample.createCriteria().andOrderIdEqualTo(dbOrder.getId()).andTypeEqualTo(1).andStatusEqualTo(BookingConstants.BILL_LOG_SUCCESS); //下单直流的流水，且是支付成功的
 		List<OrderPayLog> listPayLog = orderPayLogMapper.selectByExample(logExample);
 		if(CollectionUtils.isEmpty(listPayLog)) {
+			logger.info(String.format("orderNo:%s, 没有支付成功的流水，尝试退款", orderParam.getOrderNo()));
 			throw new Exception("支付成功的流水记录不存在");
 		}
 		
@@ -612,14 +613,22 @@ public class MOrderService{
 		logExample.createCriteria().andOrderIdEqualTo(dbOrder.getId()).andTypeEqualTo(2).andStatusEqualTo(1);
 		List<OrderPayLog> refundLogList = orderPayLogMapper.selectByExample(logExample);
 		if(CollectionUtils.isEmpty(refundLogList)) {
+			logger.info(String.format("orderNo:%s, 没有处理中的退款流水，尝试退款", orderParam.getOrderNo()));
 			throw new Exception("申请退款且状态是初始化的支付流水不存在");
 		}
 		
+		if(refundLogList.size() != 1) {
+			logger.info(String.format("orderNo:%s, 存在不止一条的退款流水:%s", orderParam.getOrderNo(), refundLogList.size()));
+			throw new Exception("存在不止一条的退款流水");
+		}
+		
+		OrderPayLog orderPayLog = refundLogList.get(0);
+		
 		//封装退款参数
 		RefundOrderParam refundOrderParam=new  RefundOrderParam();
-		refundOrderParam.setRefundAmount(dbOrder.getPayMoney());
-		refundOrderParam.setRefundOrderNo(refundLogList.get(0).getTrandNo());  //退款申请的订单号
-		refundOrderParam.setRemark(dbOrder.getRefundReason());
+		refundOrderParam.setRefundAmount(-orderPayLog.getAmount());
+		refundOrderParam.setRefundOrderNo(orderPayLog.getTrandNo());  //退款申请的订单号
+		refundOrderParam.setRemark(orderPayLog.getRemark());
 		refundOrderParam.setOrderNo(listPayLog.get(0).getTrandNo()); //原交易订单号
 		
 		//调用支付网关退款
@@ -627,10 +636,10 @@ public class MOrderService{
 		try {
 			response = paymentService.refundOrder(refundOrderParam);
 		} catch (Exception e) {
-			logger.error("支付网关申请退款异常:" + refundLogList.get(0).getTrandNo(), e);
+			logger.error("支付网关申请退款异常:" + orderPayLog.getTrandNo(), e);
 		}
 		
-		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", refundLogList.get(0).getTrandNo(), JsonUtils.toJsonString(response)));
+		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
 		
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
@@ -1315,7 +1324,7 @@ public class MOrderService{
 		orderInfo.setFailReason(order.getRefundFailReason());
 		orderInfo.setRefundTime(order.getRefundTime() == null ? null : order.getRefundTime().getTime());
 		orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? null : order.getRefundSuccesstime().getTime());
-		orderInfo.setRefundAmount(order.getPayMoney());
+		orderInfo.setRefundAmount(order.getRefundAmount());
 		orderInfo.setRefundReason(order.getRefundReason());
 		
 		orderDetail.setOrderInfo(orderInfo);

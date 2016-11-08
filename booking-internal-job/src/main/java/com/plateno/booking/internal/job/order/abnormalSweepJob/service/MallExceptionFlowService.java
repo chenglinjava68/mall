@@ -348,7 +348,7 @@ public class MallExceptionFlowService {
 	private void returnPoint(Order order) {
 		if(order.getPoint()>0){
 			ValueBean vb=new ValueBean();
-			vb.setPointvalue(order.getPoint());
+			vb.setPointvalue(order.getRefundPoint());
 			vb.setMebId(order.getMemberId());
 			vb.setTrandNo(order.getOrderNo());
 			vb.setChannelid(order.getChanelid());
