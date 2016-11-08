@@ -181,5 +181,19 @@ public class MOrderServiceTest {
 		
 		System.out.println(modifyOrder);
 	}
+	
+	@Test
+	public void testAdminRefuseRefund() throws OrderException, Exception{
+		
+		MOrderParam orderParam = new MOrderParam();
+		orderParam.setOrderNo("O1478568730093888087");
+		orderParam.setMemberId(181295316);
+		orderParam.setOperateUserid("3232323");
+		orderParam.setOperateUsername("xiaoming");
+		orderParam.setPlateForm(1);
+		ResultVo<Object> adminRefuseRefund = service.adminRefuseRefund(orderParam );
+		System.out.println(adminRefuseRefund);
+		
+	}
 
 }

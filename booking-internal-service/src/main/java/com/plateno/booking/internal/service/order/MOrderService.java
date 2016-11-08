@@ -1031,7 +1031,7 @@ public class MOrderService{
 	}
 	
 	
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> adminRefuseRefund(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
@@ -1058,6 +1058,15 @@ public class MOrderService{
 		order.setRefundSuccesstime(new Date());
 		order.setRefundFailReason(StringUtils.trimToEmpty(orderParam.getRefundRemark())); //退款失败原因
 		updateOrderStatusByNo(order, call);
+		
+		//更新退款流水为失败
+		OrderPayLog record = new OrderPayLog();
+		record.setStatus(3);
+		OrderPayLogExample example = new OrderPayLogExample();
+		example.createCriteria().andOrderIdEqualTo(listOrder.get(0).getId()).andTypeEqualTo(2).andStatusEqualTo(1);
+		orderPayLogMapper.updateByExampleSelective(record , example);
+		
+		
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_8, "拒绝退款操作", StringUtils.trimToEmpty(orderParam.getRefundRemark()), 0,ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode());
 
 		MOperateLogParam paramlog=new MOperateLogParam();
