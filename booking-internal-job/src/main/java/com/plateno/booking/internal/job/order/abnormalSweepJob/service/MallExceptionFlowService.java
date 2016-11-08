@@ -234,6 +234,9 @@ public class MallExceptionFlowService {
 				return;
 			}
 			
+			example=new OrderPayLogExample();
+			example.createCriteria().andIdEqualTo(orderPayLog.getId());
+			
 			if(response.getCode().equals(BookingConstants.GATEWAY_REFUND_SUCCESS_CODE)){ //退款成功
 				
 				logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
@@ -402,6 +405,9 @@ public class MallExceptionFlowService {
 				logger.error(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
 				return;
 			}
+			
+			example = new OrderPayLogExample();
+			example.createCriteria().andIdEqualTo(orderPayLog.getId());
 				
 			if(response.getCode().equals(BookingConstants.GATEWAY_PAY_SUCCESS_CODE)){
 				logger.info(String.format("orderNo:%s, 支付成功", order.getOrderNo()));

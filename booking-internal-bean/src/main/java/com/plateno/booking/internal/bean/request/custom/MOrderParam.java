@@ -32,7 +32,18 @@ public class MOrderParam implements Serializable {
 	
 	private Integer plateForm; //1供应商后台、2营销通后台
 	
+	/**
+	 * 取消类型：1-超时取消， 2-手动取消（兼容旧的接口，不填判别为手动取消）超时取消会判断时间是否已经超过30分钟
+	 */
+	private Integer type;
 	
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
 
 	public Integer getMemberId() {
 		return memberId;

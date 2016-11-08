@@ -824,6 +824,24 @@ public class MOrderService{
 			return output;
 		}
 		
+		String desc = "手动取消订单";
+		//判断取消类型
+		if(orderParam.getType() != null && orderParam.getType() == 1) {
+			
+			desc = "超时取消订单";
+			
+			logger.info(String.format("orderNo:%s, 超时取消订单", orderParam.getOrderNo()));
+			long now = new Date().getTime();
+			long createTime = listOrder.get(0).getCreateTime().getTime();
+			//29分钟，避免时间存在误差
+			if(now - createTime <= 29*60*1000) {
+				logger.info(String.format("orderNo:%s, 超期取消时间错误:%s", orderParam.getOrderNo(), listOrder.get(0).getCreateTime()));
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("超时取消时间未到达30分钟");
+				return output;
+			}
+		}
+		
 		//构造sql的过滤语句
 		CallMethod<Order> call = new CallMethod<Order>() {
 			@Override
@@ -835,7 +853,7 @@ public class MOrderService{
 		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
 		updateOrderStatusByNo(order, call);
 		
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, "取消操作", "取消成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode());
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, "取消操作", "取消成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
 
 		//退还积分
 		if(listOrder.get(0).getPoint()>0){
