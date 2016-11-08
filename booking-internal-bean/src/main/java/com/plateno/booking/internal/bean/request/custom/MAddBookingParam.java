@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 public class MAddBookingParam implements Serializable {
 
 	private static final long serialVersionUID = -5028619260613976314L;
@@ -18,12 +20,15 @@ public class MAddBookingParam implements Serializable {
 	private Integer quantity;
 
 	@NotNull(message = "收货人,不能为空")
+	@NotEmpty(message = "收货人,不能为空")
 	private String consigneeName;
 	
 	@NotNull(message = "收货人手机,不能为空")
+	@NotEmpty(message = "收货人手机,不能为空")
 	private String consigneeMobile;
 	
 	@NotNull(message = "收货地址,不能为空")
+	@NotEmpty(message = "收货地址,不能为空")
 	private String consigneeAddress;
 	
 	@NotNull(message = "配送方式,不能为空")
@@ -33,9 +38,11 @@ public class MAddBookingParam implements Serializable {
 	private Integer platformId; // 平台 铂涛旅行APP:105 铂涛旅行官网 : 113 铂涛旅行微信 : 111 铂涛旅行M站 : 112 O2O营销通 115
 
 	@NotNull(message = "会员姓名,不能为空")
+	@NotEmpty(message = "会员姓名,不能为空")
 	private String name;
 	
 	@NotNull(message = "会员手机,不能为空")
+	@NotEmpty(message = "会员手机,不能为空")
 	private String mobile;
 	
 	@NotNull(message = "会员ID,不能为空")

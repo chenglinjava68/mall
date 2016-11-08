@@ -3,7 +3,6 @@ package com.plateno.booking.internal.service.fromTicket.addBooking.botao;
 import org.springframework.stereotype.Component;
 
 import com.plateno.booking.internal.bean.contants.BookingConstants;
-import com.plateno.booking.internal.bean.response.custom.AddBookResponse;
 import com.plateno.booking.internal.bean.response.custom.MAddBookResponse;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -13,7 +12,6 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.serv
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceType;
 import com.plateno.booking.internal.interceptor.adam.service.IService;
 import com.plateno.booking.internal.service.abs.MAbsAddOrderService;
-import com.plateno.booking.internal.service.fromTicket.vo.AddBookingIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 
 

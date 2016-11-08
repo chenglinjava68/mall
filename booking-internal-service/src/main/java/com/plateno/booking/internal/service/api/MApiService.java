@@ -91,7 +91,7 @@ public class MApiService {
 			return output;
 		}
 		
-		if(addBookingParam.getSellStrategy().equals(1)){
+		if(addBookingParam.getSellStrategy().equals(1)){ //使用金额购买
 			/*if(addBookingParam.getShippingType().equals(1)){
 				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()))){
 					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
@@ -105,6 +105,8 @@ public class MApiService {
 					return output;
 				}
 			}*/
+			
+			addBookingParam.setPoint(0);
 			
 			//pskubean.getExpressFee() > 0 代表需要邮费
 			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
@@ -134,7 +136,21 @@ public class MApiService {
 				}
 			}
 			
-		}else{
+		}else{ //使用积分购买
+			 
+			//判断商品是否允许使用积分购买
+			if(pskubean.getSellStrategy() != 2) {
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("商品不允许使用订单+积分的方式购买，订单校验失败");
+				return output;
+			}
+
+			if(addBookingParam.getPoint() != pskubean.getFavorPoints() * addBookingParam.getQuantity()) {
+				output.setResultCode(getClass(), MsgCode.VALIDATE_ORDERPOINT_ERROR.getMsgCode());
+				output.setResultMsg(MsgCode.VALIDATE_ORDERPOINT_ERROR.getMessage());
+				return output;
+			}
+			
 			int point = pointService.getPointSum(addBookingParam.getMemberId());
 			if(point < addBookingParam.getPoint()){
 				logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), point, addBookingParam.getMemberId()));
@@ -185,6 +201,7 @@ public class MApiService {
 					return output;
 				}
 			}
+			
 		}
 		
 

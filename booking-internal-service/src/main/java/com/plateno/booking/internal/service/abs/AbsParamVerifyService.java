@@ -4,6 +4,8 @@
 package com.plateno.booking.internal.service.abs;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
@@ -15,6 +17,15 @@ import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
  *
  */
 public abstract class AbsParamVerifyService {
+	
+	/**
+	 * 是否包邮
+	 */
+	private static List<Integer> shipTypeList = Arrays.asList(1, 2);
+	/**
+	 * 销售策略
+	 */
+	private static List<Integer> sellStrategyList = Arrays.asList(1, 2);
 
 	protected void verifyIncome(MAddBookingIncomeVo income,ResultVo<?> output) throws IOException{
 		MAddBookingParam addBookingParam = income.getAddBookingParam();
@@ -48,7 +59,19 @@ public abstract class AbsParamVerifyService {
 			output.setResultMsg("下单失败,订单来源不能为空");
 			return;
 		}
+		
+		if (!sellStrategyList.contains(addBookingParam.getSellStrategy())) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("下单失败,配送方式错误");
+			return;
+		}
+		
+		if (!shipTypeList.contains(addBookingParam.getShippingType())) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("下单失败,销售策略错误");
+			return;
+		}
+		
 	}
-
 	
 }

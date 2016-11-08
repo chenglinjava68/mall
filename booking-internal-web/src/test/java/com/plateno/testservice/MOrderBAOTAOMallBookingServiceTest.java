@@ -28,9 +28,9 @@ public class MOrderBAOTAOMallBookingServiceTest {
 	public void testAddBooking() throws OrderException, Exception{
 		
 		MAddBookingParam addBookingParam = new MAddBookingParam();
-		addBookingParam.setGoodsId(10L);
-		addBookingParam.setTotalAmount(1001);
-		addBookingParam.setQuantity(1);
+		addBookingParam.setGoodsId(18L);
+		addBookingParam.setTotalAmount(200);
+		addBookingParam.setQuantity(2);
 		addBookingParam.setConsigneeName("Zhangsan");
 		addBookingParam.setConsigneeMobile("13999999999");
 		addBookingParam.setConsigneeAddress("宇宙");
@@ -41,7 +41,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		addBookingParam.setMemberId(14785236);
 		addBookingParam.setResource(2);
 		addBookingParam.setSellStrategy(2);
-		addBookingParam.setPoint(0);
+		addBookingParam.setPoint(100);
 		
 		ResultVo<MAddBookResponse> addBooking = service.addBooking(addBookingParam);
 		System.out.println(addBooking);

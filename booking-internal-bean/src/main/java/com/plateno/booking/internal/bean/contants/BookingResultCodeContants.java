@@ -263,6 +263,8 @@ public interface BookingResultCodeContants {
 		
 		VALIDATE_ORDERSJIPPINGTYPE_ERROR("805","配送方式错误"),
 		
+		VALIDATE_ORDERPOINT_ERROR("806","订单积分核对不匹配，订单校验失败"),
+		
 		BAD_ORDER_ID("602", "无法找到该订单"), 
 		CANCEL_ORDER("603", "取消订单确认"), 
 		CANCEL_ORDER_FAIL("604", "取消订单失败"), 
