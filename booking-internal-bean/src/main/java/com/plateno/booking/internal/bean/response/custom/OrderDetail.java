@@ -70,6 +70,11 @@ public class OrderDetail implements java.io.Serializable{
 		private String failReason;//退款失败原因
 		private String name;
 		private String mobile;
+		/**
+		 * 前端用户显示状态
+		 * 100待付款、200已取消、300待发货、400待收货、500已完成、600退款审核中、700已退款、800退款审核不通过、900确认支付结果中
+		 */
+		private Integer viewStatus;
 		
 		/**
 		 * 退款金额
@@ -82,6 +87,12 @@ public class OrderDetail implements java.io.Serializable{
 		private String refundReason;
 		
 		
+		public Integer getViewStatus() {
+			return viewStatus;
+		}
+		public void setViewStatus(Integer viewStatus) {
+			this.viewStatus = viewStatus;
+		}
 		public Long getPayTime() {
 			return payTime;
 		}

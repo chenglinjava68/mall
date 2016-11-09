@@ -42,6 +42,12 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer refundAmount;
 	
+	/**
+	 * 前端用户显示状态
+	 * 100待付款、200已取消、300待发货、400待收货、500已完成、600退款审核中、700已退款、800退款审核不通过、900确认支付结果中
+	 */
+	private Integer viewStatus;
+	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -168,6 +174,14 @@ public class SelectOrderResponse implements java.io.Serializable{
 
 	public void setRefundAmount(Integer refundAmount) {
 		this.refundAmount = refundAmount;
+	}
+
+	public Integer getViewStatus() {
+		return viewStatus;
+	}
+
+	public void setViewStatus(Integer viewStatus) {
+		this.viewStatus = viewStatus;
 	}
 
 }

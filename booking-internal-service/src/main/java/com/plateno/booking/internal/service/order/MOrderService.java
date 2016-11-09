@@ -18,6 +18,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
@@ -226,6 +227,7 @@ public class MOrderService{
 		}
 		
 		sc.setRefundAmount(refundAmount);
+		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
 		
 		list.add(sc);
 	}
@@ -1341,6 +1343,7 @@ public class MOrderService{
 		orderInfo.setRefundSuccessTime(order.getRefundSuccesstime() == null ? null : order.getRefundSuccesstime().getTime());
 		orderInfo.setRefundAmount(order.getRefundAmount());
 		orderInfo.setRefundReason(order.getRefundReason());
+		orderInfo.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
 		
 		orderDetail.setOrderInfo(orderInfo);
 		return orderDetail;
