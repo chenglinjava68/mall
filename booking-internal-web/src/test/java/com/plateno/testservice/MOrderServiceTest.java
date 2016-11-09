@@ -20,6 +20,7 @@ import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
+import com.plateno.booking.internal.common.util.date.DateUtil;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.order.MOrderService;
@@ -85,6 +86,9 @@ public class MOrderServiceTest {
 		SelectOrderParam param = new SelectOrderParam();
 		param.setRequstPlatenoform(2);
 		param.setOrderNo("O1478499130284514088");
+		param.setResource(2);
+		param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
+		param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));
 		//param.setMemberId("181295316");
 		/*param.setChannelId(1);
 		List<Integer> statusList = new ArrayList<>();
