@@ -2,9 +2,9 @@ package com.plateno.booking.internal.bean.request.custom;
 
 import java.io.Serializable;
 
-import javax.validation.constraints.NotNull;
+import com.plateno.booking.internal.base.model.BaseParam;
 
-public class MOperateLogParam  implements Serializable{
+public class MOperateLogParam extends BaseParam implements Serializable{
 	
 	private static final long serialVersionUID = -2133365201138730288L;
 
@@ -15,8 +15,6 @@ public class MOperateLogParam  implements Serializable{
 	private String operateUsername;
 	
 	private String remark;
-	
-	private Integer plateForm;
 	
 	private String orderCode;
 
@@ -52,14 +50,6 @@ public class MOperateLogParam  implements Serializable{
 
 	public void setRemark(String remark) {
 		this.remark = remark;
-	}
-
-	public Integer getPlateForm() {
-		return plateForm;
-	}
-
-	public void setPlateForm(Integer plateForm) {
-		this.plateForm = plateForm;
 	}
 
 	public String getOrderCode() {

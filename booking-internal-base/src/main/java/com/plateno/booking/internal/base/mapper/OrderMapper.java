@@ -44,4 +44,12 @@ public interface OrderMapper extends BaseMapper {
 	 */
 	List<Order> getOrderByNoAndMemberId(@Param("orderNo")String orderNo, @Param("memberId")Integer memberId);
 	
+	/**
+	 * 根据订单号和会员ID查询、渠道ID查询
+	 * @param orderNo
+	 * @param orderNo
+	 * @return
+	 */
+	List<Order> getOrderByNoAndMemberIdAndChannelId(@Param("orderNo")String orderNo, @Param("memberId")Integer memberId, @Param("channelId")Integer channelId);
+	
 }

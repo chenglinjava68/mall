@@ -19,10 +19,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
-		<!-- <dependency>
+		<dependency>
 			<groupId>com.plateno</groupId>
-			<artifactId>booking-internal-common</artifactId>
+			<artifactId>booking-internal-base</artifactId>
 			<version>${com.plateno.booking}</version>
-		</dependency> -->
+		</dependency>
 	</dependencies>
 </project>

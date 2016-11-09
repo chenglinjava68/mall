@@ -6,22 +6,26 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.plateno.booking.internal.base.constant.PlateFormEnum;
+import com.plateno.booking.internal.base.model.BaseParam;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 
 public class BaseController{
 	
-	protected Logger log = Logger.getLogger(getClass());
+	protected Logger log = LoggerFactory.getLogger(getClass());
+	
 	
 	protected void bindingResultHandler(BindingResult result) throws Exception{
 		if(result.getErrorCount()>0){
@@ -88,4 +92,44 @@ public class BaseController{
 		}
 		return null;
 	}
+
+	/**
+	 * 检查基本参数是否正确
+	 * @param baseParam
+	 * @return
+	 * @throws Exception
+	 */
+	public void checkBaseParam(BaseParam baseParam) throws Exception {
+		
+		if(baseParam.getPlateForm() == null || baseParam.getPlateForm() <= 0) {
+			log.error("plateForm 格式不正确:{}", baseParam.getPlateForm());
+			throw new Exception("请输入正确的plateForm：" + baseParam.getPlateForm());
+		}
+        if(!PlateFormEnum.has(baseParam.getPlateForm())) {
+        	log.error("plateForm 无法识别:{}", baseParam.getPlateForm());
+			throw new Exception("请输入正确的plateForm：" + baseParam.getPlateForm());
+        }
+        
+        switch (PlateFormEnum.from(baseParam.getPlateForm())) {
+		case PROVIDER_ADMIN: //商城前端
+			
+			if(baseParam.getChannelId() == null || baseParam.getChannelId() <= 0) {
+				log.error("channelId 格式不正确:{}", baseParam.getChannelId());
+				throw new Exception("请输入正确的channelId：" + baseParam.getChannelId());
+			}
+			
+			break;
+		case USER: //供应商后台
+			
+			if(baseParam.getMemberId() == null || baseParam.getMemberId() <= 0) {
+				log.error("memberId 格式不正确:{}", baseParam.getMemberId());
+				throw new Exception("请输入正确的memberId：" + baseParam.getMemberId());
+			}
+			break;
+
+		default:
+			break;
+		}
+        
+    }
 }

@@ -18,6 +18,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
@@ -164,7 +165,7 @@ public class MOrderService{
 		}
 		
 		//商城前端查询，不显示删除的订单
-		if(param.getRequstPlatenoform() == 1) {
+		if(param.getPlateForm() == PlateFormEnum.USER.getPlateForm()) {
 			param.setQueryDel(false);
 		}
 		
@@ -240,7 +241,7 @@ public class MOrderService{
 	 */
 	public ResultVo<OrderDetail> getOrderDetail(MOrderParam orderParam) throws OrderException, Exception {
 		ResultVo<OrderDetail> output = new ResultVo<OrderDetail>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -261,7 +262,7 @@ public class MOrderService{
 	 */
 	public ResultVo<OrderDetail> getPaySuccessDetail(MOrderParam orderParam) throws OrderException, Exception {
 		ResultVo<OrderDetail> output = new ResultVo<OrderDetail>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -274,7 +275,7 @@ public class MOrderService{
 	
 	public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderCode());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderCode(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -293,7 +294,7 @@ public class MOrderService{
 		logger.info("修改订单，参数:" + JsonUtils.toJsonString(modifyOrderParams));
 		
 		ResultVo<Object> output = new ResultVo<Object>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(modifyOrderParams.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(modifyOrderParams.getOrderNo(), modifyOrderParams.getMemberId(), modifyOrderParams.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -360,7 +361,7 @@ public class MOrderService{
 	public ResultVo<List<MOperateLogResponse>> selectOperateLog(MOperateLogParam params) throws Exception {
 		ResultVo<List<MOperateLogResponse>> output = new ResultVo<List<MOperateLogResponse>>();
 		List<MOperateLogResponse> lisLogs=new ArrayList<MOperateLogResponse>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(params.getOrderCode());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(params.getOrderCode(), params.getMemberId(), params.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -389,6 +390,14 @@ public class MOrderService{
 	@SuppressWarnings("unchecked")
 	public ResultVo<Object> modifyReceiptInfo(ReceiptParam receiptParam) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
+		
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(receiptParam.getOrderNo(), receiptParam.getMemberId(), receiptParam.getChannelId());
+		if(CollectionUtils.isEmpty(listOrder)) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("订单查询失败,获取不到订单");
+			return output;
+		}
+		
 		MLogisticsExample mLogisticsExample = new MLogisticsExample();
 		mLogisticsExample.createCriteria().andOrderNoEqualTo(receiptParam.getOrderNo());
 		List<MLogistics> listLogistic=mLogisticsMapper.selectByExample(mLogisticsExample);
@@ -523,7 +532,7 @@ public class MOrderService{
 		ResultVo<Object> output = new ResultVo<Object>();
 		
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -565,7 +574,7 @@ public class MOrderService{
 		logger.info(String.format("确认退款，参数:%s", JsonUtils.toJsonString(orderParam)));
 		
 		ResultVo<Object> output = new ResultVo<Object>();
-		final List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
+		final List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -823,7 +832,7 @@ public class MOrderService{
 		ResultVo<Object> output = new ResultVo<Object>();
 		
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -901,7 +910,7 @@ public class MOrderService{
 	public ResultVo<Object> deliverOrder(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -996,7 +1005,7 @@ public class MOrderService{
 	public ResultVo<Object> modifydeliverOrder(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -1036,7 +1045,7 @@ public class MOrderService{
 	public ResultVo<Object> enterReceipt(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -1068,7 +1077,7 @@ public class MOrderService{
 	public ResultVo<Object> adminRefuseRefund(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -1119,7 +1128,7 @@ public class MOrderService{
 	public ResultVo<Object> userRefund(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(orderParam.getOrderNo(), orderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -1373,7 +1382,7 @@ public class MOrderService{
 	@SuppressWarnings("unchecked")
 	public ResultVo<Object> updateOrderStatus(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(modifyOrderParams.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(modifyOrderParams.getOrderNo(), modifyOrderParams.getMemberId(), modifyOrderParams.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");
@@ -1405,7 +1414,7 @@ public class MOrderService{
 	public ResultVo<Object> getOrderInfo(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
-		List<Order> listOrder=mallOrderMapper.getOrderByNo(orderParam.getOrderNo());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(), orderParam.getMemberId(), orderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");

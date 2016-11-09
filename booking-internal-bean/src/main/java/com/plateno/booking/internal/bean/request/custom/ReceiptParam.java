@@ -2,8 +2,12 @@ package com.plateno.booking.internal.bean.request.custom;
 
 import javax.validation.constraints.NotNull;
 
-public class ReceiptParam {
+import com.plateno.booking.internal.base.model.BaseParam;
+
+public class ReceiptParam extends BaseParam {
 	
+	private static final long serialVersionUID = 1L;
+
 	@NotNull(message = "订单编码,不能为空")
 	private String orderNo; // 订单编码
 	
@@ -20,8 +24,6 @@ public class ReceiptParam {
 	
 	private String operateUsername;
 	
-	private Integer plateForm; //1供应商后台、2营销通后台
-
 	public String getOperateUserid() {
 		return operateUserid;
 	}
@@ -36,14 +38,6 @@ public class ReceiptParam {
 
 	public void setOperateUsername(String operateUsername) {
 		this.operateUsername = operateUsername;
-	}
-
-	public Integer getPlateForm() {
-		return plateForm;
-	}
-
-	public void setPlateForm(Integer plateForm) {
-		this.plateForm = plateForm;
 	}
 
 	public String getOrderNo() {

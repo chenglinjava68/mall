@@ -48,7 +48,7 @@ public class PayService {
 	@SuppressWarnings("unchecked")
 	public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
-		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberId(mOrderParam.getOrderNo(), mOrderParam.getMemberId());
+		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(mOrderParam.getOrderNo(), mOrderParam.getMemberId(), mOrderParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("订单查询失败,获取不到订单");

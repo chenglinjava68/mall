@@ -56,6 +56,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage(@RequestBody @Valid SelectOrderParam  param,BindingResult result) throws Exception{
 		log.info("查询订单列表项,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
 		return mOrderService.queryOrderByPage(param);
 	}
 	
@@ -65,14 +66,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<OrderDetail> getOrderDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("查询订单详情,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		if(param.getMemberId() == null) {
-			ResultVo<OrderDetail> out = new ResultVo<OrderDetail>();
-			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			out.setResultMsg("请输入会员ID");
-			return out;
-		} 
+		checkBaseParam(param);
 		
 		return mOrderService.getOrderDetail(param);
 	}
@@ -83,37 +77,17 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> removeOrder(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("删除订单,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		ResultVo<Object> out = needMemberId(param);
-		if(!out.success()) {
-			return out;
-		}
+		checkBaseParam(param);
 		
 		return mOrderService.deleteOrder(param);
 	}
 	
-	private ResultVo<Object> needMemberId(MOrderParam param) {
-		ResultVo<Object> result = new ResultVo<Object>();
-		if(param.getMemberId() == null) {
-			result.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			result.setResultMsg("请输入会员ID");
-		} 
-		return result;
-	}
-	
-
 	@ResponseBody
 	@RequestMapping(value = "/cancelOrder" ,method = RequestMethod.POST)
 	public ResultVo<Object> cancelOrder(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("取消订单,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		ResultVo<Object> out = needMemberId(param);
-		if(!out.success()) {
-			return out;
-		}
+		checkBaseParam(param);
 		
 		return mOrderService.cancelOrderLock(param);
 	}
@@ -124,6 +98,36 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> deliverGoods(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("订单发货通知接口,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+		
+		if(StringUtils.isBlank(param.getOperateUserid())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作人ID");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getOperateUsername())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作用户");
+			return response;
+		}
+		
+		if(param.getLogisticsType() == null) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("物流类型");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getLogisticsNo())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("物流编号");
+			return response;
+		}
+		
 		return mOrderService.deliverOrder(param);
 	}
 	
@@ -132,6 +136,8 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> modifydeliverInfo(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("修改发货信息,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+
 		return mOrderService.modifydeliverOrder(param);
 	}
 	
@@ -141,12 +147,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> enterReceipt(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("确定收货的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		ResultVo<Object> out = needMemberId(param);
-		if(!out.success()) {
-			return out;
-		}
+		checkBaseParam(param);
 		
 		return mOrderService.enterReceipt(param);
 	}
@@ -157,10 +158,12 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> userRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("用户申请退款的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
 		
-		//必须输入会员ID
-		ResultVo<Object> out = needMemberId(param);
-		if(!out.success()) {
+		if(StringUtils.isBlank(param.getRefundRemark())) {
+			ResultVo<Object> out = new ResultVo<Object>();
+			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			out.setResultMsg("请输入退款原因");
 			return out;
 		}
 		
@@ -173,6 +176,8 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> adminRefuseRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("客服审核拒绝退款的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+		
 		return mOrderService.adminRefuseRefund(param);
 	}
 	
@@ -181,6 +186,8 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> consentRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("客服审核同意退款操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+		
 		return mOrderService.refundOrder(param);
 	}
 	
@@ -190,12 +197,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> pullerPay(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("拉起支付,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		ResultVo<Object> out = needMemberId(param);
-		if(!out.success()) {
-			return out;
-		}
+		checkBaseParam(param);
 		
 		return payService.pullerPay(param);
 	}
@@ -205,14 +207,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<OrderDetail> getPaySuccessDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("购买成功页面参数请求:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		
-		//必须输入会员ID
-		if(param.getMemberId() == null) {
-			ResultVo<OrderDetail> out = new ResultVo<OrderDetail>();
-			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			out.setResultMsg("请输入会员ID");
-			return out;
-		} 
+		checkBaseParam(param);
 		
 		return mOrderService.getPaySuccessDetail(param);
 	}
@@ -223,6 +218,8 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> modifyReceiptInfo(@RequestBody @Valid ReceiptParam param,BindingResult result) throws Exception{
 		log.info("修改收货人请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+		
 		return mOrderService.modifyReceiptInfo(param);
 	}
 	
@@ -232,6 +229,36 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> saveOperateLog(@RequestBody @Valid MOperateLogParam param,BindingResult result) throws Exception{
 		log.info("订单操作日志参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
+		
+		if(StringUtils.isBlank(param.getOperateUserid())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作人ID");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getOperateUserName())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作用户");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getOrderCode())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("订单编码");
+			return response;
+		}
+		
+		if(param.getOperateType() == null) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("操作类型");
+			return response;
+		}
+		
 		return mOrderService.saveOperateLog(param);
 	}
 
@@ -239,6 +266,7 @@ public class MOrderWebRPCService extends BaseController{
 	@RequestMapping(value = "/selectOperateLog" ,method = RequestMethod.POST)
 	public ResultVo<List<MOperateLogResponse>> selectOperateLog(@RequestBody @Valid MOperateLogParam params) throws Exception{
 		log.info("查询订单操作日志参数:"+ JsonUtils.toJsonString(params));
+		checkBaseParam(params);
 		return mOrderService.selectOperateLog(params);
 	}
 	
@@ -248,6 +276,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> modifyOrder(@RequestBody @Valid ModifyOrderParams param,BindingResult result) throws Exception{
 		log.info("修改订单日志参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
 		
 		if(StringUtils.isBlank(param.getOperateUserid())) {
 			ResultVo<Object> response = new ResultVo<Object>();
@@ -299,6 +328,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> updateOrderStatus(@RequestBody @Valid ModifyOrderParams param,BindingResult result) throws Exception{
 		log.info("更新订单状态参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
 		return mOrderService.updateOrderStatus(param);
 	}
 	
@@ -308,6 +338,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> getOrderInfo(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("获取订单状态参数，用于前端轮询支付结果:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
+		checkBaseParam(param);
 		return mOrderService.getOrderInfo(param);
 	}
 	

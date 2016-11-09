@@ -6,7 +6,9 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-public class MAddBookingParam implements Serializable {
+import com.plateno.booking.internal.base.model.BaseParam;
+
+public class MAddBookingParam extends BaseParam implements Serializable {
 
 	private static final long serialVersionUID = -5028619260613976314L;
 	
@@ -44,9 +46,6 @@ public class MAddBookingParam implements Serializable {
 	@NotNull(message = "会员手机,不能为空")
 	@NotEmpty(message = "会员手机,不能为空")
 	private String mobile;
-	
-	@NotNull(message = "会员ID,不能为空")
-	private Integer memberId;
 	
 	@NotNull(message = "下单来源,不能为空")
 	private Integer resource;
@@ -164,14 +163,6 @@ public class MAddBookingParam implements Serializable {
 
 	public void setMobile(String mobile) {
 		this.mobile = mobile;
-	}
-
-	public Integer getMemberId() {
-		return memberId;
-	}
-
-	public void setMemberId(Integer memberId) {
-		this.memberId = memberId;
 	}
 
 	public String getSkuProperties() {

@@ -57,6 +57,7 @@ public class MBookingWebRPCService extends BaseController{
 	public ResultVo<MAddBookResponse> booking(@RequestBody @Valid MAddBookingParam addBookingParam,BindingResult result) throws Exception{
 		log.info("下单,请求参数:"+ JsonUtils.toJsonString(addBookingParam));
 		bindingResultHandler(result);
+		checkBaseParam(addBookingParam);
 		return botaoMallBookingService.addBooking(addBookingParam);
 	}
 	

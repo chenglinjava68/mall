@@ -6,13 +6,13 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.plateno.booking.internal.base.model.BaseParam;
 
 
-public class MOrderParam implements Serializable {
+
+public class MOrderParam extends BaseParam implements Serializable {
 	
 	private static final long serialVersionUID = 1205169223416028536L;
-	
-	private Integer memberId; // 会员 id
 	
 	@NotNull(message = "订单编号不能为空")
 	@NotEmpty(message = "订单编号不能为空")
@@ -30,8 +30,6 @@ public class MOrderParam implements Serializable {
 	
 	private String operateUsername;
 	
-	private Integer plateForm; //1供应商后台、2营销通后台
-	
 	/**
 	 * 取消类型：1-超时取消， 2-手动取消（兼容旧的接口，不填判别为手动取消）超时取消会判断时间是否已经超过30分钟
 	 */
@@ -43,14 +41,6 @@ public class MOrderParam implements Serializable {
 
 	public void setType(Integer type) {
 		this.type = type;
-	}
-
-	public Integer getMemberId() {
-		return memberId;
-	}
-
-	public void setMemberId(Integer memberId) {
-		this.memberId = memberId;
 	}
 
 	public String getOrderNo() {
@@ -100,16 +90,5 @@ public class MOrderParam implements Serializable {
 	public void setOperateUsername(String operateUsername) {
 		this.operateUsername = operateUsername;
 	}
-
-	public Integer getPlateForm() {
-		return plateForm;
-	}
-
-	public void setPlateForm(Integer plateForm) {
-		this.plateForm = plateForm;
-	}
-
-	
-	
 	
 }

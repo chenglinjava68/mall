@@ -4,15 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SelectOrderParam implements java.io.Serializable{
+public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 
 	private static final long serialVersionUID = 9176534725953681588L;
 	
 	private Integer payStatus;//订单状态
-	
-	private Integer requstPlatenoform;// 1 商城,2营销通,3供应商后台
-	
-	private String memberId;//会员ID
 	
 	private String orderNo; // 订单编码
 
@@ -37,11 +33,6 @@ public class SelectOrderParam implements java.io.Serializable{
 	 * 是否查询删除的订单
 	 */
 	private Boolean queryDel = true;
-	
-	/**
-	 * 供应商的渠道
-	 */
-	private Integer channelId;
 	
 	/**
 	 * 下单人姓名
@@ -88,14 +79,6 @@ public class SelectOrderParam implements java.io.Serializable{
 
 	public void setPayStatus(Integer payStatus) {
 		this.payStatus = payStatus;
-	}
-
-	public String getMemberId() {
-		return memberId;
-	}
-
-	public void setMemberId(String memberId) {
-		this.memberId = memberId;
 	}
 
 	public Integer getPageNo() {
@@ -145,22 +128,6 @@ public class SelectOrderParam implements java.io.Serializable{
 
 	public void setResource(Integer resource) {
 		this.resource = resource;
-	}
-
-	public Integer getRequstPlatenoform() {
-		return requstPlatenoform;
-	}
-
-	public void setRequstPlatenoform(Integer requstPlatenoform) {
-		this.requstPlatenoform = requstPlatenoform;
-	}
-
-	public Integer getChannelId() {
-		return channelId;
-	}
-
-	public void setChannelId(Integer channelId) {
-		this.channelId = channelId;
 	}
 
 	public List<Integer> getStatusList() {

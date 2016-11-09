@@ -570,7 +570,7 @@
     select *
     from m_order 
      where 1=1
-      <if test="record.requstPlatenoform != null &amp;&amp; record.requstPlatenoform == 1" >
+      <if test="record.plateForm != null &amp;&amp; record.plateForm == 3" >
         AND member_id = #{record.memberId,jdbcType=VARCHAR}
       </if>
 	  <if test="record.orderNo != null &amp;&amp; record.orderNo != '' " >
@@ -634,7 +634,7 @@
     select count(*)
     from m_order 
      where 1=1
-      <if test="record.requstPlatenoform != null &amp;&amp; record.requstPlatenoform == 1" >
+      <if test="record.plateForm != null &amp;&amp; record.plateForm == 3" >
         AND member_id = #{record.memberId,jdbcType=VARCHAR}
       </if>
 	  <if test="record.orderNo != null &amp;&amp; record.orderNo != '' " >
@@ -743,6 +743,24 @@
     	from m_order
      	where order_no= #{orderNo,jdbcType=VARCHAR} and member_id = #{memberId,jdbcType=INTEGER}
   	]]>
+  </select>
+  
+  
+  <select id="getOrderByNoAndMemberIdAndChannelId" resultMap="BaseResultMap" >
+	  	<![CDATA[ 
+	    	select *
+	    	from m_order
+	  	]]>
+  	
+  		<where>
+  			order_no= #{orderNo,jdbcType=VARCHAR}
+			<if test="memberId != null" >
+				<![CDATA[ and member_id = #{memberId,jdbcType=INTEGER}]]>
+			</if>
+			<if test="channelId != null" >
+				<![CDATA[ and chanelid = #{channelId,jdbcType=INTEGER}]]>
+			</if>
+		</where>
   </select>
   
 </mapper>

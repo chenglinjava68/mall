@@ -97,7 +97,7 @@ public class MallRpcTest {
 	public void testQueryOrderByPage() throws IOException {
 		SelectOrderParam param = new SelectOrderParam();
 		param.setChannelId(1);
-		param.setRequstPlatenoform(3);
+		param.setPlateForm(3);
 		List<Integer> statusList = new ArrayList<>();
 		statusList.add(3);
 		param.setStatusList(statusList);

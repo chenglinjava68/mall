@@ -66,6 +66,8 @@ public class MOrderServiceTest {
 		
 		MOrderParam orderParam = new MOrderParam();
 		orderParam.setOrderNo("O1478144276890105203");
+		orderParam.setMemberId(135964714);
+		//orderParam.setChannelId(1);
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
 	}
@@ -84,7 +86,7 @@ public class MOrderServiceTest {
 		
 		
 		SelectOrderParam param = new SelectOrderParam();
-		param.setRequstPlatenoform(2);
+		param.setPlateForm(1);
 		param.setOrderNo("O1478499130284514088");
 		param.setResource(2);
 		param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));

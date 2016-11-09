@@ -26,29 +26,6 @@ public class MOrderValidate {
 	public ResultVo<LstOrder<SelectOrderResponse>> customQueryValidate(SelectOrderParam param,LstOrder<SelectOrderResponse> vos){
 		ResultVo<LstOrder<SelectOrderResponse>> vo = new ResultVo<LstOrder<SelectOrderResponse>>();
 		
-		if(param.getRequstPlatenoform() == null){
-			vo.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			vo.setResultMsg("请输入请求来源");
-			return vo;
-		}
-		
-		if(param.getRequstPlatenoform().equals(1)){
-			if ( param.getMemberId() == null || param.getMemberId().equals("")) {
-				vo.setResultCode(getClass(), MsgCode.BAD_REQUEST_MEMBERID.getMsgCode());
-				vo.setResultMsg("会员id不能为空");
-				return vo;
-			}
-		}
-		
-		//如果是供应商后台，必须穿channelid
-		if(param.getRequstPlatenoform().equals(3)) {
-			if ( param.getChannelId() == null) {
-				vo.setResultCode(getClass(), MsgCode.BAD_REQUEST_MEMBERID.getMsgCode());
-				vo.setResultMsg("渠道id不能为空");
-				return vo;
-			}
-		}
-		
 		if(param.getPageNo()==null||param.getPageNo()==0){
 			param.setPageNo(1);
 		}
