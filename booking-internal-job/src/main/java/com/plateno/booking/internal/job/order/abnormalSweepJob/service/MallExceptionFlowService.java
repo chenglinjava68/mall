@@ -20,6 +20,7 @@ import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.mapper.SmsLogMapper;
+import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
@@ -138,8 +139,12 @@ public class MallExceptionFlowService {
 		
 		logger.info("处理退款中订单开始...");
 		
+		SelectOrderParam selectOrderParam = new SelectOrderParam();
+		selectOrderParam.setPageNo(0);
+		selectOrderParam.setPageNumber(3000);
+		selectOrderParam.setPayStatus(BookingResultCodeContants.PAY_STATUS_10);
 		//退款中的订单
-		List<Order> orderTList=orderMapper.getOrderByStatus(BookingResultCodeContants.PAY_STATUS_10, 0);
+		List<Order> orderTList=orderMapper.getPageOrders(selectOrderParam );
 		handleEach(orderTList);
 		
 		logger.info("处理退款中订单结束");
@@ -295,6 +300,7 @@ public class MallExceptionFlowService {
 			orderService.updateOrderStatusByNo(record, orderNo);
 			
 			//退款归还下单积分
+			logger.info("orderNo:{}， 退还积分，point:{}", orderNo, order.getRefundPoint());
 			returnPoint(order);
 			
 			OrderProduct productByOrderNo = getProductByOrderNo(orderNo);

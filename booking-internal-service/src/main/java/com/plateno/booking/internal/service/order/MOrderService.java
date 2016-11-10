@@ -766,7 +766,7 @@ public class MOrderService{
 		payLog.setPoint(dbOrder.getPoint());
 		orderPayLogMapper.updateByExampleSelective(payLog, logExample);*/
 		//一律看成请求成功，具体结果看job同步结果
-		output.setResultCode(getClass(), MsgCode.REFUND_HANDLING.getMsgCode());
+		//output.setResultCode(getClass(), MsgCode.REFUND_HANDLING.getMsgCode());
 		output.setResultMsg(MsgCode.REFUND_HANDLING.getMessage());
 		
 		//更新为退款中
