@@ -40,6 +40,16 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 	private String name;
 	
 	private boolean showLimit = true;
+	
+	private int requstPlatenoform;
+
+	public int getRequstPlatenoform() {
+		return requstPlatenoform;
+	}
+
+	public void setRequstPlatenoform(int requstPlatenoform) {
+		this.requstPlatenoform = requstPlatenoform;
+	}
 
 	public String getName() {
 		return name;

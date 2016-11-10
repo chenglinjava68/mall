@@ -197,7 +197,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> pullerPay(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("拉起支付,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		checkBaseParam(param);
+		//checkBaseParam(param);
 		
 		return payService.pullerPay(param);
 	}
@@ -338,7 +338,7 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> getOrderInfo(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("获取订单状态参数，用于前端轮询支付结果:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		checkBaseParam(param);
+		//checkBaseParam(param);
 		return mOrderService.getOrderInfo(param);
 	}
 	
