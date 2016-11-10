@@ -199,6 +199,17 @@ public class MOrderWebRPCService extends BaseController{
 		bindingResultHandler(result);
 		//checkBaseParam(param);
 		
+		if(param.getPayType() == null) {
+			param.setPayType(1);
+		}
+		
+		if(param.getPayType() != 1 || param.getPayType() != 2) {
+			ResultVo<Object> out = new ResultVo<Object>();
+			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			out.setResultMsg("请输入正确的退款方式:" + param.getPayType());
+			return out;
+		}
+		
 		return payService.pullerPay(param);
 	}
 	

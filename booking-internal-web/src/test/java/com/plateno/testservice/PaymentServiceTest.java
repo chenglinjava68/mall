@@ -26,7 +26,7 @@ public class PaymentServiceTest {
 	
 	@Test
 	public void testPayOrderQuery() throws OrderException, Exception{
-		PayQueryResponse payOrderQuery = service.payOrderQuery("L1478740203813312912");
+		PayQueryResponse payOrderQuery = service.payOrderQuery("L1478764589349755057");
 		System.out.println(JSONUtils.toJSONString(payOrderQuery));
 	}
 	

@@ -35,6 +35,20 @@ public class MOrderParam extends BaseParam implements Serializable {
 	 */
 	private Integer type;
 	
+	/**
+	 * 支付方式
+	 * 1微信支付、2支付宝支付
+	 */
+	private Integer payType;
+	
+	public Integer getPayType() {
+		return payType;
+	}
+
+	public void setPayType(Integer payType) {
+		this.payType = payType;
+	}
+
 	public Integer getType() {
 		return type;
 	}

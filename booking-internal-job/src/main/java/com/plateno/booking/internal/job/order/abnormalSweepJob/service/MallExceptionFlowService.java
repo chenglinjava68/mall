@@ -260,7 +260,7 @@ public class MallExceptionFlowService {
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();
 				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-				record.setRemark("退款成功");
+				//record.setRemark("退款成功");
 				record.setUpTime(new Date());
 				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
 				orderPayLogMapper.updateByExampleSelective(record, example);
@@ -272,7 +272,7 @@ public class MallExceptionFlowService {
 				
 				//更新支付流水状态(fail == 3)
 				OrderPayLog record=new OrderPayLog();
-				record.setRemark(String.format("退款失败:%s", response.getMessage()));
+				//record.setRemark(String.format("退款失败:%s", response.getMessage()));
 				record.setStatus(BookingConstants.BILL_LOG_FAIL);
 				record.setUpTime(new Date());
 				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));

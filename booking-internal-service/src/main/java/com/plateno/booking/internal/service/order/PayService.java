@@ -58,6 +58,7 @@ public class PayService {
 		//更新订单状态
 		Order order = new Order();
 		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_11);
+		order.setPayType(mOrderParam.getPayType());
 		//代发货和支付中才（多次拉起支付）允许更新订单
 		List<Integer> list = new ArrayList<>();
 		list.add(BookingResultCodeContants.PAY_STATUS_1);
