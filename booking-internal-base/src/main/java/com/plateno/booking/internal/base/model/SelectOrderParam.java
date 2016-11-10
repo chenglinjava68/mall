@@ -41,15 +41,14 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 	
 	private boolean showLimit = true;
 	
-	private int requstPlatenoform;
+	private Integer requstPlatenoform;
+	
+	/**
+	 * 显示状态
+	 * 100待付款、200已取消、300待发货、400待收货、500已完成、600退款审核中、700已退款、800退款审核不通过
+	 */
+	private Integer viewStatus;
 
-	public int getRequstPlatenoform() {
-		return requstPlatenoform;
-	}
-
-	public void setRequstPlatenoform(int requstPlatenoform) {
-		this.requstPlatenoform = requstPlatenoform;
-	}
 
 	public String getName() {
 		return name;
@@ -57,6 +56,22 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Integer getRequstPlatenoform() {
+		return requstPlatenoform;
+	}
+
+	public void setRequstPlatenoform(Integer requstPlatenoform) {
+		this.requstPlatenoform = requstPlatenoform;
+	}
+
+	public Integer getViewStatus() {
+		return viewStatus;
+	}
+
+	public void setViewStatus(Integer viewStatus) {
+		this.viewStatus = viewStatus;
 	}
 
 	public Boolean getQueryDel() {

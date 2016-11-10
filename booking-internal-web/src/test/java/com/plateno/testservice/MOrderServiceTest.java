@@ -91,6 +91,7 @@ public class MOrderServiceTest {
 		param.setResource(2);
 		param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
 		param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));
+		param.setViewStatus(0);
 		//param.setMemberId("181295316");
 		/*param.setChannelId(1);
 		List<Integer> statusList = new ArrayList<>();

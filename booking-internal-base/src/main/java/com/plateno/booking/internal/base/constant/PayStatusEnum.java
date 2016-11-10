@@ -1,5 +1,8 @@
 package com.plateno.booking.internal.base.constant;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * <pre>
  * 订单状态
@@ -46,7 +49,7 @@ public enum PayStatusEnum {
 	/**
 	 * 
 	 */
-	PAY_STATUS_9(9, 0, "已删除"),
+	PAY_STATUS_9(9, -1, "已删除"),
 	/**
 	 * 
 	 */
@@ -54,7 +57,7 @@ public enum PayStatusEnum {
 	/**
 	 * 
 	 */
-	PAY_STATUS_11(11, 900, "支付中"), 
+	PAY_STATUS_11(11, 100, "支付中"), 
 	/**
 	 * 
 	 */
@@ -142,5 +145,20 @@ public enum PayStatusEnum {
 	 */
 	public static int toViewStatus(int payStatus) {
 		return from(payStatus).getViewStstus();
+	}
+	
+	/**
+	 * 显示状态转成数据库储存状态
+	 * @param viewStatus
+	 * @return
+	 */
+	public static List<Integer> toPayStatus(int viewStatus) {
+		List<Integer> list = new ArrayList<>();
+		for (PayStatusEnum one : values()) {
+            if (one.getViewStstus() == viewStatus) {
+            	list.add(one.getPayStatus());
+            }
+        }
+        return list;
 	}
 }

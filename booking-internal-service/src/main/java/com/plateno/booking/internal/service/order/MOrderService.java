@@ -170,6 +170,16 @@ public class MOrderService{
 			param.setQueryDel(false);
 		}
 		
+		//显示状态转变成数据库记录的状态
+		if(param.getViewStatus() != null) {
+			List<Integer> payStatus = PayStatusEnum.toPayStatus(param.getViewStatus());
+			if(param.getStatusList() != null) {
+				param.getStatusList().addAll(payStatus);
+			} else {
+				param.setStatusList(payStatus);
+			}
+		}
+		
 		List<Order> orderReturns = mallOrderMapper.getPageOrders(param);
 		vo=new ResultVo<LstOrder<SelectOrderResponse>>();
 		if (CollectionUtils.isEmpty(orderReturns)){
