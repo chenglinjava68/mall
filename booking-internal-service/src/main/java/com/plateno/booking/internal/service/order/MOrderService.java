@@ -491,7 +491,7 @@ public class MOrderService{
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
-			op.setPrice(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
+			op.setPrice(book.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
 			op.setProductId(pskubean.getProductId());
 			op.setProductName(pskubean.getTitle());
 			op.setProductProperty(JsonUtils.toJsonString(pskubean.getSkuPropertyInfos()));

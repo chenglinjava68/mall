@@ -64,8 +64,8 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1478144276890105203");
-		orderParam.setMemberId(135964714);
+		orderParam.setOrderNo("O1478835375996176135");
+		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
