@@ -66,6 +66,11 @@ public interface BookingResultCodeContants {
 	
 	// 不允许执行被执行取消操作的订单状态
 	public final static List<Integer> ORDERS_CANCEL_STATUS = Arrays.asList(3,4,5,6,7,8,9,10);
+	
+	/**
+	 * 允许发货的状态
+	 */
+	public final static List<Integer> DELIVER_GOODS_STATUS = Arrays.asList(3, 8);
 
 	// 允许执行被执行更新操作的订单状态
 	public final static List<Integer> READY_PAY_STATUS = Arrays.asList(1,7,5);
@@ -85,7 +90,6 @@ public interface BookingResultCodeContants {
 	// 本地订单状态发生改变
 	public final static List<Integer> LOCAL_PAY_STATUS = Arrays.asList(202,300,301,302,303);
 	
-
 	// 支付流水类型： 1 ：说明是收入 2:说明是支出
 	public final static Integer PAYCODE_INTEGER = 1;
 	public final static Integer REFUNDCODE_INTEGER = 2;

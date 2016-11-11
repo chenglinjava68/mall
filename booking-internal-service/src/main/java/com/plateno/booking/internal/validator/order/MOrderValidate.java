@@ -139,7 +139,7 @@ public class MOrderValidate {
 			return;
 		}
 
-		if (!order.getPayStatus().equals(3)) {
+		if (!BookingResultCodeContants.DELIVER_GOODS_STATUS.contains(order.getPayStatus())) {
 			output.setResultCode(getClass(), MsgCode.SYSTEM_ORDER_DLIVER.getMsgCode());
 			output.setResultMsg(MsgCode.SYSTEM_ORDER_DLIVER.getMessage());
 			return;
