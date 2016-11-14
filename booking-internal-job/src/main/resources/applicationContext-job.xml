@@ -19,6 +19,10 @@
         <property name="targetMethod">
         	 <value>run</value>
 		</property>
+		<!-- 设定不会并发执行，如果时间到了上一次的调度没有执行完成，将会把当次的执行延时 -->
+		<property name="concurrent">
+			<value>false</value>
+		</property>
     </bean>
     
     <!--                                                                                                      -->
@@ -33,7 +37,30 @@
         <property name="jobDetail">
             <ref bean="exceptiontask"/>
         </property>
-        <!-- 在16:00:00触发 -->
+        <property name="cronExpression">
+        	<value>${exceptionfitCron}</value><!-- 0 */10 * * * ? -->
+		</property>
+    </bean>
+    
+    
+    <!-- 支付网关同步  -->
+    <bean id="payGatewaySyncTaskMethod" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="payGatewaySyncTask"/>
+        </property>
+        <property name="targetMethod">
+        	 <value>run</value>
+		</property>
+		<!-- 设定不会并发执行，如果时间到了上一次的调度没有执行完成，将会把当次的执行延时 -->
+		<property name="concurrent">
+			<value>false</value>
+		</property>
+    </bean>
+    
+    <bean id="payGatewaySyncTaskTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+        <property name="jobDetail">
+            <ref bean="payGatewaySyncTaskMethod"/>
+        </property>
         <property name="cronExpression">
         	<value>${exceptionfitCron}</value><!-- 0 */10 * * * ? -->
 		</property>
@@ -46,6 +73,7 @@
 			<!--可以加入多个调度 -->
 			<list>
 				<ref bean="exceptionfit" />
+				<ref bean="payGatewaySyncTaskTrigger" />
 			</list>
 		</property>
 	</bean>
