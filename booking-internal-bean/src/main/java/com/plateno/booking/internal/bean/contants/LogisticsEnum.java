@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.bean.contants;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
+
 
 public enum LogisticsEnum {
 	
@@ -8,7 +10,9 @@ public enum LogisticsEnum {
 	YD(3,"韵达"),
 	BST(4,"百事通"),
 	SF(5,"顺丰"),
-	EMS(6,"EMS");
+	EMS(6,"EMS"),
+	ZT(7,"自提"),
+	;
 	
 	private Integer type;
 	
@@ -40,5 +44,26 @@ public enum LogisticsEnum {
 			}
 		}
 		return null;
+	}
+	
+	public static LogisticsEnum from(int type)throws IllegalArgumentException {
+        for (LogisticsEnum one : values()) {
+            if (one.getType() == type) {
+                return one;
+            }
+        }
+        throw new IllegalArgumentException("LogisticsEnum illegal type:"+ type);
+    }
+	
+	public static boolean has(Integer type){
+		if(type == null) {
+			return false;
+		}
+		for(LogisticsEnum logisticsEnum : LogisticsEnum.values()){
+			if(logisticsEnum.getType().equals(type)){
+				return true;
+			}
+		}
+		return false;
 	}
 }

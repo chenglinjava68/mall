@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
+import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
@@ -114,18 +115,21 @@ public class MOrderWebRPCService extends BaseController{
 			return response;
 		}
 		
-		if(param.getLogisticsType() == null) {
+		if(param.getLogisticsType() == null || !LogisticsEnum.has(param.getLogisticsType())) {
 			ResultVo<Object> response = new ResultVo<Object>();
 			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("物流类型");
+			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
 			return response;
 		}
 		
-		if(StringUtils.isBlank(param.getLogisticsNo())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("物流编号");
-			return response;
+		//自提不去要物流编号
+		if(LogisticsEnum.from(param.getLogisticsType()) != LogisticsEnum.ZT) {
+			if(StringUtils.isBlank(param.getLogisticsNo())) {
+				ResultVo<Object> response = new ResultVo<Object>();
+				response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+				response.setResultMsg("请输入物流编号");
+				return response;
+			}
 		}
 		
 		return mOrderService.deliverOrder(param);

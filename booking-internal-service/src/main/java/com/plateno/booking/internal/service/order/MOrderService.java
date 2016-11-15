@@ -956,7 +956,7 @@ public class MOrderService{
 
 		
 		MLogistics logistics=new MLogistics();
-		logistics.setLogisticsNo(orderParam.getLogisticsNo());
+		logistics.setLogisticsNo(StringUtils.trimToEmpty(orderParam.getLogisticsNo()));
 		logistics.setLogisticsType(orderParam.getLogisticsType());
 		updatLogisticsNoByNo(logistics,callLogistic);
 		
