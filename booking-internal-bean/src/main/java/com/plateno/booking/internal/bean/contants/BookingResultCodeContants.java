@@ -58,7 +58,7 @@ public interface BookingResultCodeContants {
 	public final static List<Integer> BILL_STATUS = Arrays.asList(201,300,301,400);
 	
 	// 不允许执行被执行删除操作的订单状态
-	public final static List<Integer> ORDERS_STATUS = Arrays.asList(2,5,9);
+	public final static List<Integer> ORDERS_STATUS = Arrays.asList(2,5,7, 9);
 	
 	//不允许被修改的状态
 	public final static List<Integer> ORDERS_MODIFY_STATUS = Arrays.asList(2,7,9,10);

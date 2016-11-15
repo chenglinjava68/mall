@@ -557,11 +557,11 @@
      where pay_status= #{status,jdbcType=INTEGER} and create_time &lt; date_sub(now(), interval 30 MINUTE)
   </select>
   
-    <select id="getOrderByStatus" resultMap="BaseResultMap" >
+    <select id="getOrderByStatusAndDeliverTime" resultMap="BaseResultMap" >
     select *
     from m_order 
-     where pay_status= #{status,jdbcType=INTEGER} and create_time &lt; date_sub(
-				CURDATE(),
+     where pay_status= #{status,jdbcType=INTEGER} and deliver_time &lt; date_sub(
+				now(),
 				INTERVAL #{day,jdbcType=INTEGER} day)
   </select>
   
@@ -698,7 +698,8 @@
 		orders.id as orderId,
 		paylog.trand_no as tradeNo,      
 		orders.member_id as memberId,
-		orders.pay_type as payId
+		orders.pay_type as payId,
+		orders.pay_money as amount
 		
 		FROM 
 		

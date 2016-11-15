@@ -1,6 +1,8 @@
 package com.plateno.booking.internal.sms;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpEntity;
@@ -12,6 +14,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.common.util.LogUtils;
+import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.sms.model.SMSCallback;
 import com.plateno.booking.internal.sms.model.SmsMessageReq;
 
@@ -24,6 +27,8 @@ import com.plateno.booking.internal.sms.model.SmsMessageReq;
  */
 @Service
 public class SMSSendService{
+	
+	protected final static Logger logger = LoggerFactory.getLogger(SMSSendService.class);
 
 
 	@Autowired
@@ -76,6 +81,8 @@ public class SMSSendService{
 	private Boolean doSendMessage(SmsMessageReq message, SMSCallback callBack) {
 		boolean isSuccess = false;
 		try {
+			//LogUtils.httpLoggerInfo(String.format("短信发送， %s", JsonUtils.toJsonString(message)));
+			logger.info(String.format("短信发送， %s", JsonUtils.toJsonString(message)));
 			if (callBack != null) {
 				callBack.preSendSMS(message);
 			}
@@ -84,12 +91,14 @@ public class SMSSendService{
 			HttpEntity<String> entity = new HttpEntity<String>(gson.toJson(message), headers);
 			RestTemplate rest = new RestTemplate();
 			String resp = rest.postForObject(Config.SMS_SERVICE_URL, entity, String.class);
-			LogUtils.httpLoggerInfo("===================短信发送：" + gson.toJson(headers) + "body:" + gson.toJson(message) + "返回码：" + resp);
+			//LogUtils.httpLoggerInfo("==========" + message.getPhone() + "=========短信发送：" + gson.toJson(headers) + "body:" + gson.toJson(message) + "返回码：" + resp);
+			logger.info("==========" + message.getPhone() + "=========短信发送：" + gson.toJson(headers) + "body:" + gson.toJson(message) + "返回码：" + resp);
 			if (StringUtils.indexOf(resp, "-") < 0) {
 				isSuccess = true;
 			}
 		} catch (Exception e) {
-			LogUtils.sysErrorLoggerError("发送短信失败", e);
+			//LogUtils.sysErrorLoggerError("发送短信失败", e);
+			logger.error("发送短信失败", e);
 		}
 		if (null != callBack) {
 			callBack.postSendSMS(message, isSuccess);

@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +19,7 @@ import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
+import com.plateno.booking.internal.bean.request.custom.OrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
@@ -67,6 +70,7 @@ public class MOrderServiceTest {
 		orderParam.setOrderNo("O1478835375996176135");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
+		orderParam.setPlateForm(3);
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
 	}
@@ -126,10 +130,16 @@ public class MOrderServiceTest {
 	@Test
 	public void testSms() throws OrderException, Exception{
 		
+		System.out.println(3123123);
+		
 		//发送退款短信
 		taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
+				
+				Logger logger = LoggerFactory.getLogger("httpLogger");
+
+				logger.info("323232323");
 				
 				SmsMessageReq messageReq = new SmsMessageReq();
 				Map<String, String> params = new HashMap<String, String>();
@@ -138,11 +148,17 @@ public class MOrderServiceTest {
 				params.put("name", "商品");
 				params.put("money", "50000");
 				params.put("jf","10");
+				messageReq.setParams(params);
 				messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
 				Boolean res=sendService.sendMessage(messageReq);
 				System.out.println(res);
+				
+				
 			}
 		});
+		
+		
+		Thread.sleep(5000);
 		
 	}
 	
@@ -201,6 +217,38 @@ public class MOrderServiceTest {
 		orderParam.setPlateForm(1);
 		ResultVo<Object> adminRefuseRefund = service.adminRefuseRefund(orderParam );
 		System.out.println(adminRefuseRefund);
+		
+	}
+	
+	
+	@Test
+	public void testLog() throws OrderException, Exception{
+		
+		taskExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+
+				Logger logger = LoggerFactory.getLogger("httpLogger");
+
+				logger.info("323232323");
+
+			}
+		});
+		
+		
+	}
+	
+	
+	@Test
+	public void testDeliverOrder() throws OrderException, Exception{
+		
+		MOrderParam orderParam = new MOrderParam();
+		orderParam.setOrderNo("O1479111919287801128");
+		orderParam.setLogisticsType(1);
+		orderParam.setLogisticsNo("2222222222");
+		
+		service.deliverOrder(orderParam);
+		
 		
 	}
 

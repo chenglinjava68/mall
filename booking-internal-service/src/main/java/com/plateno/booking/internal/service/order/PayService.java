@@ -120,6 +120,11 @@ public class PayService {
 		//支付成功
 		if (PayGateCode.SUCCESS.equals(notifyReturn.getCode())) {
 			
+			if(notifyReturn.getOrderAmount() == null || !notifyReturn.getOrderAmount().equals(bill.getAmount())) {
+				logger.error("orderNo:{}, 订单金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", bill.getOrderNo(), bill.getAmount(), notifyReturn.getOrderAmount());
+				return ;
+			}
+			
 			logger.info("orderNo:{}, 支付成功", bill.getOrderNo());
 			
 			//更新订单状态

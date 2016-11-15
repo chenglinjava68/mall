@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.job.order.abnormalSweepJob.service;
 
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +38,8 @@ import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
+import com.plateno.booking.internal.email.model.RefundSuccessContent;
+import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.member.PointService;
@@ -82,13 +84,13 @@ public class PayGatewaySyncService {
 	private OrderProductMapper orderProductMapper;
 	
 	@Autowired
-	private TaskExecutor taskExecutor;
-	
-	@Autowired
 	private SMSSendService sendService;
 	
 	@Autowired
 	private SmsLogMapper smsLogMapper;
+	
+	@Autowired
+	private PhoneMsgService phoneMsgService;
 
 	/**
 	 * 同步支付中和退款中的订单状态
@@ -257,9 +259,11 @@ public class PayGatewaySyncService {
 				final Order dbOrder = order;
 				final OrderProduct product = productByOrderNo;
 				//发送退款短信
-				taskExecutor.execute(new Runnable() {
+				/*taskExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
+						
+						logger.info("发送退款成功短信:{}", dbOrder.getOrderNo());
 						
 						SmsMessageReq messageReq = new SmsMessageReq();
 						Map<String, String> params = new HashMap<String, String>();
@@ -274,7 +278,10 @@ public class PayGatewaySyncService {
 							params.remove("jf");
 							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
 						}
+						messageReq.setParams(params);
 						Boolean res=sendService.sendMessage(messageReq);
+						
+						logger.info("发送退款成功短信:{}, res:{}", dbOrder.getOrderNo(), res);
 						
 						//记录短信日志
 						SmsLog smslog=new SmsLog();
@@ -286,7 +293,21 @@ public class PayGatewaySyncService {
 						smslog.setUpdateTime(new Date());
 						smsLogMapper.insertSelective(smslog);
 					}
-				});
+				});*/
+				
+				String templateId;
+				RefundSuccessContent content = new RefundSuccessContent();
+				content.setObjectNo(dbOrder.getOrderNo());
+				content.setOrderCode(dbOrder.getOrderNo());
+				content.setMoney(new BigDecimal(dbOrder.getPayMoney()).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_DOWN).toString());
+				content.setName(product.getProductName());
+				if(dbOrder.getRefundPoint() > 0){
+					content.setJf(dbOrder.getRefundPoint() + "");
+					templateId = Config.SMS_SERVICE_TEMPLATE_NINE;
+				}else{
+					templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
+				}
+				phoneMsgService.sendPhoneMessageAsync(dbOrder.getMobile(), templateId, content);
 			}
 		}else if(fail){
 			
@@ -375,6 +396,13 @@ public class PayGatewaySyncService {
 			example.createCriteria().andIdEqualTo(orderPayLog.getId());
 				
 			if(response.getCode().equals(BookingConstants.GATEWAY_PAY_SUCCESS_CODE)){
+				
+				//判断金额是否相等，防止支付时篡改
+				if(response.getOrderAmount() == null || !response.getOrderAmount().equals(orderPayLog.getAmount())) {
+					logger.error("orderNo:{}, 订单金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", orderPayLog.getTrandNo(), orderPayLog.getAmount(), response.getOrderAmount());
+					return ;
+				}
+				
 				logger.info(String.format("orderNo:%s, 支付成功", order.getOrderNo()));
 				//更新支付流水状态(success == 2)
 				OrderPayLog record=new OrderPayLog();

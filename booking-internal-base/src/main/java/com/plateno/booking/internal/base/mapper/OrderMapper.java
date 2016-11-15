@@ -18,7 +18,7 @@ public interface OrderMapper extends BaseMapper {
 	
 	List<Order> getPre30Min(@Param("status")Integer  status);
 	
-	List<Order> getOrderByStatus(@Param("status")Integer  status,@Param("day")Integer  days);
+	List<Order> getOrderByStatusAndDeliverTime(@Param("status")Integer  status,@Param("day")Integer  days);
 	
 	
 	List<Order> getPageOrders(@Param("record")SelectOrderParam selectOrderParam);

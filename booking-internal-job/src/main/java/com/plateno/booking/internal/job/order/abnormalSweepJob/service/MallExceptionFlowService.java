@@ -73,7 +73,7 @@ public class MallExceptionFlowService {
 		logger.info("处理已发货订单开始...");
 		
 		//查询已发货的订单，如果大于15天则更新为已收货4==>5
-		List<Order> orderEList=orderMapper.getOrderByStatus(BookingResultCodeContants.PAY_STATUS_4, 15);
+		List<Order> orderEList=orderMapper.getOrderByStatusAndDeliverTime(BookingResultCodeContants.PAY_STATUS_4, 15);
 		for(Order order:orderEList){
 			
 			logger.info(String.format("已发货-->已完成, orderNo:%s", order.getOrderNo()));

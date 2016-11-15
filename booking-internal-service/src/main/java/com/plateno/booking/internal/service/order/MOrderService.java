@@ -4,9 +4,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +39,6 @@ import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
-import com.plateno.booking.internal.base.pojo.SmsLog;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
@@ -72,6 +69,8 @@ import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
+import com.plateno.booking.internal.email.model.DeliverGoodContent;
+import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -82,7 +81,6 @@ import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.state.OrderStatusContext;
 import com.plateno.booking.internal.sms.SMSSendService;
-import com.plateno.booking.internal.sms.model.SmsMessageReq;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
@@ -143,6 +141,9 @@ public class MOrderService{
 	
 	@Autowired
 	private SmsLogMapper smsLogMapper;
+	
+	@Autowired
+	private PhoneMsgService phoneMsgService;
 	
 
 	/**
@@ -259,7 +260,7 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
-		OrderDetail orderDetail = beansDeal(listOrder);
+		OrderDetail orderDetail = beansDeal(listOrder, orderParam.getPlateForm());
 		output.setData(orderDetail);
 		return output;
 	}
@@ -280,7 +281,7 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
-		OrderDetail orderDetail = beansDeal(listOrder);
+		OrderDetail orderDetail = beansDeal(listOrder, orderParam.getPlateForm());
 		output.setData(orderDetail);
 		return output;
 	}
@@ -973,7 +974,7 @@ public class MOrderService{
 		final ProductSkuBean bean=mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid().toString());
 
 		//final String remark="尊敬的铂涛用户，您的订单【"+od.getOrderNo()+"】，商品【大白创意汽车摆件水晶车内香水可爱饰品小玩偶车载摇头公仔娃娃】【已发货】，快递公司为【申通公司】，单号为：【882454079083338721】，请留意电话查收快递。";
-		taskExecutor.execute(new Runnable() {
+		/*taskExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				
@@ -986,6 +987,7 @@ public class MOrderService{
 				params.put("expressCode", orderParam.getLogisticsNo());//物流号
 				
 				messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_SEVEN));
+				messageReq.setParams(params);
 				boolean res=sendService.sendMessage(messageReq);
 				
 				//记录短信日志
@@ -998,7 +1000,16 @@ public class MOrderService{
 				smslog.setUpdateTime(new Date());
 				smsLogMapper.insertSelective(smslog);
 			}
-		});
+		});*/
+		
+		//发送到短信
+		DeliverGoodContent content = new DeliverGoodContent();
+		content.setObjectNo(od.getOrderNo());
+		content.setOrderCode(od.getOrderNo());
+		content.setName(bean.getTitle());
+		content.setExpress(LogisticsEnum.getNameBytype(orderParam.getLogisticsType()));
+		content.setExpressCode(orderParam.getLogisticsNo());
+		phoneMsgService.sendPhoneMessageAsync(od.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN, content);
 		
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
@@ -1271,7 +1282,7 @@ public class MOrderService{
 	
 	
 	@SuppressWarnings("unchecked")
-	private OrderDetail beansDeal(List<Order> listOrder) {
+	private OrderDetail beansDeal(List<Order> listOrder, Integer plateForm) {
 		Order order=listOrder.get(0);
 		OrderDetail  orderDetail=new OrderDetail();
 		
@@ -1282,7 +1293,20 @@ public class MOrderService{
 		orderInfo.setPoint(order.getPoint());
 		orderInfo.setOrderAmount(order.getAmount());
 		orderInfo.setPayType(order.getPayType());
+		
 		orderInfo.setPayStatus(order.getPayStatus());
+		//待付款， 如果是已经有支付记录，显示成已经失败
+		if(order.getPayStatus().equals(PayStatusEnum.PAY_STATUS_1.getPayStatus())) {
+			if(plateForm != null && plateForm == 3) {
+				OrderPayLogExample example = new OrderPayLogExample();
+				example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(3);
+				List<OrderPayLog> listpayLog = orderPayLogMapper.selectByExample(example);
+				if(listpayLog.size() > 0) {
+					orderInfo.setPayStatus(PayStatusEnum.PAY_STATUS_12.getPayStatus());
+				}
+			}
+		}
+		
 		orderInfo.setPayTime(order.getPayTime().getTime());
 		orderInfo.setName(order.getName());
 		orderInfo.setMobile(order.getMobile());
