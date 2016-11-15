@@ -17,6 +17,11 @@ public class SmsLog implements Serializable {
     private Date createTime;
 
     private Date updateTime;
+    
+    /**
+     * 模板ID
+     */
+    private Integer type;
 
     private static final long serialVersionUID = 1L;
 
@@ -75,4 +80,12 @@ public class SmsLog implements Serializable {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
 }

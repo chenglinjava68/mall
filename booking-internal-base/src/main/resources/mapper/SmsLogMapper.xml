@@ -9,6 +9,7 @@
     <result column="is_success" property="isSuccess" jdbcType="INTEGER" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="type" property="type" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, object_no, phone, content, is_success, create_time, update_time
+    id, object_no, phone, content, is_success, create_time, update_time, type
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.SmsLogExample" >
     select
@@ -106,10 +107,10 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into m_sms_log (object_no, phone, content, 
-      is_success, create_time, update_time
+      is_success, create_time, update_time, type
       )
     values (#{objectNo,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, 
-      #{isSuccess,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      #{isSuccess,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{type,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.SmsLog" >
@@ -136,6 +137,9 @@
       <if test="updateTime != null" >
         update_time,
       </if>
+      <if test="type != null" >
+        type,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="objectNo != null" >
@@ -155,6 +159,9 @@
       </if>
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

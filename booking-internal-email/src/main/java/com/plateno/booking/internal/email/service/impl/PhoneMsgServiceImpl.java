@@ -40,7 +40,10 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
 
 			String contentStr = JsonUtils.toJsonString(content);
 			
+			
 			logger.info("发送短信, phone:{}, templateId:{}, content:{}", phone, templateId, contentStr);
+
+			int type = Integer.parseInt(templateId);
 			
 			// 发送内容
 			Map<String, String> data = new HashMap<String, String>();
@@ -49,7 +52,7 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
 			data.remove("objectNo");
 			
 			SmsMessageReq messageReq = new SmsMessageReq();
-			messageReq.setType(Integer.parseInt(templateId));
+			messageReq.setType(type);
 			messageReq.setParams(data);
 			messageReq.setPhone(phone);
 			
@@ -64,6 +67,7 @@ public class PhoneMsgServiceImpl implements PhoneMsgService {
 			smslog.setObjectNo(content.getObjectNo());
 			smslog.setPhone(phone);
 			smslog.setUpdateTime(new Date());
+			smslog.setType(type);
 			smsLogMapper.insertSelective(smslog);
 			
 		} catch (Exception e) {
