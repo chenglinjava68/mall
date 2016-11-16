@@ -368,7 +368,7 @@ public class MOrderService{
 		paramlog.setOrderCode(modifyOrderParams.getOrderNo());
 		paramlog.setPlateForm(modifyOrderParams.getPlateForm());
 		
-		String remark = OperateLogEnum.ORDER_MODIFY.getOperateName() + String.format(":%s, 修改前状态:%s, 修改后状态:%s", StringUtils.trimToEmpty(modifyOrderParams.getRemark()), oldStatus, modifyOrderParams.getNewStatus());
+		String remark = OperateLogEnum.ORDER_MODIFY.getOperateName() + String.format(":%s, 修改前状态:%s, 修改后状态:%s", StringUtils.trimToEmpty(modifyOrderParams.getRemark()), PayStatusEnum.from(oldStatus).getDesc(), PayStatusEnum.from(modifyOrderParams.getNewStatus()).getDesc());
 		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
 		
 		paramlog.setRemark(remark);

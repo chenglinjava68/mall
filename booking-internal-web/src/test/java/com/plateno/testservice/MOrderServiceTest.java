@@ -178,7 +178,7 @@ public class MOrderServiceTest {
 	@Test
 	public void testModifyOrder() throws OrderException, Exception{
 		ModifyOrderParams modifyOrderParams = new ModifyOrderParams();
-		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_6);
+		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_5);
 		modifyOrderParams.setOrderNo("O1478568730093888087");
 		modifyOrderParams.setRemark("测试修改状态");
 		modifyOrderParams.setOperateUserid("32323");
