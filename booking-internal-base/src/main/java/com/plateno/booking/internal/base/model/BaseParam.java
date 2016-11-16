@@ -32,9 +32,35 @@ public class BaseParam implements java.io.Serializable{
 	 * 请求来源为 1-供应商后台必填，其他选填（其他来源需作为过滤条件时填写）
 	 */
 	private Integer channelId;
+	
+	/**
+	 * 后台操作人ID
+	 */
+	private String operateUserid;
+	
+	/**
+	 * 后台操作人用户名
+	 */
+	private String operateUsername;
 
 	public Integer getPlateForm() {
 		return plateForm;
+	}
+
+	public String getOperateUserid() {
+		return operateUserid;
+	}
+
+	public void setOperateUserid(String operateUserid) {
+		this.operateUserid = operateUserid;
+	}
+
+	public String getOperateUsername() {
+		return operateUsername;
+	}
+
+	public void setOperateUsername(String operateUsername) {
+		this.operateUsername = operateUsername;
 	}
 
 	public void setPlateForm(Integer plateForm) {

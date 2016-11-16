@@ -315,6 +315,9 @@ public class MOrderService{
 		}
 		
 		Order order=listOrder.get(0);
+		
+		int oldStatus = order.getPayStatus();
+		
 		orderValidate.checkModifyOrder(order, output);
 		
 		if(modifyOrderParams.getNewStatus().equals(BookingConstants.PAY_STATUS_6)){//如果状态要变成退款中,需要修改一下字段
@@ -361,10 +364,14 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.ORDER_MODIFY.getOperateType());
 		paramlog.setOperateUserid(modifyOrderParams.getOperateUserid());
-		paramlog.setOperateUserName(modifyOrderParams.getOperateUsername());
+		paramlog.setOperateUsername(modifyOrderParams.getOperateUsername());
 		paramlog.setOrderCode(modifyOrderParams.getOrderNo());
 		paramlog.setPlateForm(modifyOrderParams.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.ORDER_MODIFY.getOperateName() + ":" + StringUtils.trimToEmpty(modifyOrderParams.getRemark()));
+		
+		String remark = OperateLogEnum.ORDER_MODIFY.getOperateName() + String.format(":%s, 修改前状态:%s, 修改后状态:%s", StringUtils.trimToEmpty(modifyOrderParams.getRemark()), oldStatus, modifyOrderParams.getNewStatus());
+		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
+		
+		paramlog.setRemark(remark);
 		operateLogService.saveOperateLog(paramlog);
 		
 		output.setData(order.getMemberId());
@@ -434,10 +441,12 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.MODIFY_DELIVER_OP.getOperateType());
 		paramlog.setOperateUserid(receiptParam.getOperateUserid());
-		paramlog.setOperateUserName(receiptParam.getOperateUsername());
+		paramlog.setOperateUsername(receiptParam.getOperateUsername());
 		paramlog.setOrderCode(receiptParam.getOrderNo());
 		paramlog.setPlateForm(receiptParam.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.MODIFY_DELIVER_OP.getOperateName());
+		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s|%s", receiptParam.getReceiptName(), receiptParam.getReceiptMobile(), receiptParam.getReceiptAddress());
+		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
+		paramlog.setRemark(remark);
 		operateLogService.saveOperateLog(paramlog);
 		
 		return output;
@@ -667,7 +676,7 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
 		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUserName(orderParam.getOperateUsername());
+		paramlog.setOperateUsername(orderParam.getOperateUsername());
 		paramlog.setOrderCode(orderParam.getOrderNo());
 		paramlog.setPlateForm(orderParam.getPlateForm());
 		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
@@ -907,6 +916,18 @@ public class MOrderService{
 		} catch (Exception e) {
 			logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
 		}
+		
+		//如果是后台操作，取消记录操作日志
+		if(orderParam.getPlateForm() != null && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			MOperateLogParam paramlog=new MOperateLogParam();
+			paramlog.setOperateType(OperateLogEnum.CANCEL_ORDER.getOperateType());
+			paramlog.setOperateUserid(orderParam.getOperateUserid());
+			paramlog.setOperateUsername(orderParam.getOperateUsername());
+			paramlog.setOrderCode(orderParam.getOrderNo());
+			paramlog.setPlateForm(orderParam.getPlateForm());
+			paramlog.setRemark(OperateLogEnum.CANCEL_ORDER.getOperateName());
+			operateLogService.saveOperateLog(paramlog);		
+		}
 
 		return output;
 	}
@@ -1014,7 +1035,7 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
 		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUserName(orderParam.getOperateUsername());
+		paramlog.setOperateUsername(orderParam.getOperateUsername());
 		paramlog.setOrderCode(orderParam.getOrderNo());
 		paramlog.setPlateForm(orderParam.getPlateForm());
 		paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
@@ -1053,10 +1074,12 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.MODIFY_DELIVER_OP.getOperateType());
 		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUserName(orderParam.getOperateUsername());
+		paramlog.setOperateUsername(orderParam.getOperateUsername());
 		paramlog.setOrderCode(orderParam.getOrderNo());
 		paramlog.setPlateForm(orderParam.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.MODIFY_DELIVER_OP.getOperateName());
+		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s", orderParam.getLogisticsNo(), LogisticsEnum.from(orderParam.getLogisticsType()));
+		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
+		paramlog.setRemark(remark);
 		operateLogService.saveOperateLog(paramlog);		
 		
 		
@@ -1091,6 +1114,18 @@ public class MOrderService{
 		order.setUpTime(new Date());
 		updateOrderStatusByNo(order, call);
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_5, "收货操作", "收货成功", 0,ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode());
+		//如果是后台操作，取消记录操作日志
+		if(orderParam.getPlateForm() != null && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			
+			MOperateLogParam paramlog=new MOperateLogParam();
+			paramlog.setOperateType(OperateLogEnum.ENTER_RECEIPT.getOperateType());
+			paramlog.setOperateUserid(orderParam.getOperateUserid());
+			paramlog.setOperateUsername(orderParam.getOperateUsername());
+			paramlog.setOrderCode(orderParam.getOrderNo());
+			paramlog.setPlateForm(orderParam.getPlateForm());
+			paramlog.setRemark(OperateLogEnum.ENTER_RECEIPT.getOperateName());
+			operateLogService.saveOperateLog(paramlog);
+		}
 
 		return output;
 	}
@@ -1137,7 +1172,7 @@ public class MOrderService{
 		MOperateLogParam paramlog=new MOperateLogParam();
 		paramlog.setOperateType(OperateLogEnum.REFUSE_REFUNDING.getOperateType());
 		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUserName(orderParam.getOperateUsername());
+		paramlog.setOperateUsername(orderParam.getOperateUsername());
 		paramlog.setOrderCode(orderParam.getOrderNo());
 		paramlog.setPlateForm(orderParam.getPlateForm());
 		paramlog.setRemark(OperateLogEnum.REFUSE_REFUNDING.getOperateName());
@@ -1195,6 +1230,18 @@ public class MOrderService{
 		orderPayLog.setOrderId(listOrder.get(0).getId());
 		orderPayLogMapper.insertSelective(orderPayLog);
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_6, "用户申请退款操作", "", 0,ViewStatusEnum.VIEW_STATUS_REFUNDING.getCode());
+		
+		//后台操作记录操作日志
+		if(orderParam.getPlateForm() != null && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			MOperateLogParam paramlog=new MOperateLogParam();
+			paramlog.setOperateType(OperateLogEnum.REFUNDING_OP.getOperateType());
+			paramlog.setOperateUserid(orderParam.getOperateUserid());
+			paramlog.setOperateUsername(orderParam.getOperateUsername());
+			paramlog.setOrderCode(orderParam.getOrderNo());
+			paramlog.setPlateForm(orderParam.getPlateForm());
+			paramlog.setRemark(OperateLogEnum.REFUNDING_OP.getOperateName());
+			operateLogService.saveOperateLog(paramlog);
+		}
 
 		return output;
 	}

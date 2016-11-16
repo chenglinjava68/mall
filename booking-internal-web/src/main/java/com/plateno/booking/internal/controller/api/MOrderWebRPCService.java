@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
@@ -90,6 +91,23 @@ public class MOrderWebRPCService extends BaseController{
 		bindingResultHandler(result);
 		checkBaseParam(param);
 		
+		if(param.getPlateForm() != null && (param.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || param.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			
+			if(StringUtils.isBlank(param.getOperateUserid())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人ID");
+				return out;
+			}
+			
+			if(StringUtils.isBlank(param.getOperateUsername())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人姓名");
+				return out;
+			}
+		}
+		
 		return mOrderService.cancelOrderLock(param);
 	}
 	
@@ -153,6 +171,23 @@ public class MOrderWebRPCService extends BaseController{
 		bindingResultHandler(result);
 		checkBaseParam(param);
 		
+		if(param.getPlateForm() != null && (param.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || param.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			
+			if(StringUtils.isBlank(param.getOperateUserid())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人ID");
+				return out;
+			}
+			
+			if(StringUtils.isBlank(param.getOperateUsername())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人姓名");
+				return out;
+			}
+		}
+		
 		return mOrderService.enterReceipt(param);
 	}
 	
@@ -169,6 +204,23 @@ public class MOrderWebRPCService extends BaseController{
 			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			out.setResultMsg("请输入退款原因");
 			return out;
+		}
+		
+		if(param.getPlateForm() != null && (param.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || param.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
+			
+			if(StringUtils.isBlank(param.getOperateUserid())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人ID");
+				return out;
+			}
+			
+			if(StringUtils.isBlank(param.getOperateUsername())) {
+				ResultVo<Object> out = new ResultVo<Object>();
+				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				out.setResultMsg("请输入操作人姓名");
+				return out;
+			}
 		}
 		
 		return mOrderService.userRefund(param);
@@ -253,7 +305,7 @@ public class MOrderWebRPCService extends BaseController{
 			return response;
 		}
 		
-		if(StringUtils.isBlank(param.getOperateUserName())) {
+		if(StringUtils.isBlank(param.getOperateUsername())) {
 			ResultVo<Object> response = new ResultVo<Object>();
 			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
 			response.setResultMsg("请输入操作用户");

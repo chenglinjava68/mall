@@ -10,10 +10,6 @@ public class MOperateLogParam extends BaseParam implements Serializable{
 
 	private Integer operateType;
 	
-	private String operateUserid;
-	
-	private String operateUsername;
-	
 	private String remark;
 	
 	private String orderCode;
@@ -26,24 +22,6 @@ public class MOperateLogParam extends BaseParam implements Serializable{
 		this.operateType = operateType;
 	}
 	
-	
-
-	public String getOperateUserid() {
-		return operateUserid;
-	}
-
-	public void setOperateUserid(String operateUserid) {
-		this.operateUserid = operateUserid;
-	}
-
-	public String getOperateUserName() {
-		return operateUsername;
-	}
-
-	public void setOperateUserName(String operateUserName) {
-		this.operateUsername = operateUserName;
-	}
-
 	public String getRemark() {
 		return remark;
 	}

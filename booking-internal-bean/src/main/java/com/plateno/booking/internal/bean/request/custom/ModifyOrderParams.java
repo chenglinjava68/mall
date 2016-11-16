@@ -22,10 +22,6 @@ public class ModifyOrderParams extends BaseParam {
 	
 	private Integer refundAmount;
 	
-	private String operateUserid;
-	
-	private String operateUsername;
-	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -73,22 +69,5 @@ public class ModifyOrderParams extends BaseParam {
 	public void setRefundAmount(Integer refundAmount) {
 		this.refundAmount = refundAmount;
 	}
-
-	public String getOperateUserid() {
-		return operateUserid;
-	}
-
-	public void setOperateUserid(String operateUserid) {
-		this.operateUserid = operateUserid;
-	}
-
-	public String getOperateUsername() {
-		return operateUsername;
-	}
-
-	public void setOperateUsername(String operateUsername) {
-		this.operateUsername = operateUsername;
-	}
-	
 
 }

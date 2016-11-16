@@ -26,10 +26,6 @@ public class MOrderParam extends BaseParam implements Serializable {
 	private String refundRemark; //退款原因 
 
 	
-	private String operateUserid;
-	
-	private String operateUsername;
-	
 	/**
 	 * 取消类型：1-超时取消， 2-手动取消（兼容旧的接口，不填判别为手动取消）超时取消会判断时间是否已经超过30分钟
 	 */
@@ -88,21 +84,4 @@ public class MOrderParam extends BaseParam implements Serializable {
 	public void setLogisticsType(Integer logisticsType) {
 		this.logisticsType = logisticsType;
 	}
-
-	public String getOperateUserid() {
-		return operateUserid;
-	}
-
-	public void setOperateUserid(String operateUserid) {
-		this.operateUserid = operateUserid;
-	}
-
-	public String getOperateUsername() {
-		return operateUsername;
-	}
-
-	public void setOperateUsername(String operateUsername) {
-		this.operateUsername = operateUsername;
-	}
-	
 }

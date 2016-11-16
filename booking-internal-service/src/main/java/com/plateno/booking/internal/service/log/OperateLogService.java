@@ -21,7 +21,7 @@ public class OperateLogService {
 		Operatelog logs=new Operatelog();
 		BeanUtils.copyProperties(orderParam, logs);
 		logs.setOperateTime(new Date());
-		logs.setOperateUsername(orderParam.getOperateUserName());
+		logs.setOperateUsername(orderParam.getOperateUsername());
 		if(operatelogMapper.insertSelective(logs)>0){
 			LogUtils.sysLoggerInfo(String.format("操作日志记录成功,[%s]",orderParam.getOrderCode()));
 		}else{

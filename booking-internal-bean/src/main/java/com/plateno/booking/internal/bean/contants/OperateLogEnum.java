@@ -6,7 +6,7 @@ public enum OperateLogEnum {
 	
 	DELIVER_ORDER(2,"发货操作"),
 	
-	REFUNDING_OP(3,"进行退款操作"),
+	REFUNDING_OP(3,"申请退款操作"),
 	
 	MODIFY_DELIVER_OP(4,"修改发货操作"),
 	
@@ -14,7 +14,10 @@ public enum OperateLogEnum {
 	
 	REFUSE_REFUNDING(6,"拒绝退款操作"),
 	
-	ORDER_MODIFY(7,"订单信息修改操作");
+	ORDER_MODIFY(7,"订单信息修改操作"),
+	
+	ENTER_RECEIPT(8,"确认收货操作"),
+	;
 	
 	private Integer operateType;
 	

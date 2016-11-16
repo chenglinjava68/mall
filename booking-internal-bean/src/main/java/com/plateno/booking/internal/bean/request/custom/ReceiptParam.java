@@ -20,26 +20,6 @@ public class ReceiptParam extends BaseParam {
 	@NotNull(message = "收货地址,不能为空")
 	private String receiptAddress;//收货地址
 	
-	private String operateUserid;
-	
-	private String operateUsername;
-	
-	public String getOperateUserid() {
-		return operateUserid;
-	}
-
-	public void setOperateUserid(String operateUserid) {
-		this.operateUserid = operateUserid;
-	}
-
-	public String getOperateUsername() {
-		return operateUsername;
-	}
-
-	public void setOperateUsername(String operateUsername) {
-		this.operateUsername = operateUsername;
-	}
-
 	public String getOrderNo() {
 		return orderNo;
 	}
