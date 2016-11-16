@@ -1239,7 +1239,7 @@ public class MOrderService{
 			paramlog.setOperateUsername(orderParam.getOperateUsername());
 			paramlog.setOrderCode(orderParam.getOrderNo());
 			paramlog.setPlateForm(orderParam.getPlateForm());
-			paramlog.setRemark(OperateLogEnum.REFUNDING_OP.getOperateName());
+			paramlog.setRemark(OperateLogEnum.REFUNDING_OP.getOperateName() + ":" + StringUtils.trimToEmpty(orderParam.getRefundRemark()));
 			operateLogService.saveOperateLog(paramlog);
 		}
 
