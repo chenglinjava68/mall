@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.service.fromTicket.addBooking.botao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,8 @@ import com.plateno.booking.internal.service.log.OrderLogService;
 @ServiceErrorCode(BookingConstants.CODE_DB_BOOK_ERROR)
 @ServiceFailRetryTimes()
 public class BOTAOMallInsertDBService extends MAbsAddOrderService implements IService<MAddBookingIncomeVo, MAddBookResponse> {
+	
+	protected final static Logger logger = LoggerFactory.getLogger(BOTAOMallInsertDBService.class);
 
 	@Autowired
 	private OrderLogService orderLogService;
@@ -39,7 +43,10 @@ public class BOTAOMallInsertDBService extends MAbsAddOrderService implements ISe
 	@Override
 	public void doSuccess(MAddBookingIncomeVo income,ResultVo<MAddBookResponse> output) throws Exception {
 		LogUtils.sysLoggerInfo(output.getResultMsg());
-		if(income.getAddBookingParam().getSellStrategy().equals(2))minusPoint(income);
+		if(income.getAddBookingParam().getSellStrategy().equals(2)) {
+			logger.info("下单扣减积分， orderNo:{}, sellStrategy:{}, point:{}", output.getData().getOrderNo(), income.getAddBookingParam().getSellStrategy(), income.getAddBookingParam().getPoint());
+			minusPoint(income);
+		}
 		if(!updateStock(income))LogUtils.httpLoggerInfo(String.format("该商品【%s】,更新库存失败", income.getAddBookingParam().getGoodsId()));
 		//redisUtils.set(output.getData().getOrderNo(), JsonUtils.toJsonString(income.getAddBookingParam()), BookingConstants.ORDER_SUCCESS_PAY_TTL); 	//设置下单对象,超时时间24h * 7
 		orderLogService.saveGSOrderLog(output.getData().getOrderNo(), BookingConstants.PAY_STATUS_1, "下单成功", "下单成功，等待30分钟内付款", 0,ViewStatusEnum.VIEW_STATUS_PAYING.getCode());

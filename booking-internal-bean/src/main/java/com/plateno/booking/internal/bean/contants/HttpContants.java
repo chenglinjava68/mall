@@ -23,7 +23,7 @@ public class HttpContants {
 			VERIFICATION_CODE_DEBUG = Integer.parseInt(PropertiesUtil.readPropertiesTools(PROFILE_CXF,"verification.code.debug"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.error(e);
+			log.error(e.getMessage(), e);
 		}
 	}
 }

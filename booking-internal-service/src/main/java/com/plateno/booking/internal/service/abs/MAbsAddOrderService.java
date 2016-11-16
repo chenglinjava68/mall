@@ -51,12 +51,10 @@ public abstract class MAbsAddOrderService {
 	 */
 	public void minusPoint(MAddBookingIncomeVo income) throws Exception{
 		MAddBookingParam addBookingParam = income.getAddBookingParam();
-		if(addBookingParam.getShippingType().equals(2)){
-			ValueBean v=new ValueBean();
-			v.setMebId(addBookingParam.getMemberId());
-			v.setPointvalue(-addBookingParam.getPoint());
-			pointService.mallMinusPoint(v);
-		}
+		ValueBean v=new ValueBean();
+		v.setMebId(addBookingParam.getMemberId());
+		v.setPointvalue(-addBookingParam.getPoint());
+		pointService.mallMinusPoint(v);
 	}
 	
 	public boolean updateStock(MAddBookingIncomeVo income) throws Exception{

@@ -182,7 +182,7 @@ public class Config {
   	}
 		catch (Exception e) {
 			e.printStackTrace();
-			log.error(e);
+			log.error("初始化配置异常", e);
 		}
   }
 

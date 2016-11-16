@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.member;
 
+import java.io.IOException;
+
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
@@ -107,6 +109,14 @@ public class PointService {
 
 		pinfo.setSSpecRemark("会员通过铂旅商城购商品扣减积分");
 		pinfo.setNPoint(valueb.getPointvalue());
+		
+		String jsonString = "";
+		try {
+			jsonString = JsonUtils.toJsonString(pinfo);
+		} catch (IOException e1) {
+		}
+		
+		logger.info(String.format("商城下单扣减积分，参数:%s", jsonString));
 
 		int re = 0;
 		int ree = 0;
@@ -114,7 +124,7 @@ public class PointService {
 			re = mebPointServiceSoap.addPoint(pinfo);
 			logger.info(String.format("积分扣减成功：%s,%s", valueb.getMebId(),valueb.getPointvalue()));
 		} catch (Exception e) {
-			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + "," + String.format("积分扣减时,接口发生异常，请联系管理员:%s", e));
+			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + "," + String.format("积分扣减时,接口发生异常，请联系管理员:%s", e), e);
 		}
 		if (re > 0) {
 			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + ":" + pinfo.getNPoint() + ":推送成功");
@@ -149,6 +159,14 @@ public class PointService {
 
 		pinfo.setSSpecRemark("会员通过铂旅商城购买商品取消/退款返还积分");
 		pinfo.setNPoint(valueb.getPointvalue());
+		
+		String jsonString = "";
+		try {
+			jsonString = JsonUtils.toJsonString(pinfo);
+		} catch (IOException e1) {
+		}
+		
+		logger.info(String.format("商城返回积分，参数:%s", jsonString));
 
 		int re = 0;
 		int ree = 0;
@@ -156,7 +174,7 @@ public class PointService {
 			re = mebPointServiceSoap.addPoint(pinfo);
 			logger.info(String.format("积分返还成功：%s,%s", valueb.getMebId(),valueb.getPointvalue()));
 		} catch (Exception e) {
-			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + "," + String.format("积分扣减时,接口发生异常，请联系管理员:%s", e));
+			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + "," + String.format("积分扣减时,接口发生异常，请联系管理员:%s", e), e);
 		}
 		if (re > 0) {
 			logger.info(valueb.getMebId() + ":" + valueb.getPointvalue() + ":" + pinfo.getNPoint() + ":推送成功");
