@@ -21,7 +21,7 @@ import com.plateno.booking.internal.common.util.json.JsonUtils;
  */
 public class MallRpcTest {
 	
-	private final static String BASE_URL = "http://localhost:9970/booking-internal-web";
+	private final static String BASE_URL = "http://localhost:9577/booking-internal-web";
 	
 	/**
 	 * 下单
@@ -44,8 +44,8 @@ public class MallRpcTest {
 	@Test
 	public void testPullerPay() throws IOException {
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1474959953609872686");
-		param.setMemberId(121212);
+		param.setOrderNo("O1479378823203601818");
+		param.setMemberId(181295316);
 		
 		String url = BASE_URL+ "/mOrderService/pullerPay";
 		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));

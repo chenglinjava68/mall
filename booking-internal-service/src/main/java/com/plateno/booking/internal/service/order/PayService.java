@@ -46,6 +46,7 @@ public class PayService {
 	private MOrderService mOrderService;
 	
 	@SuppressWarnings("unchecked")
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(mOrderParam.getOrderNo(), mOrderParam.getMemberId(), mOrderParam.getChannelId());
@@ -85,6 +86,7 @@ public class PayService {
 		paylog.setUpTime(new Date());
 		orderPayLogMapper.insert(paylog);
 		output.setData(paylog.getTrandNo());
+		
 		return output;
 	}
 	
