@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.service.order;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -45,6 +46,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
+import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
@@ -62,7 +64,9 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDeta
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
+import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
+import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
@@ -70,6 +74,7 @@ import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.email.model.DeliverGoodContent;
+import com.plateno.booking.internal.email.model.RefundSuccessContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
@@ -1554,4 +1559,287 @@ public class MOrderService{
 		
 		orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_5, "已完成", "已完成", 0, ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(), "扫单job维护");
 	}
+	
+	
+	/**
+	 * 退款处理
+	 * @param order
+	 * @throws Exception
+	 */
+	@Transactional(rollbackFor=OrderException.class)
+	public void handleGateWayefund(Order order)throws Exception{
+		
+		String orderNo = order.getOrderNo();
+		
+		//获取记录并上锁，防止并发
+		order = mallOrderMapper.getByOrderNoForUpdate(orderNo);
+		
+		if(order == null || order.getPayStatus() != PayStatusEnum.PAY_STATUS_10.getPayStatus()) {
+			logger.info("退款确认，订单已经处理， orderNo:{}, payStatus:{}", orderNo, order != null ? order.getPayStatus() + "" : "");
+			return ;
+		}
+		
+		/*if(!validate(order,BookingConstants.PAY_STATUS_10)) 
+			return ;*/
+		
+		logger.info(String.format("退款中订单处理开始, orderNo:%s", order.getOrderNo()));
+		
+		OrderPayLogExample example=new OrderPayLogExample();
+		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2).andStatusEqualTo(1);
+		List<OrderPayLog> listpayLog=orderPayLogMapper.selectByExample(example);
+		if(CollectionUtils.isEmpty(listpayLog))		return;
+		
+		boolean success = false;
+		boolean fail = false;
+		for(OrderPayLog orderPayLog:listpayLog){
+			
+			//获取网关的订单状态
+			RefundQueryResponse response = paymentService.refundOrderQuery(orderPayLog.getTrandNo());
+			
+			logger.info(String.format("orderNo:%s, 查询退款状态，返回：%s", order.getOrderNo(), JsonUtils.toJsonString(response)));
+			
+			if (response == null || StringUtils.isBlank(response.getCode())) {
+				logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
+				return;
+			}
+			
+			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
+				logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+				return;
+			}
+			
+			example=new OrderPayLogExample();
+			example.createCriteria().andIdEqualTo(orderPayLog.getId());
+			
+			if(response.getCode().equals(BookingConstants.GATEWAY_REFUND_SUCCESS_CODE)){ //退款成功
+				
+				logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
+				
+				//更新支付流水状态(success == 2)
+				OrderPayLog record=new OrderPayLog();
+				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+				//record.setRemark("退款成功");
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+				orderPayLogMapper.updateByExampleSelective(record, example);
+				
+				success=true;
+			}else if((response.getCode().equals(PayGateCode.REFUND_FAIL) || response.getCode().equals(PayGateCode.REQUEST_EXCEPTION))){ //退款失败
+				
+				logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
+				
+				//更新支付流水状态(fail == 3)
+				OrderPayLog record=new OrderPayLog();
+				//record.setRemark(String.format("退款失败:%s", response.getMessage()));
+				record.setStatus(BookingConstants.BILL_LOG_FAIL);
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+				orderPayLogMapper.updateByExampleSelective(record, example);
+				
+				fail = true;
+			}
+		}
+		
+		Order record = new Order();
+		record.setRefundSuccesstime(new Date());
+		if(success){
+			
+			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
+			
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
+			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
+			//更新账单状态
+			this.updateOrderStatusByNo(record, orderNo);
+			
+			//退款归还下单积分
+			logger.info("orderNo:{}， 退还积分，point:{}", orderNo, order.getRefundPoint());
+			returnPoint(order);
+			
+			OrderProduct productByOrderNo = getProductByOrderNo(orderNo);
+			if(productByOrderNo == null) {
+				logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
+			} else {
+				//更新库存
+				logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
+				if(!modifyStock){
+					logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+					LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+				}
+				
+				final Order dbOrder = order;
+				final OrderProduct product = productByOrderNo;
+				//发送退款短信
+				/*taskExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						
+						logger.info("发送退款成功短信:{}", dbOrder.getOrderNo());
+						
+						SmsMessageReq messageReq = new SmsMessageReq();
+						Map<String, String> params = new HashMap<String, String>();
+						if(dbOrder.getPoint() > 0){
+							messageReq.setPhone(dbOrder.getMobile());
+							params.put("orderCode", dbOrder.getOrderNo());
+							params.put("name", product.getProductName());
+							params.put("money", dbOrder.getPayMoney()+"");
+							params.put("jf",dbOrder.getPoint()+"");
+							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
+						}else{
+							params.remove("jf");
+							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
+						}
+						messageReq.setParams(params);
+						Boolean res=sendService.sendMessage(messageReq);
+						
+						logger.info("发送退款成功短信:{}, res:{}", dbOrder.getOrderNo(), res);
+						
+						//记录短信日志
+						SmsLog smslog=new SmsLog();
+						smslog.setCreateTime(new Date());
+						smslog.setIsSuccess(res==true?1:0);
+						smslog.setContent(product.getProductName());
+						smslog.setObjectNo(dbOrder.getOrderNo());
+						smslog.setPhone(dbOrder.getMobile());
+						smslog.setUpdateTime(new Date());
+						smsLogMapper.insertSelective(smslog);
+					}
+				});*/
+				
+				String templateId;
+				RefundSuccessContent content = new RefundSuccessContent();
+				content.setObjectNo(dbOrder.getOrderNo());
+				content.setOrderCode(dbOrder.getOrderNo());
+				content.setMoney(new BigDecimal(dbOrder.getPayMoney()).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_DOWN).toString());
+				content.setName(product.getProductName());
+				if(dbOrder.getRefundPoint() > 0){
+					content.setJf(dbOrder.getRefundPoint() + "");
+					templateId = Config.SMS_SERVICE_TEMPLATE_NINE;
+				}else{
+					templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
+				}
+				phoneMsgService.sendPhoneMessageAsync(dbOrder.getMobile(), templateId, content);
+			}
+		}else if(fail){
+			
+			logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
+			
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
+			record.setRefundFailReason("网关退款失败");
+			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
+			//更新账单状态
+			this.updateOrderStatusByNo(record, orderNo);
+		}
+	}
+	
+	/**
+	 * 获取订单的商品信息
+	 * @param orderNo
+	 * @return
+	 */
+	public OrderProduct getProductByOrderNo(String orderNo) {
+		OrderProductExample orderProductExample=new OrderProductExample();
+		orderProductExample.createCriteria().andOrderNoEqualTo(orderNo);
+		@SuppressWarnings("unchecked")
+		List<OrderProduct> productOrderList = orderProductMapper.selectByExample(orderProductExample);
+		if(CollectionUtils.isEmpty(productOrderList)) {
+			return null;
+		}
+		
+		return productOrderList.get(0);
+	}
+	
+	/**
+	 * 支付中处理
+	 * @param order
+	 * @throws Exception
+	 */
+	@Transactional(rollbackFor=OrderException.class)
+	public void handlePaying(Order order)throws Exception{
+		
+		String orderNo = order.getOrderNo();
+		
+		//获取记录并上锁，防止并发
+		order = mallOrderMapper.getByOrderNoForUpdate(orderNo);
+		
+		if(order == null || order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
+			logger.info("支付确认，订单已经处理， orderNo:{}, payStatus:{}", orderNo, order != null ? order.getPayStatus() + "" : "");
+			return ;
+		}
+				
+		/*if(!validate(order,BookingConstants.PAY_STATUS_11)) 
+			return ;*/
+		
+		logger.info(String.format("支付中订单处理开始, orderNo:%s", order.getOrderNo()));
+		
+		OrderPayLogExample example=new OrderPayLogExample();
+		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(1);
+		List<OrderPayLog> listpayLog=orderPayLogMapper.selectByExample(example);
+		if(CollectionUtils.isEmpty(listpayLog))	{
+			logger.error("订单状态异常, 订单状态支付中，但是找不到支付流水, orderNo:" + order.getOrderNo());
+			return;
+		}
+		
+		boolean success = false;
+		for(OrderPayLog orderPayLog:listpayLog){
+			
+			//获取网关的订单状态
+			PayQueryResponse response = paymentService.payOrderQuery(orderPayLog.getTrandNo());
+			
+			logger.info("orderNo:{}, 查询支付网关支付状态:{}", order.getOrderNo(), JsonUtils.toJsonString(response));
+			
+			if (response == null || StringUtils.isBlank(response.getCode())) {
+				logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
+				return;
+			}
+			
+			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING) || response.getCode().equals(PayGateCode.UNKNOWN_STATUS)) {
+				logger.error(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+				return;
+			}
+			
+			example = new OrderPayLogExample();
+			example.createCriteria().andIdEqualTo(orderPayLog.getId());
+				
+			if(response.getCode().equals(BookingConstants.GATEWAY_PAY_SUCCESS_CODE)){
+				
+				//判断金额是否相等，防止支付时篡改
+				if(response.getOrderAmount() == null || !response.getOrderAmount().equals(orderPayLog.getAmount())) {
+					logger.error("orderNo:{}, 订单金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", orderPayLog.getTrandNo(), orderPayLog.getAmount(), response.getOrderAmount());
+					return ;
+				}
+				
+				logger.info(String.format("orderNo:%s, 支付成功", order.getOrderNo()));
+				//更新支付流水状态(success == 2)
+				OrderPayLog record=new OrderPayLog();
+				record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+				record.setRemark("支付成功");
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+				orderPayLogMapper.updateByExampleSelective(record, example);
+				
+				success=true;
+			}else{
+				logger.info(String.format("orderNo:%s, 支付失败", order.getOrderNo()));
+				//更新支付流水状态(fail == 3)
+				OrderPayLog record=new OrderPayLog();
+				record.setStatus(BookingConstants.BILL_LOG_FAIL);
+				record.setUpTime(new Date());
+				record.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+				record.setRemark(String.format("支付失败:%s", response.getMessage()));
+				orderPayLogMapper.updateByExampleSelective(record, example);
+			}
+		}
+		
+		Order record = new Order();
+		if(success){
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
+		}else{
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
+		}
+		//更新账单状态
+		this.updateOrderStatusByNo(record, order.getOrderNo());
+	  }
 }
