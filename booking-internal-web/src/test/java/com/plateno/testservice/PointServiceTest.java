@@ -27,7 +27,7 @@ public class PointServiceTest {
 	@Test
 	public void testMallAddPoint() throws OrderException, Exception{
 		ValueBean vb=new ValueBean();
-		vb.setPointvalue(10000);
+		vb.setPointvalue(55555);
 		vb.setMebId(181295316);
 		pointService.mallAddPoint(vb );
 		

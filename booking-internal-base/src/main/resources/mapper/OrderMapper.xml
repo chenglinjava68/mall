@@ -764,4 +764,12 @@
 		</where>
   </select>
   
+  <select id="getByOrderNoForUpdate" resultMap="BaseResultMap" >
+  	<![CDATA[ 
+    	select *
+    	from m_order
+     	where order_no= #{orderNo,jdbcType=VARCHAR} for update
+  	]]>
+  </select>
+  
 </mapper>

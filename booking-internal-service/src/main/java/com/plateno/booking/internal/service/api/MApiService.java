@@ -155,7 +155,7 @@ public class MApiService {
 			if(point < addBookingParam.getPoint()){
 				logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), point, addBookingParam.getMemberId()));
 				output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
-				output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
+				output.setResultMsg("您的积分余额不足以购买" + addBookingParam.getQuantity() + "个商品，可以修改商品数量再进行支付。");
 				return output;
 			}
 			

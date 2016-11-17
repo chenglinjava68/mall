@@ -24,7 +24,7 @@ public class JettyServer {
 	public static void main(String[] args) throws Exception{
 		try {
         	logger.info("start");
-			InetSocketAddress address = new InetSocketAddress(Config.LOCAL_LISTEN_IP,9979);//post:9971
+			InetSocketAddress address = new InetSocketAddress(Config.LOCAL_LISTEN_IP,9579);//post:9971
 			Server server = new Server(address);
 			ServletContextHandler context  = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 			DispatcherServlet servlet = new DispatcherServlet();

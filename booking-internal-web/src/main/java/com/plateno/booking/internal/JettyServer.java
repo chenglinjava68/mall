@@ -28,7 +28,7 @@ public class JettyServer {
 	public static void main(String[] args) throws Exception{
 		try {
         	logger.info("start");
-			InetSocketAddress address = new InetSocketAddress(Config.LOCAL_LISTEN_IP,9977);//post:8083
+			InetSocketAddress address = new InetSocketAddress(Config.LOCAL_LISTEN_IP,9577);//post:8083
 			Server server = new Server(address);
 			ServletContextHandler context  = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 			context.setContextPath("/booking-internal-web");

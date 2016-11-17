@@ -16,6 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ThreadHolder;
@@ -134,6 +136,7 @@ public class ServiceChain {
 	 * @param serviceEnum
 	 * @throws Exception
 	 */
+	@Transactional(propagation=Propagation.REQUIRED)
 	public void doServer(Object income, ResultVo output, String serviceEnum) {
 		if (servicesMap == null || servicesMap.size() == 0) {
 			initServiceChain();

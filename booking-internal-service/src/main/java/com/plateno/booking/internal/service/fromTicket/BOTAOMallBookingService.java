@@ -20,7 +20,6 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.interceptor.adam.service.chain.ServiceChain;
 import com.plateno.booking.internal.service.abs.AbsBookingService;
-import com.plateno.booking.internal.service.fromTicket.vo.AddBookingIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.CancelBookingIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.PayTicketIncomeVo;

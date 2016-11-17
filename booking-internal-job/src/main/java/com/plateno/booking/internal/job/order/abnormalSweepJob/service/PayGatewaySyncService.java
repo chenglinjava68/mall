@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
@@ -163,13 +164,24 @@ public class PayGatewaySyncService {
 	 */
 	@Transactional(rollbackFor=OrderException.class)
 	public void handleGateWayefund(Order order)throws Exception{
-		if(!validate(order,BookingConstants.PAY_STATUS_10)) 
+		
+		String orderNo = order.getOrderNo();
+		
+		//获取记录并上锁，防止并发
+		order = orderMapper.getByOrderNoForUpdate(orderNo);
+		
+		if(order == null || order.getPayStatus() != PayStatusEnum.PAY_STATUS_10.getPayStatus()) {
+			logger.info("退款确认，订单已经处理， orderNo:{}, payStatus:{}", orderNo, order != null ? order.getPayStatus() + "" : "");
 			return ;
+		}
+		
+		/*if(!validate(order,BookingConstants.PAY_STATUS_10)) 
+			return ;*/
 		
 		logger.info(String.format("退款中订单处理开始, orderNo:%s", order.getOrderNo()));
 		
 		OrderPayLogExample example=new OrderPayLogExample();
-		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2);
+		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2).andStatusEqualTo(1);
 		List<OrderPayLog> listpayLog=orderPayLogMapper.selectByExample(example);
 		if(CollectionUtils.isEmpty(listpayLog))		return;
 		
@@ -226,7 +238,6 @@ public class PayGatewaySyncService {
 		
 		Order record = new Order();
 		record.setRefundSuccesstime(new Date());
-		String orderNo = order.getOrderNo();
 		if(success){
 			
 			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
@@ -357,13 +368,24 @@ public class PayGatewaySyncService {
 	 */
 	@Transactional(rollbackFor=OrderException.class)
 	public void handlePaying(Order order)throws Exception{
-		if(!validate(order,BookingConstants.PAY_STATUS_11)) 
+		
+		String orderNo = order.getOrderNo();
+		
+		//获取记录并上锁，防止并发
+		order = orderMapper.getByOrderNoForUpdate(orderNo);
+		
+		if(order == null || order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
+			logger.info("支付确认，订单已经处理， orderNo:{}, payStatus:{}", orderNo, order != null ? order.getPayStatus() + "" : "");
 			return ;
+		}
+				
+		/*if(!validate(order,BookingConstants.PAY_STATUS_11)) 
+			return ;*/
 		
 		logger.info(String.format("支付中订单处理开始, orderNo:%s", order.getOrderNo()));
 		
 		OrderPayLogExample example=new OrderPayLogExample();
-		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1);
+		example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(1);
 		List<OrderPayLog> listpayLog=orderPayLogMapper.selectByExample(example);
 		if(CollectionUtils.isEmpty(listpayLog))	{
 			logger.error("订单状态异常, 订单状态支付中，但是找不到支付流水, orderNo:" + order.getOrderNo());

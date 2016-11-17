@@ -1087,7 +1087,7 @@ public class MOrderService{
 	}
 	
 	
-	@Transactional
+	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> enterReceipt(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
 		//校验订单是否可被处理
@@ -1526,5 +1526,32 @@ public class MOrderService{
 		}
 		output.setData(listPro);
 		return output;
+	}
+	
+	
+	/**
+	 * 确认收货
+	 * @param order
+	 * @throws Exception 
+	 */
+	@Transactional(rollbackFor=Exception.class)
+	public void handleReceiveGoods(String orderNo) throws Exception {
+		
+		logger.info(String.format("job 已发货-->已完成, orderNo:%s", orderNo));
+		
+		//更新订单状态
+		Order o = new Order();
+		o.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);
+		o.setUpTime(new Date());
+		List<Integer> list = new ArrayList<>(1);
+		list.add(BookingResultCodeContants.PAY_STATUS_4);
+		int row = this.updateOrderStatusByNo(o, orderNo, list);
+		//订单已经处理
+		if(row < 1) {
+			logger.info("job 已发货-->已完成,订单已经处理, orderNo：" + orderNo);
+			return ;
+		}
+		
+		orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_5, "已完成", "已完成", 0, ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(), "扫单job维护");
 	}
 }

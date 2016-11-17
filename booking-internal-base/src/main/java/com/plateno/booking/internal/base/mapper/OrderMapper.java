@@ -52,4 +52,11 @@ public interface OrderMapper extends BaseMapper {
 	 */
 	List<Order> getOrderByNoAndMemberIdAndChannelId(@Param("orderNo")String orderNo, @Param("memberId")Integer memberId, @Param("channelId")Integer channelId);
 	
+	/**
+	 * 获取并加写锁
+	 * @param orderNo
+	 * @return
+	 */
+	Order getByOrderNoForUpdate(@Param("orderNo")String orderNo);
+	
 }

@@ -1,7 +1,6 @@
 package com.plateno.booking.internal.job.order.abnormalSweepJob.service;
 
 
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -15,9 +14,7 @@ import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.pojo.Order;
-import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
-import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
@@ -65,6 +62,9 @@ public class MallExceptionFlowService {
 	
 	@Autowired
 	private SmsLogMapper smsLogMapper;
+	
+	@Autowired
+	private MOrderService mOrderService;
 
 	
 	@SuppressWarnings("unchecked")
@@ -75,13 +75,7 @@ public class MallExceptionFlowService {
 		//查询已发货的订单，如果大于15天则更新为已收货4==>5
 		List<Order> orderEList=orderMapper.getOrderByStatusAndDeliverTime(BookingResultCodeContants.PAY_STATUS_4, 15);
 		for(Order order:orderEList){
-			
-			logger.info(String.format("已发货-->已完成, orderNo:%s", order.getOrderNo()));
-			
-			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);
-			order.setUpTime(new Date());
-			orderMapper.updateByPrimaryKeySelective(order);
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_5, "已完成", "已完成",0,ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(),"扫单job维护");
+			mOrderService.handleReceiveGoods(order.getOrderNo());
 		}
 		
 		logger.info("处理已发货订单结束");
@@ -116,4 +110,5 @@ public class MallExceptionFlowService {
 		
 		logger.info("处理未支付订单结束");
 	}
+	
 }
