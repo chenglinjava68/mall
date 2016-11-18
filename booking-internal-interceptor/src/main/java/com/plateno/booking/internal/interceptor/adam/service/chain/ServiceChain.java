@@ -56,7 +56,7 @@ public class ServiceChain {
 	 * 初始化
 	 */
 	private synchronized void initServiceChain() {
-		isReady.set(false);
+		//isReady.set(false);
 		// 判断过滤器表中是否有对象
 		if (servicesMap != null && servicesMap.size() > 0) {
 			return;
