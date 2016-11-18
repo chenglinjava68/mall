@@ -1374,6 +1374,13 @@ public class MOrderService{
 			consigneeInfo.setConsigneeAddress(logc.getConsigneeAddress());
 			consigneeInfo.setConsigneeName(logc.getConsigneeName());
 			consigneeInfo.setMobile(logc.getConsigneeMobile());
+			
+			//针对商城前端，如果地址已经修改了，返回修改后的地址
+			if(plateForm != null && plateForm == 3 && StringUtils.isNotBlank(logc.getConsigneeNewMobile())) {
+				consigneeInfo.setConsigneeAddress(logc.getConsigneeNewaddress());
+				consigneeInfo.setConsigneeName(logc.getConsigneeNewName());
+				consigneeInfo.setMobile(logc.getConsigneeNewMobile());
+			}
 			consigneeInfo.setNewAddress(logc.getConsigneeNewaddress());
 			consigneeInfo.setNewName(logc.getConsigneeNewName());
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
