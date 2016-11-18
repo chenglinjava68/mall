@@ -29,10 +29,25 @@ public class MallRpcTest {
 	 */
 	@Test
 	public void testAddBooking() throws IOException {
-		MAddBookingParam param = new MAddBookingParam();
+		MAddBookingParam addBookingParam = new MAddBookingParam();
+		addBookingParam.setGoodsId(6L);
+		addBookingParam.setTotalAmount(1);
+		addBookingParam.setQuantity(1);
+		addBookingParam.setConsigneeName("Zhangsan");
+		addBookingParam.setConsigneeMobile("13999999999");
+		addBookingParam.setConsigneeAddress("宇宙");
+		addBookingParam.setShippingType(1);
+		addBookingParam.setPlatformId(1);
+		addBookingParam.setName("李四");
+		addBookingParam.setMobile("13777777777");
+		addBookingParam.setMemberId(181295316);
+		addBookingParam.setResource(2);
+		addBookingParam.setSellStrategy(2);
+		addBookingParam.setPoint(8000);
+		addBookingParam.setPlateForm(3);
 		
 		String url = BASE_URL+ "/mbookingService/addBooking";
-		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));
+		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(addBookingParam));
 		
 		System.out.println("返 结果：" + response);
 	}
