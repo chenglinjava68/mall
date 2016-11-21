@@ -536,7 +536,7 @@ public class MOrderService{
 			ordes.setName(book.getName());
 			ordes.setOrderNo(orderNo);
 			ordes.setPayTime(new Date());
-			ordes.setPayType(1);// 默认1微信支付、2支付宝支付
+			ordes.setPayType(0);// 默认1微信支付、2支付宝支付
 			ordes.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			if(pskubean.getSellStrategy()==2) {
 				//ordes.setPoint(pskubean.getFavorPoints());

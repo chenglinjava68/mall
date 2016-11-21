@@ -97,6 +97,7 @@ public class MallRpcTest {
 	public void testConsentRefund() throws IOException {
 		MOrderParam param = new MOrderParam();
 		param.setOrderNo("O1474959953609872686");
+		param.setPlateForm(2);
 		
 		String url = BASE_URL+ "/mOrderService/consentRefund";
 		String response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(param));
