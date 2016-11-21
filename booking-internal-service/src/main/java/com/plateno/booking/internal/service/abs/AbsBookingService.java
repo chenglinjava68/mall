@@ -30,7 +30,9 @@ public class AbsBookingService {
 		}
 		
 		String serviceEnum = channelSourceTypeStr + ServiceEnum.getServiceEnum(channelSourceType, action).getChannelSourceType() + action;
-		log.debug("当前使用的服务是" + serviceEnum);
+		if(log.isDebugEnabled()) {
+			log.debug("当前使用的服务是" + serviceEnum);
+		}
 		return serviceEnum;
 	}
 	

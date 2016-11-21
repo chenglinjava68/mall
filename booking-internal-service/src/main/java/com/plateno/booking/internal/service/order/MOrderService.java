@@ -324,6 +324,9 @@ public class MOrderService{
 		int oldStatus = order.getPayStatus();
 		
 		orderValidate.checkModifyOrder(order, output);
+		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+			return output;
+		}
 		
 		if(modifyOrderParams.getNewStatus().equals(BookingConstants.PAY_STATUS_6)){//如果状态要变成退款中,需要修改一下字段
 			
@@ -463,6 +466,9 @@ public class MOrderService{
 	@Transactional(rollbackFor=OrderException.class)
 	public String insertOrder(MAddBookingIncomeVo income) throws OrderException {
 		try {
+			
+			logger.info("封装参数开始...");
+			
 			com.plateno.booking.internal.base.pojo.Order ordes=new com.plateno.booking.internal.base.pojo.Order();
 			MAddBookingParam book = income.getAddBookingParam();
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
@@ -533,6 +539,8 @@ public class MOrderService{
 			logistics.setExpressFee(pskubean.getExpressFee());
 			logistics.setLogisticsType(1);//物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
 			
+			logger.info("插入数据");
+			
 			mallOrderMapper.insertSelective(ordes);
 			mLogisticsMapper.insertSelective(logistics);
 			orderProductMapper.insertSelective(op);
@@ -540,8 +548,9 @@ public class MOrderService{
 			return orderNo;
 			
 		} catch (Exception e) {
-			LogUtils.sysErrorLoggerError("订单创建失败", e);
-			e.printStackTrace();
+			//LogUtils.sysErrorLoggerError("订单创建失败", e);
+			//e.printStackTrace();
+			logger.error("订单创建失败", e);
 			throw new OrderException("订单创建失败");
 		}
 	}

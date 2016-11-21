@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.service.fromTicket.addBooking.botao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.plateno.booking.internal.bean.contants.BookingConstants;
@@ -28,6 +30,8 @@ import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 @ServiceErrorCode(BookingConstants.CODE_VERIFY_ERROR)
 @ServiceFailRetryTimes()
 public class BOTAOMallParamVerifyService extends AbsParamVerifyService implements IService<MAddBookingIncomeVo, MAddBookResponse>{
+	
+	protected final static Logger logger = LoggerFactory.getLogger(BOTAOMallParamVerifyService.class);
 
 	/* (non-Javadoc)
 	 * @see com.plateno.booking.internal.interceptor.adam.service.IService#doService(java.lang.Object, com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo)
@@ -36,7 +40,8 @@ public class BOTAOMallParamVerifyService extends AbsParamVerifyService implement
 	 */
 	@Override
 	public void doService(MAddBookingIncomeVo income,ResultVo<MAddBookResponse> output) throws Exception {
-		LogUtils.sysLoggerInfo("入参" + JsonUtils.toJsonString(income));
+		//LogUtils.sysLoggerInfo("入参" + JsonUtils.toJsonString(income));
+		logger.info("入参:{}", JsonUtils.toJsonString(income));
 		verifyIncome(income, output);
 	}
 
@@ -47,7 +52,8 @@ public class BOTAOMallParamVerifyService extends AbsParamVerifyService implement
 	 */
 	@Override
 	public void doSuccess(MAddBookingIncomeVo income,ResultVo<MAddBookResponse> output) throws Exception {
-		LogUtils.sysLoggerInfo("商城下单业务参数校验通过");
+		//LogUtils.sysLoggerInfo("商城下单业务参数校验通过");
+		logger.info("商城下单业务参数校验通过");
 	}
 
 	/* (non-Javadoc)
@@ -57,7 +63,8 @@ public class BOTAOMallParamVerifyService extends AbsParamVerifyService implement
 	 */
 	@Override
 	public void doFail(MAddBookingIncomeVo income,ResultVo<MAddBookResponse> output) throws Exception {
-		LogUtils.sysErrorLoggerError(output.getResultMsg(),null);
+		//LogUtils.sysErrorLoggerError(output.getResultMsg(),null);
+		logger.error("" + output);
 	}
 
 	/* (non-Javadoc)

@@ -160,7 +160,9 @@ public class BOTAOMallBookingService extends AbsBookingService {
 			public ResultVo<MAddBookResponse> exec() {
 				ResultVo<MAddBookResponse> resultVo = new ResultVo<MAddBookResponse>();
 				String serviceEnum = getBookingService(addBook.getChanelId(), BookingServiceEnumConstants.ADD);
-				MAddBookingIncomeVo addBookingIncomeVo = initAddBookingIncomeVo(addBook);
+				//MAddBookingIncomeVo addBookingIncomeVo = initAddBookingIncomeVo(addBook);
+				MAddBookingIncomeVo addBookingIncomeVo = new MAddBookingIncomeVo();
+				addBookingIncomeVo.setAddBookingParam(addBook);
 				serviceChain.doServer(addBookingIncomeVo, resultVo, serviceEnum);
 				return resultVo;
 			}

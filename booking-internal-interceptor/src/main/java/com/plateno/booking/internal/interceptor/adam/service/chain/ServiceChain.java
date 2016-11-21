@@ -58,7 +58,11 @@ public class ServiceChain {
 	private synchronized void initServiceChain() {
 		//isReady.set(false);
 		// 判断过滤器表中是否有对象
-		if (servicesMap != null && servicesMap.size() > 0) {
+		/*if (servicesMap != null && servicesMap.size() > 0) {
+			return;
+		}*/
+		
+		if(isReady.get()) {
 			return;
 		}
 
@@ -193,6 +197,11 @@ public class ServiceChain {
 	 * 查处理链是否已经准备好
 	 */
 	private void checkReady() {
+		
+		if (isReady.get()) {
+			return;
+		}
+		
 		for (int i = 0; i < 20; i++) {
 			if (isReady.get()) {
 				return;
