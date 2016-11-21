@@ -494,6 +494,23 @@ public class MOrderService{
 			MAddBookingParam book = income.getAddBookingParam();
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
 			
+			//扣减库存
+			boolean modifyStock = mallGoodsService.modifyStock(book.getGoodsId().toString(), -book.getQuantity());
+			if(!modifyStock) {
+				logger.error("扣减库存失败， {}", modifyStock);
+				throw new OrderException("系统正忙，扣减库存失败，请重试！");
+			}
+			
+			//扣减积分
+			if(book.getSellStrategy().equals(2)) {
+				logger.info("下单扣减积分， sellStrategy:{}, point:{}", book.getSellStrategy(), book.getPoint());
+				boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
+				if(!minusPoint) {
+					logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
+					throw new OrderException("系统正忙，扣减积分，请重试！");
+				}
+			}
+			
 			//商品接口获取参数
 			//SkuBean skubean=mallGoodsService.getSkuProperty(book.getGoodsId().toString());
 			//SkuStock stock=mallGoodsService.getSkuStock(book.getGoodsId().toString(), book.getSkuProperties());
@@ -853,6 +870,25 @@ public class MOrderService{
 			vb.setMebId(dbOrder.getMemberId());
 			vb.setTrandNo(dbOrder.getOrderNo());
 			pointService.mallAddPoint(vb);
+		}
+	}
+	
+	/**
+	 * 扣减积分
+	 * 
+	 * @param income
+	 * @param output
+	 * @throws Exception 
+	 */
+	public boolean minusPoint(int memberId, int point) throws Exception{
+		ValueBean v=new ValueBean();
+		v.setMebId(memberId);
+		v.setPointvalue(-point);
+		int r = pointService.mallMinusPoint(v);
+		if(r > 0) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 	
