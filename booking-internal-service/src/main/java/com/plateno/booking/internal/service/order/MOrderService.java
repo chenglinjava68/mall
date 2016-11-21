@@ -305,6 +305,11 @@ public class MOrderService{
 		return output;
 	}
 	
+	/**
+	 * 允许修改成的状态
+	 */
+	private static final List<Integer> CAN_MODIFY_STATUS = Arrays.asList(3, 4, 5, 6, 7);
+	
 	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> modifyOrder(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
@@ -323,8 +328,24 @@ public class MOrderService{
 		
 		int oldStatus = order.getPayStatus();
 		
-		orderValidate.checkModifyOrder(order, output);
+		//所有订单状态都能修改，
+		/*orderValidate.checkModifyOrder(order, output);
 		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+			return output;
+		}*/
+		
+		//但是只能修改成代发货、待收货、已完成、退款审核中、已退款
+		if(!CAN_MODIFY_STATUS.contains(modifyOrderParams.getNewStatus())) {
+			logger.info(String.format("orderNo:%s, new status:%s, 不支持修改成该状态", order.getOrderNo(), modifyOrderParams.getNewStatus()));
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("不支持修改成该状态");
+			return output;
+		}
+		
+		//相同状态不允许修改
+		if(order.getPayStatus().equals(modifyOrderParams.getNewStatus())) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("相同状态不支持修改");
 			return output;
 		}
 		

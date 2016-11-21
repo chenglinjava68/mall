@@ -369,7 +369,7 @@ public class MOrderWebRPCService extends BaseController{
 		ResultVo<Object> out = mOrderService.modifyOrder(param);
 		
 		//如果改成审核中，直接调用审核通过退款
-		if(out.success() && param.getNewStatus() == BookingConstants.PAY_STATUS_6) {
+		/*if(out.success() && param.getNewStatus() == BookingConstants.PAY_STATUS_6) {
 			MOrderParam orderParam = new MOrderParam();
 			orderParam.setOrderNo(param.getOrderNo());
 			orderParam.setMemberId((int)out.getData());
@@ -384,7 +384,7 @@ public class MOrderWebRPCService extends BaseController{
 			} catch (Exception e) {
 				log.error("退款审核失败:" + param.getOrderNo(), e);
 			}
-		}
+		}*/
 		
 		return out;
 	}
