@@ -498,13 +498,17 @@ public class MOrderService{
 			//SkuBean skubean=mallGoodsService.getSkuProperty(book.getGoodsId().toString());
 			//SkuStock stock=mallGoodsService.getSkuStock(book.getGoodsId().toString(), book.getSkuProperties());
 			ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(book.getGoodsId().toString());
+			if(pskubean == null) {
+				logger.error("获取商品信息失败");
+				throw new OrderException("获取商品信息失败");
+			}
 			/*if(book.getSellStrategy().equals(1)){
 				if(book.getTotalAmount().equals((book.getQuantity()*pskubean.getRegularPrice()))){
 				}
 			}*/
 			ordes.setResource(book.getResource());
 			//商品非积分的总的价格，不包含运费
-			ordes.setAmount(book.getQuantity()*pskubean.getRegularPrice());
+			ordes.setAmount(book.getQuantity()*pskubean.getRegularPrice() + (pskubean.getExpressFee() != null ? pskubean.getExpressFee() : 0));
 			//ordes.setChanelid(book.getChanelId());
 			//渠道从商品服务获取
 			ordes.setChanelid(pskubean.getChannelId());
