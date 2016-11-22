@@ -376,7 +376,7 @@ public class ServiceChain {
 						output.setResultCode(this.getClass(), BaseReslutCodeConstants.CODE_900000);
 					}
 				}
-				output.setResultMsg("system error occor:" + e);
+				output.setResultMsg("system error occor:" + e.getMessage());
 				// 不能放finally，要不然resultCode就不是真实的
 				addEndLog(service, income, output, methodName, begin);
 				if (retryTimeindex < retryTime - 1) {

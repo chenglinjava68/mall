@@ -494,23 +494,6 @@ public class MOrderService{
 			MAddBookingParam book = income.getAddBookingParam();
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
 			
-			//扣减库存
-			boolean modifyStock = mallGoodsService.modifyStock(book.getGoodsId().toString(), -book.getQuantity());
-			if(!modifyStock) {
-				logger.error("扣减库存失败， {}", modifyStock);
-				throw new OrderException("系统正忙，扣减库存失败，请重试！");
-			}
-			
-			//扣减积分
-			if(book.getSellStrategy().equals(2)) {
-				logger.info("下单扣减积分， sellStrategy:{}, point:{}", book.getSellStrategy(), book.getPoint());
-				boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
-				if(!minusPoint) {
-					logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
-					throw new OrderException("系统正忙，扣减积分，请重试！");
-				}
-			}
-			
 			//商品接口获取参数
 			//SkuBean skubean=mallGoodsService.getSkuProperty(book.getGoodsId().toString());
 			//SkuStock stock=mallGoodsService.getSkuStock(book.getGoodsId().toString(), book.getSkuProperties());
@@ -587,13 +570,30 @@ public class MOrderService{
 			mLogisticsMapper.insertSelective(logistics);
 			orderProductMapper.insertSelective(op);
 			
+			//扣减库存
+			boolean modifyStock = mallGoodsService.modifyStock(book.getGoodsId().toString(), -book.getQuantity());
+			if(!modifyStock) {
+				logger.error("扣减库存失败， {}", modifyStock);
+				throw new OrderException("系统正忙，扣减库存失败，请重试！");
+			}
+			
+			//扣减积分
+			if(book.getSellStrategy().equals(2)) {
+				logger.info("下单扣减积分， sellStrategy:{}, point:{}", book.getSellStrategy(), book.getPoint());
+				boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
+				if(!minusPoint) {
+					logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
+					throw new OrderException("系统正忙，扣减积分，请重试！");
+				}
+			}
+			
 			return orderNo;
 			
 		} catch (Exception e) {
 			//LogUtils.sysErrorLoggerError("订单创建失败", e);
 			//e.printStackTrace();
 			logger.error("订单创建失败", e);
-			throw new OrderException("订单创建失败");
+			throw new OrderException("订单创建失败:" + e.getMessage());
 		}
 	}
 	
@@ -1914,6 +1914,7 @@ public class MOrderService{
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
 		}else{
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			record.setPayType(0); //支付方式设置为未支付
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
 		}
 		//更新账单状态

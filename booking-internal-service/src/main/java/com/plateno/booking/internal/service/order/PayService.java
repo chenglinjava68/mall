@@ -160,6 +160,7 @@ public class PayService {
 			Order order = new Order();
 			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			order.setUpTime(new Date());
+			order.setPayType(0); //支付方式设置成未支付
 			List<Integer> list = new ArrayList<>(1);
 			list.add(BookingResultCodeContants.PAY_STATUS_11);
 			int row = mOrderService.updateOrderStatusByNo(order, bill.getOrderNo(), list);
