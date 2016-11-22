@@ -209,6 +209,11 @@ public class OrderDetail implements java.io.Serializable{
 		private Long deliverDate;//发货日期
 		
 		private Integer logisticsType;//物流类型
+		
+		/**
+		 * 物流类型描述
+		 */
+		private String logisticsTypeDesc;
 
 		public String getDeliverNo() {
 			return deliverNo;
@@ -233,6 +238,14 @@ public class OrderDetail implements java.io.Serializable{
 
 		public void setLogisticsType(Integer logisticsType) {
 			this.logisticsType = logisticsType;
+		}
+
+		public String getLogisticsTypeDesc() {
+			return logisticsTypeDesc;
+		}
+
+		public void setLogisticsTypeDesc(String logisticsTypeDesc) {
+			this.logisticsTypeDesc = logisticsTypeDesc;
 		}
 		
 	}

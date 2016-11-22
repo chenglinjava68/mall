@@ -1456,6 +1456,7 @@ public class MOrderService{
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
 			deliverDetail.setDeliverNo(logc.getLogisticsNo());
 			deliverDetail.setLogisticsType(logc.getLogisticsType());
+			deliverDetail.setLogisticsTypeDesc(LogisticsEnum.getNameBytype(logc.getLogisticsType()));
 			if(order.getDeliverTime()!=null)deliverDetail.setDeliverDate(order.getDeliverTime().getTime());
 			orderDetail.setConsigneeInfo(consigneeInfo);
 			orderDetail.setDeliverDetail(deliverDetail);
