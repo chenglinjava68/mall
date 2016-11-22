@@ -22,6 +22,7 @@ import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.service.order.PayService;
 import com.plateno.booking.internal.sms.SMSSendService;
 
 /**
@@ -67,6 +68,9 @@ public class PayGatewaySyncService {
 	
 	@Autowired
 	private PhoneMsgService phoneMsgService;
+	
+	@Autowired
+	private PayService payService;
 
 	/**
 	 * 同步支付中和退款中的订单状态
@@ -90,9 +94,9 @@ public class PayGatewaySyncService {
 		logger.info("处理支付中订单开始...");
 		
 		//支付中的订单
-
-		List<Order> orderPayingList=orderMapper.getPayingAndPayLogPre5Min(BookingResultCodeContants.PAY_STATUS_11);
-		handleEach(orderPayingList);
+		//List<Order> orderPayingList=orderMapper.getPayingAndPayLogPre5Min(BookingResultCodeContants.PAY_STATUS_11);
+		//handleEach(orderPayingList);
+		payService.handlePaying();
 		
 		logger.info("处理支付中订单结束");
 		

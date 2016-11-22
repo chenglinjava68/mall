@@ -332,4 +332,16 @@
       order by ${orderByClause}
     </if>
   </select>
+  
+  <select id="queryPayingLog" resultMap="BaseResultMap" >
+  	<![CDATA[ 
+    	select *
+    	from 
+    		order_pay_log
+     	where 
+     		create_time >= #{startTime} and  create_time <= #{endTime} and type = 1 and status = 1 
+     	limit #{num}
+  	]]>
+  </select>
+  
 </mapper>

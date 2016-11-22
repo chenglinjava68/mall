@@ -1,9 +1,5 @@
 package com.plateno.testservice;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,20 +7,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.base.model.NotifyReturn;
-import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.exception.OrderException;
-import com.plateno.booking.internal.bean.request.common.LstOrder;
-import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
-import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
-import com.plateno.booking.internal.bean.response.custom.MAddBookResponse;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail;
-import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
-import com.plateno.booking.internal.common.util.http.HttpUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
-import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
 import com.plateno.booking.internal.service.order.PayService;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 /**
  * 
@@ -60,6 +46,12 @@ public class PayServiceTest {
 		notifyReturn.setOrderAmount(1);
 		
 		service.payNotify(notifyReturn );
+	}
+	
+	@Test
+	public void testHandlePaying() throws OrderException, Exception{
+		
+		service.handlePaying();
 	}
 
 }

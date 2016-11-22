@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.service.order;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
@@ -24,12 +26,17 @@ import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
+import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
+import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
+import com.plateno.booking.internal.common.util.date.DateUtil;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
+import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
+import com.plateno.booking.internal.service.log.OrderLogService;
 
 @Service
 public class PayService {
@@ -44,6 +51,15 @@ public class PayService {
 	private RedisUtils redisUtils;
 	@Autowired
 	private MOrderService mOrderService;
+	
+	@Autowired
+	private PaymentService paymentService;
+	
+	@Autowired
+	private OrderLogService orderLogService;
+	
+	@Autowired
+	private OrderMapper orderMapper;
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor=Exception.class)
@@ -184,8 +200,118 @@ public class PayService {
 			throw new RuntimeException("支付网关支付回调，非最终状态");
 		}
 	}
-	
-	
 
 
+	/**
+	 * 处理支付中的流水
+	 */
+	public void handlePaying() {
+		Date startTime = DateUtil.getDate(new Date(), -7, 0, 0, 0);
+		Date endTime = DateUtil.getDate(new Date(), 0, 0, -5, 0);
+		int num = 3000;
+		List<OrderPayLog> list = orderPayLogMapper.queryPayingLog(startTime, endTime, num);
+		for(OrderPayLog log : list) {
+			try {
+				handlePayingLog(log);
+			} catch (Exception e) {
+				logger.error("支付中流水处理失败:" + log.getTrandNo(), e);
+			}
+		}
+	}
+	
+	/**
+	 * 每一条支付中的流水处理
+	 * @param log
+	 * @throws Exception 
+	 */
+	@Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor=Exception.class)
+	public void handlePayingLog(OrderPayLog log) throws Exception {
+		logger.info("支付中订单处理，orderId:{}, trandNo:{}", log.getOrderId(), log.getTrandNo());
+		
+		//获取网关的订单状态
+		PayQueryResponse response = paymentService.payOrderQuery(log.getTrandNo());
+		
+		logger.info("trandNo:{}, 查询支付网关支付状态:{}", log.getTrandNo(), JsonUtils.toJsonString(response));
+		
+		if (response == null || StringUtils.isBlank(response.getCode())) {
+			logger.error("查询支付网关订单失败, trandNo:" + log.getTrandNo());
+			return;
+		}
+		
+		if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING) || response.getCode().equals(PayGateCode.UNKNOWN_STATUS)) {
+			logger.error(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", log.getTrandNo(), response.getCode()));
+			return;
+		}
+		
+		OrderPayLogExample example = new OrderPayLogExample();
+		example.createCriteria().andOrderIdEqualTo(log.getId()).andStatusEqualTo(1);
+		OrderPayLog updateLog = new OrderPayLog();
+		updateLog.setUpTime(new Date());
+		updateLog.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));
+		
+		boolean success = false;
+		
+		if(response.getCode().equals(BookingConstants.GATEWAY_PAY_SUCCESS_CODE)){
+			
+			//判断金额是否相等，防止支付时篡改
+			if(response.getOrderAmount() == null || !response.getOrderAmount().equals(log.getAmount())) {
+				logger.error("trandNo:{}, 订单金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", log.getTrandNo(), log.getAmount(), response.getOrderAmount());
+				return ;
+			}
+			
+			logger.info(String.format("trandNo:%s, 支付成功", log.getTrandNo()));
+			
+			//更新支付流水状态(success == 2)
+			updateLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+			updateLog.setRemark("支付成功");
+			int row = orderPayLogMapper.updateByExampleSelective(updateLog, example);
+			
+			success = true;
+			
+			if(row < 0) {
+				logger.info("trandNo:{}, 流水已经更新", log.getTrandNo());
+				return;
+			}
+			
+		}else{
+			logger.info(String.format("trandNo:%s, 支付失败", log.getTrandNo()));
+			
+			//更新支付流水状态(fail == 3)
+			updateLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+			updateLog.setRemark(String.format("支付失败:%s", response.getMessage()));
+			int row = orderPayLogMapper.updateByExampleSelective(updateLog, example);
+			
+			if(row < 0) {
+				logger.info("trandNo:{}, 流水已经更新", log.getTrandNo());
+				return;
+			}
+		}
+		
+		Order order = (Order) orderMapper.selectByPrimaryKey(log.getOrderId());
+		if(order == null) {
+			logger.info("找不到对应的订单, orderId:{}", log.getOrderId());
+			return;
+		}
+		
+		if(order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
+			logger.info("订单状态非支付中, orderId:{}， paystatus：{}", log.getOrderId(), order.getPayStatus());
+			return ;
+		}
+		
+		//更新订单
+		Order record = new Order();
+		if(success){
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
+		}else{
+			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			record.setPayType(0); //支付方式设置为未支付
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
+		}
+		//更新账单状态
+		List<Integer> list = Arrays.asList(PayStatusEnum.PAY_STATUS_11.getPayStatus());
+		Integer row = mOrderService.updateOrderStatusByNo(record, order.getOrderNo(), list);
+
+		logger.info("订单更新结果, orderNo:{}, row:{}", order.getOrderNo(), row);
+	}
 }

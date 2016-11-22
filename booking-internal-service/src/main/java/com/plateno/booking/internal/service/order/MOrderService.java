@@ -1828,9 +1828,11 @@ public class MOrderService{
 	
 	/**
 	 * 支付中处理
+	 * 过期，迁移到PayService.handlePaying方法
 	 * @param order
 	 * @throws Exception
 	 */
+	@Deprecated 
 	@Transactional(rollbackFor=OrderException.class)
 	public void handlePaying(Order order)throws Exception{
 		

@@ -314,6 +314,23 @@ public class DateUtil {
 		return isSameDate;
 	}
 	
+	/**
+     * 获取指定格式的字符串
+     * @param date
+     * @param intervalDate  偏移天数  + 或 -
+     * @param format  格式
+     * @return
+     */
+    public static Date getDate(Date date, int intervalDay, int intervalHour, int intervalMin, int intervalSec) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, intervalDay);
+        calendar.add(Calendar.HOUR, intervalHour);
+        calendar.add(Calendar.MINUTE, intervalMin);
+        calendar.add(Calendar.SECOND, intervalSec);
+        return calendar.getTime();
+    }
+	
 	
 	public static void main(String args[]){
 		Long begin = new Date().getTime();
