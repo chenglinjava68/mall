@@ -219,7 +219,7 @@ public class PayService {
 	 * 处理支付中的流水
 	 */
 	public void handlePaying() {
-		Date startTime = DateUtil.getDate(new Date(), -7, 0, 0, 0);
+		Date startTime = DateUtil.getDate(new Date(), -4, 0, 0, 0);
 		Date endTime = DateUtil.getDate(new Date(), 0, 0, -5, 0);
 		int num = 3000;
 		List<OrderPayLog> list = orderPayLogMapper.queryPayingLog(startTime, endTime, num);

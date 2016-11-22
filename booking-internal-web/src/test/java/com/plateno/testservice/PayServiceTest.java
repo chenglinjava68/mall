@@ -38,8 +38,8 @@ public class PayServiceTest {
 	public void testPayNotify() throws OrderException, Exception{
 		
 		NotifyReturn notifyReturn = new NotifyReturn();
-		notifyReturn.setCode("0000");
-		notifyReturn.setOrderNo("L1479797201909635503");
+		notifyReturn.setCode("0100");
+		notifyReturn.setOrderNo("L1479354262963221360");
 		notifyReturn.setSignData("342434");
 		notifyReturn.setMessage("");
 		notifyReturn.setReferenceId("32323232323");
