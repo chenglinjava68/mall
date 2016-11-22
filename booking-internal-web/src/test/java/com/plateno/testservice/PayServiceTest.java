@@ -39,7 +39,7 @@ public class PayServiceTest {
 		
 		NotifyReturn notifyReturn = new NotifyReturn();
 		notifyReturn.setCode("0000");
-		notifyReturn.setOrderNo("L1479190219164337334");
+		notifyReturn.setOrderNo("L1479797201909635503");
 		notifyReturn.setSignData("342434");
 		notifyReturn.setMessage("");
 		notifyReturn.setReferenceId("32323232323");

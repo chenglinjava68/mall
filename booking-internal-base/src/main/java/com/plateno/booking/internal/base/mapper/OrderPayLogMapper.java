@@ -42,4 +42,11 @@ public interface OrderPayLogMapper extends BaseMapper {
      * @return
      */
 	List<OrderPayLog> queryPayingLog(@Param("startTime")Date startTime, @Param("endTime")Date endTime, @Param("num")int num);
+
+	/**
+	 * 查询流水
+	 * @param orderNo
+	 * @return
+	 */
+	OrderPayLog getByTrandNo(@Param("trandNo")String trandNo);
 }

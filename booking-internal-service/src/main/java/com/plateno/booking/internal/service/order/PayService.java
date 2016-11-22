@@ -18,7 +18,6 @@ import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
-import com.plateno.booking.internal.base.model.bill.BillOrderDetail;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
@@ -121,84 +120,98 @@ public class PayService {
 	public void payNotify(NotifyReturn notifyReturn) throws Exception {
 		
 		logger.info("支付网关回调:{}", JsonUtils.toJsonString(notifyReturn));
+		
+		OrderPayLog log = orderPayLogMapper.getByTrandNo(notifyReturn.getOrderNo());
 
 		//查询订单是否存在
-		BillOrderDetail bill = this.getOrderNoByTradeNo(notifyReturn.getOrderNo());
-		if (bill == null){
-			logger.error("支付网关支付回调,获取不到对应的账单信息：" + notifyReturn.getOrderNo());
-			throw new RuntimeException("找不到订单的信息");
+		if (log == null){
+			logger.error("支付网关支付回调,获取不到对应的流水信息：" + notifyReturn.getOrderNo());
+			throw new RuntimeException("找不到支付流水信息");
 		}
 		
 		//判断是否已经处理
-		if(!BookingResultCodeContants.PAY_STATUS_11.equals(bill.getStatus())) {
-			logger.info("订单已经处理, orderNo：" + notifyReturn.getOrderNo() + "，  status:" + bill.getStatus());
+		if(log.getStatus() != 1) {
+			logger.info("流水已经处理, trand_no：" + notifyReturn.getOrderNo() + "，  status:" + log.getStatus());
 			return;
 		}
+		
+		boolean success = false;
+		
+
+		OrderPayLogExample example = new OrderPayLogExample();
+		example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
+		OrderPayLog record = new OrderPayLog();
+		record.setUpTime(new Date());
+		record.setReferenceid(StringUtils.trimToEmpty(notifyReturn.getReferenceId()));
 		
 		//支付成功
 		if (PayGateCode.SUCCESS.equals(notifyReturn.getCode())) {
 			
-			if(notifyReturn.getOrderAmount() == null || !notifyReturn.getOrderAmount().equals(bill.getAmount())) {
-				logger.error("orderNo:{}, 订单金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", bill.getOrderNo(), bill.getAmount(), notifyReturn.getOrderAmount());
+			if(notifyReturn.getOrderAmount() == null || !notifyReturn.getOrderAmount().equals(log.getAmount())) {
+				logger.error("trand_no:{}, 流水金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}", log.getTrandNo(), log.getAmount(), notifyReturn.getOrderAmount());
 				return ;
 			}
 			
-			logger.info("orderNo:{}, 支付成功", bill.getOrderNo());
+			logger.info("trand_no:{}, 支付成功", log.getTrandNo());
 			
-			//更新订单状态
-			Order order = new Order();
-			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
-			order.setUpTime(new Date());
-			List<Integer> list = new ArrayList<>(1);
-			list.add(BookingResultCodeContants.PAY_STATUS_11);
-			int row = mOrderService.updateOrderStatusByNo(order, bill.getOrderNo(), list);
-			//订单已经处理
-			if(row < 1) {
-				logger.info("订单已经处理, orderNo：" + notifyReturn.getOrderNo());
-				return ;
-			}
+			success = true;
 			
 			//更新支付流水
-			OrderPayLog record = new OrderPayLog();
 			record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-			record.setUpTime(new Date());
-			record.setReferenceid(StringUtils.trimToEmpty(notifyReturn.getReferenceId()));
 			record.setRemark("支付成功");
-			OrderPayLogExample example = new OrderPayLogExample();
-			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
-			orderPayLogMapper.updateByExampleSelective(record, example);
+			int row = orderPayLogMapper.updateByExampleSelective(record, example);
+			//订单已经处理
+			if(row < 1) {
+				logger.info("流水已经处理, trand_no：" + notifyReturn.getOrderNo());
+				return ;
+			}
 			
 		} else if(PayGateCode.FAIL.equals(notifyReturn.getCode())) { //支付失败
 			
-			logger.info("orderNo:{}, 支付失败", bill.getOrderNo());
+			logger.info("trand_no:{}, 支付失败", log.getTrandNo());
 			
-			//更新订单的状态,支付失败
-			Order order = new Order();
-			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
-			order.setUpTime(new Date());
-			order.setPayType(0); //支付方式设置成未支付
-			List<Integer> list = new ArrayList<>(1);
-			list.add(BookingResultCodeContants.PAY_STATUS_11);
-			int row = mOrderService.updateOrderStatusByNo(order, bill.getOrderNo(), list);
+			//更新支付流水
+			record.setStatus(BookingConstants.BILL_LOG_FAIL);
+			record.setRemark(String.format("支付失败:%s", notifyReturn.getMessage()));
+			int row = orderPayLogMapper.updateByExampleSelective(record, example);
 			//订单已经处理
 			if(row < 1) {
-				logger.info("订单已经处理, orderNo：" + notifyReturn.getOrderNo());
+				logger.info("流水已经处理, trand_no：" + notifyReturn.getOrderNo());
 				return ;
 			}
 			
-			//更新支付流水
-			OrderPayLog record = new OrderPayLog();
-			record.setStatus(BookingConstants.BILL_LOG_FAIL);
-			record.setUpTime(new Date());
-			record.setReferenceid(StringUtils.trimToEmpty(notifyReturn.getReferenceId()));
-			record.setRemark(String.format("支付失败:%s", notifyReturn.getMessage()));
-			OrderPayLogExample example = new OrderPayLogExample();
-			example.createCriteria().andTrandNoEqualTo(notifyReturn.getOrderNo());
-			orderPayLogMapper.updateByExampleSelective(record, example);
 		} else {
 			logger.info(String.format("支付网关支付回调，非最终状态, orderNo:%s, code:%s", notifyReturn.getOrderNo(), notifyReturn.getCode()));
 			throw new RuntimeException("支付网关支付回调，非最终状态");
 		}
+		
+		Order order = (Order) orderMapper.selectByPrimaryKey(log.getOrderId());
+		if(order == null) {
+			logger.info("找不到对应的订单, orderId:{}", log.getOrderId());
+			return;
+		}
+		
+		if(order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
+			logger.info("订单状态非支付中, orderNo:{}， paystatus：{}", order.getOrderNo(), order.getPayStatus());
+			return ;
+		}
+		
+		Order updateOrder = new Order();
+		updateOrder.setUpTime(new Date());
+
+		if(success) {
+			updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+		} else {
+			updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			updateOrder.setPayType(0); //支付方式设置成未支付
+		}
+		
+		//更新订单状态
+		List<Integer> list = new ArrayList<>(1);
+		list.add(BookingResultCodeContants.PAY_STATUS_11);
+		int row = mOrderService.updateOrderStatusByNo(updateOrder, order.getOrderNo(), list);
+		logger.info("更新订单状态, orderNo：{}, row:{}", order.getOrderNo(), row);
+		
 	}
 
 
@@ -244,7 +257,7 @@ public class PayService {
 		}
 		
 		OrderPayLogExample example = new OrderPayLogExample();
-		example.createCriteria().andOrderIdEqualTo(log.getId()).andStatusEqualTo(1);
+		example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
 		OrderPayLog updateLog = new OrderPayLog();
 		updateLog.setUpTime(new Date());
 		updateLog.setReferenceid(StringUtils.trimToEmpty(response.getReferenceId()));

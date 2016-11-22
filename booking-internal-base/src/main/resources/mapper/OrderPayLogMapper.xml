@@ -344,4 +344,14 @@
   	]]>
   </select>
   
+  <select id="getByTrandNo" resultMap="BaseResultMap" >
+  	<![CDATA[ 
+    	select *
+    	from 
+    		order_pay_log
+     	where 
+     		trand_no = #{trandNo}
+  	]]>
+  </select>
+  
 </mapper>
