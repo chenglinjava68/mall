@@ -65,7 +65,7 @@ public interface BookingResultCodeContants {
 
 	
 	// 不允许执行被执行取消操作的订单状态
-	public final static List<Integer> ORDERS_CANCEL_STATUS = Arrays.asList(3,4,5,6,7,8,9,10);
+	public final static List<Integer> ORDERS_CANCEL_STATUS = Arrays.asList(2,3,4,5,6,7,8,9,10,13);
 	
 	/**
 	 * 允许发货的状态
