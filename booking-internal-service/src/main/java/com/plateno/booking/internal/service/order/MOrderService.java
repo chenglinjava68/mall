@@ -1104,7 +1104,7 @@ public class MOrderService{
 		content.setOrderCode(od.getOrderNo());
 		content.setName(bean.getTitle());
 		content.setExpress(LogisticsEnum.getNameBytype(orderParam.getLogisticsType()));
-		content.setExpressCode(orderParam.getLogisticsNo());
+		content.setExpressCode(StringUtils.isBlank(orderParam.getLogisticsNo()) ? "无" : orderParam.getLogisticsNo());
 		phoneMsgService.sendPhoneMessageAsync(od.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN, content);
 		
 		MOperateLogParam paramlog=new MOperateLogParam();
