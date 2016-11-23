@@ -313,6 +313,7 @@ public class PayService {
 		
 		//更新订单
 		Order record = new Order();
+		record.setUpTime(new Date());
 		if(success){
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
