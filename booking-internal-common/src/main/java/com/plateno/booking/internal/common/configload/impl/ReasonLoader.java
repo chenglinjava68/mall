@@ -1,12 +1,11 @@
 package com.plateno.booking.internal.common.configload.impl;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.codehaus.jackson.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.common.configload.Loader;
@@ -14,17 +13,21 @@ import com.plateno.booking.internal.common.util.json.JsonUtils;
 
 @Service("reasonLoader")
 public class ReasonLoader extends Loader {
+	
+	private final static Logger logger = LoggerFactory.getLogger(ReasonLoader.class);
 
 	public static JsonNode reasonLoader;
 
 	private JsonNode getJson(){
 		InputStream in = null;
         try {
-        	in = new BufferedInputStream( new FileInputStream(new File("config/refundReason_config.json")));
+        	//in = new BufferedInputStream( new FileInputStream(new File("classpath*:refundReason_config.json")));
+        	in = ReasonLoader.class.getResourceAsStream("/refundReason_config.json");
         	JsonNode reasonLoaderTemp = JsonUtils.getJsonNodefromStream(in);
+        	logger.info("退款理由json初始化:{}", reasonLoaderTemp.toString());
         	return reasonLoaderTemp;
         } catch (IOException e) {
-            e.printStackTrace();
+        	logger.error("退款理由json初始化失败", e);
             return null;
         } finally {
         	if (in != null) {        		
