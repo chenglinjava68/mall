@@ -120,6 +120,8 @@ public class MallExceptionFlowService {
 		List<Order> payList = orderMapper.getPre30Min(PayStatusEnum.PAY_STATUS_11.getPayStatus());
 		for(Order order : payList) {
 			
+			logger.info("支付中-->取消， orderNo:{}", order.getOrderNo());
+			
 			OrderPayLogExample example = new OrderPayLogExample();
 			example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(1);
 			List<OrderPayLog> logList = orderPayLogMapper.selectByExample(example );
