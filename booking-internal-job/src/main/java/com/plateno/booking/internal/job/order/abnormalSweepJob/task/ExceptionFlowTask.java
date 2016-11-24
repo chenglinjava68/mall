@@ -30,24 +30,28 @@ public class ExceptionFlowTask implements Runnable {
 	public void run() {
 		if (Config.START_JOB==1) {
 			
-			//log注入id
-			MDCUtil.addTraceId();
-			Long pre_times=System.currentTimeMillis();
-				logger.info(String.format("异常扫单job==>当前执行时间(毫秒):==>%s", pre_times));
 			try {
-				exceptionFlowService.handleException();			
-			} catch (Exception e) {
-				e.printStackTrace();
-				logger.info(ExceptionUtils.getStackTrace(e));
+				//log注入id
+				MDCUtil.addTraceId();
+				Long pre_times=System.currentTimeMillis();
+				logger.info(String.format("异常扫单job==>当前执行时间(毫秒):==>%s", pre_times));
+				try {
+					exceptionFlowService.handleException();			
+				} catch (Exception e) {
+					logger.error("异常订单处理异常", e);
+				}
+				Long end_times=System.currentTimeMillis();
+				
+				logger.info(String.format("异常扫单job==>执行完时间(毫秒):==>%s", end_times));
+				
+				logger.info(String.format("异常扫单job==>共消耗时间(毫秒):==>%s", end_times-pre_times));
+				
+			} finally {
 				
 				//清除logID
 				MDCUtil.removeTraceId();
 			}
-			Long end_times=System.currentTimeMillis();
 			
-			logger.info(String.format("异常扫单job==>执行完时间(毫秒):==>%s", end_times));
-		
-			logger.info(String.format("异常扫单job==>共消耗时间(毫秒):==>%s", end_times-pre_times));
 		}
 	}
 
