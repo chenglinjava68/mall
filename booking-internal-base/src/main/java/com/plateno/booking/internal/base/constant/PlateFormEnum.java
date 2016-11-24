@@ -17,7 +17,7 @@ public enum PlateFormEnum {
     /**
      * 商城前端
      */
-    USER(3, "商城前端");
+    USER(3, "铂物馆前端");
     
     /**
      * 来源

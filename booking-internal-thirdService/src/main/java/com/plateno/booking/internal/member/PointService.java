@@ -105,9 +105,9 @@ public class PointService {
 		PointAddInfo pinfo = new PointAddInfo();
 		pinfo.setNMebID(valueb.getMebId());
 		pinfo.setNBusType(Config.POINT_TYPE);
-		pinfo.setSRemark(String.format("铂旅商城"));
+		pinfo.setSRemark(String.format("铂物馆"));
 
-		pinfo.setSSpecRemark("会员通过铂旅商城购商品扣减积分");
+		pinfo.setSSpecRemark("会员通过铂物馆购买商品扣减积分");
 		pinfo.setNPoint(valueb.getPointvalue());
 		
 		String jsonString = "";
@@ -155,9 +155,9 @@ public class PointService {
 		PointAddInfo pinfo = new PointAddInfo();
 		pinfo.setNMebID(valueb.getMebId());
 		pinfo.setNBusType(Config.POINT_TYPE);
-		pinfo.setSRemark(String.format("铂旅商城"));
+		pinfo.setSRemark(String.format("铂物馆"));
 
-		pinfo.setSSpecRemark("会员通过铂旅商城购买商品取消/退款返还积分");
+		pinfo.setSSpecRemark("会员通过铂物馆购买商品取消/退款返还积分");
 		pinfo.setNPoint(valueb.getPointvalue());
 		
 		String jsonString = "";

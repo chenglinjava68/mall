@@ -167,9 +167,9 @@ public class MOrderServiceTest {
 	public void testCancelOrder() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1478588661549388760");
+		orderParam.setOrderNo("O1479952202860664675");
 		orderParam.setMemberId(181295316);
-		orderParam.setType(1);
+		orderParam.setType(2);
 		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
 		System.out.println(userRefund);
 		

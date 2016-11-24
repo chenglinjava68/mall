@@ -6,7 +6,7 @@ public enum ThirdServiceEnum {
 	LVMAMA_SERVICE(1,"lvmamaService","驴妈妈服务"),
 	TONGCHENG_SERVICE(2,"tongchengService","同程服务"),
 	YAOCHUFA_SERVICE(3,"yaochufaService","要出发服务"),
-	BOTAO_SERVICE(4,"botao","铂旅商城");
+	BOTAO_SERVICE(4,"botao","铂物馆");
 	
 	private Integer channel;
 	
