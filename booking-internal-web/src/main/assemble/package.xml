@@ -5,11 +5,13 @@
         <format>tar.gz</format>  
     </formats>  
     <includeBaseDirectory>true</includeBaseDirectory>  
-    <fileSets>  
+    <fileSets> 
+    	<!-- 
         <fileSet>  
             <directory>src/main/bin</directory>  
             <outputDirectory>/</outputDirectory>  
         </fileSet>  
+    	 --> 
     </fileSets>  
     <dependencySets>  
         <dependencySet>  

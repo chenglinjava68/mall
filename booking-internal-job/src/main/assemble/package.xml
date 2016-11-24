@@ -6,10 +6,12 @@
     </formats>  
     <includeBaseDirectory>true</includeBaseDirectory>  
     <fileSets>  
+    	<!-- 
         <fileSet>  
             <directory>src/main/bin</directory>  
             <outputDirectory>/</outputDirectory>  
         </fileSet>  
+    	 -->
     </fileSets>  
     <dependencySets>  
         <dependencySet>  
