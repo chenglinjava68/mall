@@ -222,6 +222,7 @@ public class MOrderService{
 			sc.setGoodsProperties(listProduct.get(0).getProductProperty());
 			sc.setQuatity(listProduct.get(0).getSkuCount());
 			sc.setDisImage(listProduct.get(0).getDisImages());
+			sc.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId=" + listProduct.get(0).getProductId());
 		}
 		sc.setPoint(order.getPoint());
 		sc.setAmount(order.getAmount());
@@ -247,7 +248,6 @@ public class MOrderService{
 		sc.setRefundAmount(refundAmount);
 		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
 		
-		sc.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId=" + listProduct.get(0).getProductId());
 		
 		list.add(sc);
 	}
