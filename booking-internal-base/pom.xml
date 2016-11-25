@@ -22,5 +22,10 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+		<groupId>com.plateno</groupId>
+		<artifactId>mall-booking-util</artifactId>
+		<version>${com.plateno.booking}</version>
+	</dependency>
   </dependencies>
 </project>

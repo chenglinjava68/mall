@@ -772,4 +772,61 @@
   	]]>
   </select>
   
+  
+  <select id="list" resultMap="BaseResultMap" parameterType="mOrderSearchVO">
+  	<![CDATA[ 
+		select 
+			*
+		from 
+			m_order
+	]]>
+	
+	<where>
+		<if test="memberId != null and memberId > 0" >
+			<![CDATA[ AND member_id = #{memberId} ]]>
+		</if>
+		<if test="channelId != null and channelId > 0" >
+			<![CDATA[ AND chanelid = #{channelId} ]]>
+		</if>
+		<if test="bookingStartDate != null and bookingStartDate > 0" >
+			<![CDATA[ AND create_time >= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+		</if>
+		<if test="bookingEndDate != null and bookingEndDate > 0" >
+			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+		</if>
+		<if test="queryDel != null and !queryDel" >
+			<![CDATA[   AND pay_status != 9 ]]>
+		</if>
+	</where>
+	<![CDATA[ ORDER BY id DESC  LIMIT #{start} , #{size}  ]]>
+		
+  </select>
+  
+  <select id="count" resultType="integer" parameterType="mOrderSearchVO">
+  	<![CDATA[ 
+		select 
+			count(*)
+		from 
+			m_order
+	]]>
+	
+	<where>
+		<if test="memberId != null and memberId > 0" >
+			<![CDATA[ AND member_id = #{memberId} ]]>
+		</if>
+		<if test="channelId != null and channelId > 0" >
+			<![CDATA[ AND chanelid = #{channelId} ]]>
+		</if>
+		<if test="bookingStartDate != null and bookingStartDate > 0" >
+			<![CDATA[ AND create_time >= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+		</if>
+		<if test="bookingEndDate != null and bookingEndDate > 0" >
+			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+		</if>
+		<if test="queryDel != null and !queryDel" >
+			<![CDATA[   AND pay_status != 9 ]]>
+		</if>
+	</where>
+  </select>
+
 </mapper>

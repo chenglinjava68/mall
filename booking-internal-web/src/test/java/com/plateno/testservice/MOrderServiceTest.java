@@ -13,13 +13,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
+import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
-import com.plateno.booking.internal.bean.request.custom.OrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
@@ -28,6 +28,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.order.MOrderService;
 import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.sms.model.SmsMessageReq;
+import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -248,6 +249,22 @@ public class MOrderServiceTest {
 		orderParam.setLogisticsNo("2222222222");
 		
 		service.deliverOrder(orderParam);
+		
+		
+	}
+	
+	
+	@Test
+	public void testQueryOrderList() throws OrderException, Exception{
+		
+		
+		MOrderSearchVO svo = new MOrderSearchVO();
+		
+		svo.setMemberId(181295316);
+		
+		ResultVo<PageInfo<SelectOrderResponse>> queryOrderList = service.queryOrderList(svo );
+		
+		System.out.println(queryOrderList);
 		
 		
 	}

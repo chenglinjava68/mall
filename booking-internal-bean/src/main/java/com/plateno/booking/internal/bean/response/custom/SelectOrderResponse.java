@@ -48,6 +48,11 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer viewStatus;
 	
+	/**
+	 * 商品详情页面地址
+	 */
+	private String goodsUrl;
+	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -182,6 +187,14 @@ public class SelectOrderResponse implements java.io.Serializable{
 
 	public void setViewStatus(Integer viewStatus) {
 		this.viewStatus = viewStatus;
+	}
+
+	public String getGoodsUrl() {
+		return goodsUrl;
+	}
+
+	public void setGoodsUrl(String goodsUrl) {
+		this.goodsUrl = goodsUrl;
 	}
 
 }

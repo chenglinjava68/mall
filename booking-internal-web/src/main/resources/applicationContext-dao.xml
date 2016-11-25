@@ -74,6 +74,8 @@
 				</bean>
 			</array>
 		</property>
+		
+		<property name="typeAliasesPackage" value="com.plateno.booking.internal.base.pojo,com.plateno.booking.internal.base.vo" />
 	</bean>
 	
 	<bean name="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">

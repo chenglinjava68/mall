@@ -19,6 +19,7 @@
     	<module>booking-internal-thirdService</module>
    		<module>booking-internal-activity</module>
    		<module>booking-internal-hotel</module>
+		<module>mall-booking-util</module>
 	</modules>
 
 	<properties>

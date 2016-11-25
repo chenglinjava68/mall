@@ -127,6 +127,11 @@ public class Config {
     
   //旅行业务群组邮件地址：
   	public static String EMAIL_GROUP;
+  	
+  	/**
+  	 * 商城地址
+  	 */
+  	public static String MALL_H5_URL;
    
   /* 载入配置 */
   static {
@@ -179,9 +184,11 @@ public class Config {
 		MEMBER_GROWVALUE_URL= PropertiesUtil.readPropertiesTools(PROFILE_CXF,"URL_MEMBERGROW_SERVICE");
 		
 		_JOBDAYS = Integer.parseInt(PropertiesUtil.readPropertiesTools(PROFILE_CXF,"days"));;
+		
+		MALL_H5_URL = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MALL_H5_URL");
   	}
 		catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			log.error("初始化配置异常", e);
 		}
   }

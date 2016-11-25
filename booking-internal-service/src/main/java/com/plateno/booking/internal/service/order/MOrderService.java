@@ -40,6 +40,7 @@ import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
+import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
@@ -86,6 +87,7 @@ import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.state.OrderStatusContext;
 import com.plateno.booking.internal.sms.SMSSendService;
+import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
@@ -244,6 +246,8 @@ public class MOrderService{
 		
 		sc.setRefundAmount(refundAmount);
 		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
+		
+		sc.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId=" + listProduct.get(0).getProductId());
 		
 		list.add(sc);
 	}
@@ -1923,4 +1927,49 @@ public class MOrderService{
 		//更新账单状态
 		this.updateOrderStatusByNo(record, order.getOrderNo());
 	  }
+
+
+	/**
+	 * 分页查询订单
+	 * @param search
+	 * @return
+	 */
+	public ResultVo<PageInfo<SelectOrderResponse>> queryOrderList(
+			MOrderSearchVO svo) {
+		
+		PageInfo<SelectOrderResponse> paginInfo = new PageInfo<SelectOrderResponse>();
+		
+		if(svo.getPlateForm() == null || svo.getPlateForm() == PlateFormEnum.USER.getPlateForm()) {
+			svo.setQueryDel(false);
+		} else {
+			
+		}
+		
+        List<Order> list = mallOrderMapper.list(svo);
+        
+        
+        List<SelectOrderResponse> volist = new ArrayList<SelectOrderResponse>();
+        for (Order po : list) {
+        	paramsDeal(po, volist);
+        }
+        paginInfo.setList(volist);
+
+        if (list.size() > 0) {
+            int totalNum = mallOrderMapper.count(svo);
+            int totalPage = totalNum % svo.getSize() == 0 ? totalNum
+                    / svo.getSize() : totalNum / svo.getSize() + 1;
+
+            paginInfo.setCount(totalNum);
+            paginInfo.setPage(svo.getPage());
+            paginInfo.setPageCount(totalPage);
+        } else {
+            paginInfo.setCount(0);
+            paginInfo.setPage(svo.getPage());
+            paginInfo.setPageCount(0);
+        }
+        
+        ResultVo<PageInfo<SelectOrderResponse>> result = new ResultVo<>();
+        result.setData(paginInfo);
+        return result;
+	}
 }

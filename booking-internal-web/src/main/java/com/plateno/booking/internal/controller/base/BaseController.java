@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.model.BaseParam;
+import com.plateno.booking.internal.base.vo.MallBaseSearchVO;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -120,6 +121,47 @@ public class BaseController{
 			
 			break;
 		case USER: //供应商后台
+			
+			if(baseParam.getMemberId() == null || baseParam.getMemberId() <= 0) {
+				log.error("memberId 格式不正确:{}", baseParam.getMemberId());
+				throw new Exception("请输入正确的memberId：" + baseParam.getMemberId());
+			}
+			break;
+
+		default:
+			break;
+		}
+        
+    }
+	
+	/**
+	 * 检查基本参数是否正确
+	 * @param baseParam
+	 * @return
+	 * @throws Exception
+	 */
+	public void checkBaseSearchVO(MallBaseSearchVO baseParam) throws Exception {
+		
+		if(baseParam.getPlateForm() == null || baseParam.getPlateForm() <= 0) {
+			log.error("plateForm 格式不正确:{}", baseParam.getPlateForm());
+			throw new Exception("请输入正确的plateForm：" + baseParam.getPlateForm());
+		}
+        if(!PlateFormEnum.has(baseParam.getPlateForm())) {
+        	log.error("plateForm 无法识别:{}", baseParam.getPlateForm());
+			throw new Exception("请输入正确的plateForm：" + baseParam.getPlateForm());
+        }
+        
+        switch (PlateFormEnum.from(baseParam.getPlateForm())) {
+		case PROVIDER_ADMIN: //供应商后台
+			
+			if(baseParam.getChannelId() == null || baseParam.getChannelId() <= 0) {
+				log.error("channelId 格式不正确:{}", baseParam.getChannelId());
+				throw new Exception("请输入正确的channelId：" + baseParam.getChannelId());
+			}
+			
+			break;
+		case USER: //商城前端
+		case APP: //APP
 			
 			if(baseParam.getMemberId() == null || baseParam.getMemberId() <= 0) {
 				log.error("memberId 格式不正确:{}", baseParam.getMemberId());
