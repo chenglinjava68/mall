@@ -1,6 +1,6 @@
 package com.plateno.booking.internal.wechat.model;
 
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -49,6 +49,16 @@ public class ProductSkuBean implements java.io.Serializable {
 	 * 渠道号
 	 */
 	private Integer channelId; 
+	
+	/**
+	 * 积分抵扣金额
+	 */
+	private Integer deductPrice;
+	
+	/**
+	 * 限购数量（null不限购）
+	 */
+	private Integer maxSaleQty;
 
 	public List<SkuPropertyInfos> getSkuPropertyInfos() {
 		return skuPropertyInfos;
@@ -209,6 +219,22 @@ public class ProductSkuBean implements java.io.Serializable {
 		this.status = status;
 	}
 
+	public Integer getDeductPrice() {
+		return deductPrice;
+	}
+
+	public void setDeductPrice(Integer deductPrice) {
+		this.deductPrice = deductPrice;
+	}
+
+	public Integer getMaxSaleQty() {
+		return maxSaleQty;
+	}
+
+	public void setMaxSaleQty(Integer maxSaleQty) {
+		this.maxSaleQty = maxSaleQty;
+	}
+
 	@Override
 	public String toString() {
 		return "ProductSkuBean [skuPropertyInfos=" + skuPropertyInfos
@@ -220,6 +246,7 @@ public class ProductSkuBean implements java.io.Serializable {
 				+ imgPath + ", sellStrategy=" + sellStrategy + ", stock="
 				+ stock + ", status=" + status + ", priceStrategy="
 				+ priceStrategy + ", priceName=" + priceName + ", channelId="
-				+ channelId + "]";
+				+ channelId + ", deductPrice=" + deductPrice + ", maxSaleQty="
+				+ maxSaleQty + "]";
 	}
 }

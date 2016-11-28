@@ -61,6 +61,7 @@ public enum PayStatusEnum {
 	/**
 	 * 支付失败
 	 */
+	@Deprecated
 	PAY_STATUS_12(12, 100, "支付失败"), 
 	/**
 	 * 退款失败

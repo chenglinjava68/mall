@@ -1973,4 +1973,16 @@ public class MOrderService{
         result.setData(paginInfo);
         return result;
 	}
+	
+	
+	/**
+	 * 查询订单已经购买的数量（只要有支付成功，就算是退款也算是已经购买的数量了）
+	 * @param memberId	会员ID
+	 * @param productId	产品ID
+	 * @return
+	 */
+	public int queryUserProductSum(int memberId, int productId) {
+		return orderProductMapper.queryUserProductSum(memberId, productId);
+	}
+
 }

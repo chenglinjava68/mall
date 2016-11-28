@@ -16,6 +16,7 @@ import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
+import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
@@ -80,7 +81,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("18");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("14");
 		System.out.println(productAndskuStock);
 		
 	}
@@ -267,6 +268,21 @@ public class MOrderServiceTest {
 		System.out.println(queryOrderList);
 		
 		
+	}
+	
+	@Test
+	public void testModifydeliverOrder() throws OrderException, Exception{
+		
+		
+		MOrderParam orderParam = new MOrderParam();
+		orderParam.setOrderNo("O1479370028199240481");
+		orderParam.setLogisticsType(LogisticsEnum.ZT.getType());
+		orderParam.setLogisticsNo(null);
+		orderParam.setOperateUserid("12345");
+		orderParam.setOperateUsername("23456");
+		
+		ResultVo<Object> modifydeliverOrder = service.modifydeliverOrder(orderParam );
+		System.out.println(modifydeliverOrder);
 	}
 
 }

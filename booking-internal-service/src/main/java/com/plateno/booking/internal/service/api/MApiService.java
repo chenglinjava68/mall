@@ -12,6 +12,7 @@ import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
+import com.plateno.booking.internal.service.order.MOrderService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
@@ -34,6 +35,9 @@ public class MApiService {
 
 	@Autowired
 	private PointService pointService;
+	
+	@Autowired
+	private MOrderService mOrderService;
 	
 	/*
 
@@ -79,11 +83,33 @@ public class MApiService {
 			return output;
 		}
 		
+		//是否已经下架或未到开售时间
+		if(!Integer.valueOf(1).equals(pskubean.getStatus())){
+			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
+			output.setResultMsg("商品未到开售时间或者已经下架！");
+			return output;
+		}
+
+		//库存
 		if(addBookingParam.getQuantity()>pskubean.getStock()){
 			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
 			output.setResultMsg(MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMessage());
 			return output;
 		}
+		
+		//限购
+		if(pskubean.getMaxSaleQty() != null && pskubean.getMaxSaleQty() > 0) {
+			//查询用户已经购买的数量 
+			int queryUserProductSum = mOrderService.queryUserProductSum(addBookingParam.getMemberId(), pskubean.getProductId());
+			
+			int num = pskubean.getMaxSaleQty() - queryUserProductSum;
+			if(num < addBookingParam.getQuantity()) {
+				output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
+				output.setResultMsg("您购买的总数量已经超过限制的数量，目前您最多只能购买：" + (num >=0 ? num : 0) + "件");
+				return output;
+			}
+		}
+		
 		
 		if(pskubean.getStatus().equals(BookingResultCodeContants.PAY_STATUS_2)){
 			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
