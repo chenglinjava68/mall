@@ -1145,7 +1145,8 @@ public class MOrderService{
 		
 		
 		MLogistics logistics=new MLogistics();
-		logistics.setLogisticsNo(orderParam.getLogisticsNo());
+		//物流改成自提，需要把原来的快递单号设置成空
+		logistics.setLogisticsNo(StringUtils.trimToEmpty(orderParam.getLogisticsNo()));
 		logistics.setLogisticsType(orderParam.getLogisticsType());
 		updatLogisticsNoByNo(logistics,callLogistic);
 		

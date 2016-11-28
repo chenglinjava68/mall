@@ -159,6 +159,37 @@ public class MOrderWebRPCService extends BaseController{
 		log.info("修改发货信息,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
 		checkBaseParam(param);
+		
+		if(StringUtils.isBlank(param.getOperateUserid())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作人ID");
+			return response;
+		}
+		
+		if(StringUtils.isBlank(param.getOperateUsername())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入操作用户");
+			return response;
+		}
+		
+		if(param.getLogisticsType() == null || !LogisticsEnum.has(param.getLogisticsType())) {
+			ResultVo<Object> response = new ResultVo<Object>();
+			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
+			return response;
+		}
+		
+		//自提不去要物流编号
+		if(LogisticsEnum.from(param.getLogisticsType()) != LogisticsEnum.ZT) {
+			if(StringUtils.isBlank(param.getLogisticsNo())) {
+				ResultVo<Object> response = new ResultVo<Object>();
+				response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+				response.setResultMsg("请输入物流编号");
+				return response;
+			}
+		}
 
 		return mOrderService.modifydeliverOrder(param);
 	}
