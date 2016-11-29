@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +23,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
+import com.plateno.booking.internal.bean.request.custom.GetProductBuyNumParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
@@ -40,7 +42,7 @@ import com.plateno.booking.internal.service.order.PayService;
 @RequestMapping("/mOrderService")
 public class MOrderWebRPCService extends BaseController{
 
-	private final static Logger log = Logger.getLogger(MBookingWebRPCService.class);
+	private final static Logger log = LoggerFactory.getLogger(MOrderWebRPCService.class);
 	
 	@Autowired
 	private MOrderService mOrderService;
@@ -445,6 +447,20 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> getOrderListByPreDay(HttpServletRequest requst) throws Exception{
 		log.info("获取商品的已销售数量参数:"+ JsonUtils.toJsonString(requst.getParameter("days")));
 		return mOrderService.getPruSellAmountByPreDay(Integer.parseInt(requst.getParameter("days")));
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/getProductBuyNum" ,method = RequestMethod.POST)
+	public ResultVo<Integer> getProductBuyNum(@RequestBody @Valid GetProductBuyNumParam param,BindingResult result) throws Exception{
+		log.info("获取商品的购买数量:{}", JsonUtils.toJsonString(param));
+		bindingResultHandler(result);
+		checkBaseParam(param);
+		
+		ResultVo<Integer> output = new ResultVo<>();
+		int num = mOrderService.queryUserProductSum(param.getMemberId(), param.getProductId());
+		output.setData(num);
+		
+		return output;
 	}
 	
 }
