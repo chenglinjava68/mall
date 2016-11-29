@@ -10,7 +10,7 @@ public interface MLogisticsTypeMapper {
 
     int deleteByExample(MLogisticsTypeExample example);
 
-    int deleteByPrimaryKey(Integer id);
+    int deleteByPrimaryKey(Integer type);
 
     int insert(MLogisticsType record);
 
@@ -18,7 +18,7 @@ public interface MLogisticsTypeMapper {
 
     List<MLogisticsType> selectByExample(MLogisticsTypeExample example);
 
-    MLogisticsType selectByPrimaryKey(Integer id);
+    MLogisticsType selectByPrimaryKey(Integer type);
 
     int updateByExampleSelective(@Param("record") MLogisticsType record, @Param("example") MLogisticsTypeExample example);
 
@@ -29,7 +29,7 @@ public interface MLogisticsTypeMapper {
     int updateByPrimaryKey(MLogisticsType record);
 
     /**
-     * 获取所有数据
+     * 获取所有类型
      * @return
      */
 	List<MLogisticsType> listAll();

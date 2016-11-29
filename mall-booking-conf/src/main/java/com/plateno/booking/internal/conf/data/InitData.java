@@ -19,7 +19,7 @@ public class InitData {
 		
 		logger.info("MLogisticsTypeData.loadData() start...");
 		
-		MLogisticsTypeData.loadData();
+		LogisticsTypeData.loadData();
 		
 		logger.info("MLogisticsTypeData.loadData() end.");
 	}

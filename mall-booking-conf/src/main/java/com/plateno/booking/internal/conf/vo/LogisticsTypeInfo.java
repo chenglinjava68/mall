@@ -1,13 +1,12 @@
-package com.plateno.booking.internal.base.pojo;
+package com.plateno.booking.internal.conf.vo;
 
-import java.util.Date;
 
 /**
  * 物流类型
  * @author mogt
  * @date 2016年11月29日
  */
-public class MLogisticsType {
+public class LogisticsTypeInfo {
 	
 	/**
 	 * 类型
@@ -18,11 +17,6 @@ public class MLogisticsType {
      *  描述
      */
     private String description;
-
-    /**
-     * 创建时间
-     */
-    private Date createTime;
 
     public Integer getType() {
         return type;
@@ -38,13 +32,5 @@ public class MLogisticsType {
 
     public void setDescription(String description) {
         this.description = description == null ? null : description.trim();
-    }
-
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
     }
 }

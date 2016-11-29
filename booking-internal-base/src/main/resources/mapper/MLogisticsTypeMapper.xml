@@ -2,10 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.plateno.booking.internal.base.mapper.MLogisticsTypeMapper" >
   <resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.MLogisticsType" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="type" property="type" jdbcType="INTEGER" />
+    <id column="type" property="type" jdbcType="INTEGER" />
     <result column="description" property="description" jdbcType="VARCHAR" />
-    <result column="name" property="name" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
   </resultMap>
   <sql id="Example_Where_Clause" >
@@ -67,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List" >
-    id, type, description, name, create_time
+    type, description, create_time
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsTypeExample" >
     select
@@ -87,11 +85,11 @@
     select 
     <include refid="Base_Column_List" />
     from m_logistics_type
-    where id = #{id,jdbcType=INTEGER}
+    where type = #{type,jdbcType=INTEGER}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from m_logistics_type
-    where id = #{id,jdbcType=INTEGER}
+    where type = #{type,jdbcType=INTEGER}
   </delete>
   <delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsTypeExample" >
     delete from m_logistics_type
@@ -100,42 +98,30 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsType" >
-    insert into m_logistics_type (id, type, description, 
-      name, create_time)
-    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP})
+    insert into m_logistics_type (type, description, create_time
+      )
+    values (#{type,jdbcType=INTEGER}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsType" >
     insert into m_logistics_type
     <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
       <if test="type != null" >
         type,
       </if>
       <if test="description != null" >
         description,
       </if>
-      <if test="name != null" >
-        name,
-      </if>
       <if test="createTime != null" >
         create_time,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
-      </if>
       <if test="type != null" >
         #{type,jdbcType=INTEGER},
       </if>
       <if test="description != null" >
         #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null" >
-        #{name,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -151,17 +137,11 @@
   <update id="updateByExampleSelective" parameterType="map" >
     update m_logistics_type
     <set >
-      <if test="record.id != null" >
-        id = #{record.id,jdbcType=INTEGER},
-      </if>
       <if test="record.type != null" >
         type = #{record.type,jdbcType=INTEGER},
       </if>
       <if test="record.description != null" >
         description = #{record.description,jdbcType=VARCHAR},
-      </if>
-      <if test="record.name != null" >
-        name = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null" >
         create_time = #{record.createTime,jdbcType=TIMESTAMP},
@@ -173,10 +153,8 @@
   </update>
   <update id="updateByExample" parameterType="map" >
     update m_logistics_type
-    set id = #{record.id,jdbcType=INTEGER},
-      type = #{record.type,jdbcType=INTEGER},
+    set type = #{record.type,jdbcType=INTEGER},
       description = #{record.description,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -185,35 +163,25 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsType" >
     update m_logistics_type
     <set >
-      <if test="type != null" >
-        type = #{type,jdbcType=INTEGER},
-      </if>
       <if test="description != null" >
         description = #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="name != null" >
-        name = #{name,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
     </set>
-    where id = #{id,jdbcType=INTEGER}
+    where type = #{type,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsType" >
     update m_logistics_type
-    set type = #{type,jdbcType=INTEGER},
-      description = #{description,jdbcType=VARCHAR},
-      name = #{name,jdbcType=VARCHAR},
+    set description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP}
-    where id = #{id,jdbcType=INTEGER}
+    where type = #{type,jdbcType=INTEGER}
   </update>
   
-  
-  <select id="listAll" resultType="mLogisticsTypeExample">
+  <select id="listAll" resultType="mLogisticsType">
   	<![CDATA[ 
 		select * from m_logistics_type
 	]]>
   </select>
-  
 </mapper>

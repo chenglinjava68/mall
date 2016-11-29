@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.plateno.booking.internal.base.mapper.MLogisticsTypeMapper;
 import com.plateno.booking.internal.base.pojo.MLogisticsType;
+import com.plateno.booking.internal.conf.vo.LogisticsTypeInfo;
 import com.plateno.booking.internal.interceptor.adam.common.util.context.SpringContextUtils;
 
 /**
@@ -14,7 +15,7 @@ import com.plateno.booking.internal.interceptor.adam.common.util.context.SpringC
  * @author mogt
  * @date 2016年11月29日
  */
-public class MLogisticsTypeData {
+public class LogisticsTypeData {
 
 	/**
 	 * 数据Map
@@ -23,7 +24,7 @@ public class MLogisticsTypeData {
 	/**
 	 * 数据List
 	 */
-	private static List<MLogisticsType> dataList = new ArrayList<>();
+	private static List<LogisticsTypeInfo> dataList = new ArrayList<>();
 	
 	/**
 	 * 从数据库中加载数据到内存
@@ -35,18 +36,24 @@ public class MLogisticsTypeData {
 		
 		//封装map
 		Map<Integer, String> map = new HashMap<>();
+		List<LogisticsTypeInfo> infoList = new ArrayList<>();
 		for(MLogisticsType type : list) {
 			map.put(type.getType(), type.getDescription());
+			
+			LogisticsTypeInfo info = new LogisticsTypeInfo();
+			info.setType(type.getType());
+			info.setDescription(type.getDescription());
+			infoList.add(info);
 		}
 		
-		dataList = list;
+		dataList = infoList;
 		dataMap = map;
 	}
 
 	public static Map<Integer, String> getDataMap() {
 		
 		if(dataMap == null || dataMap.isEmpty()) {
-			synchronized (MLogisticsTypeData.class) {
+			synchronized (LogisticsTypeData.class) {
 				if(dataMap == null || dataMap.isEmpty()) {
 					loadData();
 				}
@@ -56,10 +63,10 @@ public class MLogisticsTypeData {
 		return dataMap;
 	}
 
-	public static List<MLogisticsType> getDataList() {
+	public static List<LogisticsTypeInfo> getDataList() {
 		
 		if(dataList == null || dataList.isEmpty()) {
-			synchronized (MLogisticsTypeData.class) {
+			synchronized (LogisticsTypeData.class) {
 				if(dataList == null || dataList.isEmpty()) {
 					loadData();
 				}

@@ -32,6 +32,8 @@ import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
+import com.plateno.booking.internal.conf.data.LogisticsTypeData;
+import com.plateno.booking.internal.conf.vo.LogisticsTypeInfo;
 import com.plateno.booking.internal.controller.base.BaseController;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
@@ -463,4 +465,14 @@ public class MOrderWebRPCService extends BaseController{
 		return output;
 	}
 	
+	@ResponseBody
+	@RequestMapping(value = "/logisticsList" ,method = RequestMethod.POST)
+	public ResultVo<List<LogisticsTypeInfo>> logisticsList() throws Exception{
+		log.info("获取物流信息");
+		ResultVo<List<LogisticsTypeInfo>> output = new ResultVo<>();
+		List<LogisticsTypeInfo> dataList = LogisticsTypeData.getDataList();
+		output.setData(dataList);
+		
+		return output;
+	}
 }
