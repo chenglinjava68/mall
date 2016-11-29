@@ -58,6 +58,11 @@ public class Order implements Serializable {
      * 退款失败原因
      */
     private String refundFailReason;
+    
+    /**
+     * 逻辑删除 ， 1-正常，2-删除
+     */
+    private Integer logicDel;
 
     private static final long serialVersionUID = 1L;
 
@@ -267,5 +272,13 @@ public class Order implements Serializable {
 
 	public void setRefundFailReason(String refundFailReason) {
 		this.refundFailReason = refundFailReason;
+	}
+
+	public Integer getLogicDel() {
+		return logicDel;
+	}
+
+	public void setLogicDel(Integer logicDel) {
+		this.logicDel = logicDel;
 	}
 }

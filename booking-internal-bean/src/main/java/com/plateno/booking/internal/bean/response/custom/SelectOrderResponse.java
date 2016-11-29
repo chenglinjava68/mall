@@ -53,6 +53,11 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private String goodsUrl;
 	
+	/**
+	 * 逻辑删除， 1-正常，2-删除
+	 */
+	private Integer logicDel;
+	
 	public String getOrderNo() {
 		return orderNo;
 	}
@@ -195,6 +200,14 @@ public class SelectOrderResponse implements java.io.Serializable{
 
 	public void setGoodsUrl(String goodsUrl) {
 		this.goodsUrl = goodsUrl;
+	}
+
+	public Integer getLogicDel() {
+		return logicDel;
+	}
+
+	public void setLogicDel(Integer logicDel) {
+		this.logicDel = logicDel;
 	}
 
 }

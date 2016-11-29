@@ -121,6 +121,7 @@ public class BaseController{
 			
 			break;
 		case USER: //供应商后台
+		case APP: //供应商后台
 			
 			if(baseParam.getMemberId() == null || baseParam.getMemberId() <= 0) {
 				log.error("memberId 格式不正确:{}", baseParam.getMemberId());

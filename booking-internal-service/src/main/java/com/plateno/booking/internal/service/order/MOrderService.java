@@ -17,6 +17,7 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
@@ -174,7 +175,7 @@ public class MOrderService{
 		}
 		
 		//商城前端查询，不显示删除的订单
-		if(param.getPlateForm() == PlateFormEnum.USER.getPlateForm()) {
+		if(param.getPlateForm() == null || param.getPlateForm() == PlateFormEnum.USER.getPlateForm() || param.getPlateForm() == PlateFormEnum.APP.getPlateForm()) {
 			param.setQueryDel(false);
 		}
 		
@@ -247,7 +248,7 @@ public class MOrderService{
 		
 		sc.setRefundAmount(refundAmount);
 		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-		
+		sc.setLogicDel(order.getLogicDel());
 		
 		list.add(sc);
 	}
@@ -633,7 +634,8 @@ public class MOrderService{
 			}
 		};
 		Order order = new Order();
-		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_9);
+		//order.setPayStatus(BookingResultCodeContants.PAY_STATUS_9);
+		order.setLogicDel(LogicDelEnum.DEL.getType());
 		updateOrderStatusByNo(order, call);
 		
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_9, "删除订单", "删除订单成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode());
@@ -1940,10 +1942,8 @@ public class MOrderService{
 		
 		PageInfo<SelectOrderResponse> paginInfo = new PageInfo<SelectOrderResponse>();
 		
-		if(svo.getPlateForm() == null || svo.getPlateForm() == PlateFormEnum.USER.getPlateForm()) {
+		if(svo.getPlateForm() == null || svo.getPlateForm() == PlateFormEnum.USER.getPlateForm() || svo.getPlateForm() == PlateFormEnum.APP.getPlateForm()) {
 			svo.setQueryDel(false);
-		} else {
-			
 		}
 		
         List<Order> list = mallOrderMapper.list(svo);

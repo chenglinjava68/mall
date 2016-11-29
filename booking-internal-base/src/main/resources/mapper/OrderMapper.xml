@@ -28,6 +28,7 @@
     <result column="refund_point" property="refundPoint" jdbcType="INTEGER" />
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="refund_fail_reason" property="refundFailReason" jdbcType="VARCHAR" />
+    <result column="logic_del" property="logicDel" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -91,7 +92,7 @@
     id, order_no, amount, name, mobile, member_id, sid, chanelid, item_id, pay_type, 
     pay_time, wait_pay_time, create_time, up_time, point, refund_amount, refund_time, 
     pay_status, pay_money, deliver_time, refund_successtime, refund_reason, resource, 
-    refund_point, remark
+    refund_point, remark, logic_del
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" >
     select
@@ -134,7 +135,7 @@
       up_time, point, refund_amount, 
       refund_time, pay_status, pay_money, 
       deliver_time, refund_successtime, refund_reason, 
-      resource, refund_point, remark
+      resource, refund_point, remark, logic_del
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{mobile,jdbcType=VARCHAR}, #{memberId,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, 
@@ -143,7 +144,7 @@
       #{upTime,jdbcType=TIMESTAMP}, #{point,jdbcType=INTEGER}, #{refundAmount,jdbcType=INTEGER}, 
       #{refundTime,jdbcType=TIMESTAMP}, #{payStatus,jdbcType=INTEGER}, #{payMoney,jdbcType=INTEGER}, 
       #{deliverTime,jdbcType=TIMESTAMP}, #{refundSuccesstime,jdbcType=TIMESTAMP}, #{refundReason,jdbcType=VARCHAR}, 
-      #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}
+      #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{logicDel,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Order" >
@@ -224,6 +225,9 @@
       <if test="remark != null" >
         remark,
       </if>
+      <if test="logicDel != null" >
+        logic_del,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -297,6 +301,9 @@
       </if>
       <if test="remark != null" >
         #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="logicDel != null" >
+        #{logicDel,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -387,6 +394,9 @@
       <if test="record.refundFailReason != null" >
         refund_fail_reason = #{record.refundFailReason,jdbcType=VARCHAR},
       </if>
+      <if test="record.logicDel != null" >
+        logic_del = #{record.logicDel,jdbcType=INTEGER},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -418,7 +428,9 @@
       refund_reason = #{record.refundReason,jdbcType=VARCHAR},
       resource = #{record.resource,jdbcType=INTEGER},
       refund_point = #{record.refundPoint,jdbcType=INTEGER},
-      remark = #{record.remark,jdbcType=VARCHAR}
+      remark = #{record.remark,jdbcType=VARCHAR},
+      logic_del = #{record.logicDel,jdbcType=INTEGER}
+      
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -498,6 +510,9 @@
       <if test="remark != null" >
         remark = #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="logicDel != null" >
+        logic_del = #{logicDel,jdbcType=INTEGER},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -526,7 +541,8 @@
       refund_reason = #{refundReason,jdbcType=VARCHAR},
       resource = #{resource,jdbcType=INTEGER},
       refund_point = #{refundPoint,jdbcType=INTEGER},
-      remark = #{remark,jdbcType=VARCHAR}
+      remark = #{remark,jdbcType=VARCHAR},
+      logic_del = #{logicDel,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" id="selectByExampleWithRowbounds" >
@@ -615,7 +631,7 @@
    	  AND name LIKE CONCAT('%',#{record.name},'%')
      </if>
      <if test="record.queryDel == null or record.queryDel == false" >
-     	<![CDATA[  AND pay_status != 9]]>
+     	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
      </if>
      
      <if test="record.memberId != null and record.memberId != ''" >
@@ -681,7 +697,7 @@
      </if>
      
      <if test="record.queryDel == null or record.queryDel == false" >
-     	<![CDATA[  AND pay_status != 9]]>
+     	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
      </if>
      
      <if test="record.memberId != null and record.memberId != ''" >
@@ -795,7 +811,7 @@
 			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
 		</if>
 		<if test="queryDel != null and !queryDel" >
-			<![CDATA[   AND pay_status != 9 ]]>
+			<![CDATA[ AND (pay_status != 9 AND logic_del != 2)]]>
 		</if>
 	</where>
 	<![CDATA[ ORDER BY id DESC  LIMIT #{start} , #{size}  ]]>
@@ -824,7 +840,7 @@
 			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
 		</if>
 		<if test="queryDel != null and !queryDel" >
-			<![CDATA[   AND pay_status != 9 ]]>
+			<![CDATA[ AND (pay_status != 9 AND logic_del != 2) ]]>
 		</if>
 	</where>
   </select>

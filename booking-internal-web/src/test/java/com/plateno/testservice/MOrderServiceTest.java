@@ -91,7 +91,7 @@ public class MOrderServiceTest {
 		
 		
 		SelectOrderParam param = new SelectOrderParam();
-		param.setPlateForm(1);
+		param.setPlateForm(3);
 		param.setOrderNo("O1478778911490995236");
 		param.setResource(2);
 		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
@@ -283,6 +283,15 @@ public class MOrderServiceTest {
 		
 		ResultVo<Object> modifydeliverOrder = service.modifydeliverOrder(orderParam );
 		System.out.println(modifydeliverOrder);
+	}
+	
+	@Test
+	public void testDeleteOrderr() throws OrderException, Exception{
+		
+		
+		MOrderParam orderParam = new MOrderParam();
+		orderParam.setOrderNo("O1480328556337869185");
+		ResultVo<Object> modifydeliverOrder = service.deleteOrder(orderParam);
 	}
 
 }
