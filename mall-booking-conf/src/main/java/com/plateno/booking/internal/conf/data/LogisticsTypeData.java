@@ -60,6 +60,10 @@ public class LogisticsTypeData {
 			}
 		}
 		
+		if(dataMap == null) {
+			return new HashMap<>();
+		}
+		
 		return dataMap;
 	}
 
@@ -71,6 +75,10 @@ public class LogisticsTypeData {
 					loadData();
 				}
 			}
+		}
+		
+		if(dataList == null) {
+			return new ArrayList<LogisticsTypeInfo>(0);
 		}
 		
 		return dataList;
