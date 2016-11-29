@@ -5,8 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.plateno.booking.internal.base.mapper.MLogisticsTypeMapper;
 import com.plateno.booking.internal.base.pojo.MLogisticsType;
+import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.conf.vo.LogisticsTypeInfo;
 import com.plateno.booking.internal.interceptor.adam.common.util.context.SpringContextUtils;
 
@@ -16,6 +20,8 @@ import com.plateno.booking.internal.interceptor.adam.common.util.context.SpringC
  * @date 2016年11月29日
  */
 public class LogisticsTypeData {
+	
+	protected final static Logger logger = LoggerFactory.getLogger(LogisticsTypeData.class);
 
 	/**
 	 * 数据Map
@@ -37,6 +43,12 @@ public class LogisticsTypeData {
 		//封装map
 		Map<Integer, String> map = new HashMap<>();
 		List<LogisticsTypeInfo> infoList = new ArrayList<>();
+		
+		try {
+			logger.info("MLogisticsType list:{}", JsonUtils.toJsonString(list));
+		} catch (Exception e) {
+		}
+		
 		for(MLogisticsType type : list) {
 			map.put(type.getType(), type.getDescription());
 			
