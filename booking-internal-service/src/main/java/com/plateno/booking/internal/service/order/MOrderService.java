@@ -46,7 +46,6 @@ import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
-import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
@@ -501,20 +500,27 @@ public class MOrderService{
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
 			
 			//商品接口获取参数
-			//SkuBean skubean=mallGoodsService.getSkuProperty(book.getGoodsId().toString());
-			//SkuStock stock=mallGoodsService.getSkuStock(book.getGoodsId().toString(), book.getSkuProperties());
 			ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(book.getGoodsId().toString());
 			if(pskubean == null) {
 				logger.error("获取商品信息失败");
 				throw new OrderException("获取商品信息失败");
 			}
-			/*if(book.getSellStrategy().equals(1)){
-				if(book.getTotalAmount().equals((book.getQuantity()*pskubean.getRegularPrice()))){
-				}
-			}*/
+			
+			int expressFee = 0;
+			int price = 0;
+			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
+				expressFee = pskubean.getExpressFee();
+			}
+			//判断是否有促销价
+			if(pskubean.getPromotPrice() != null && pskubean.getPromotPrice() > 0) {
+				price = pskubean.getPromotPrice();
+			} else {
+				price = pskubean.getRegularPrice();
+			}
+
 			ordes.setResource(book.getResource());
 			//商品非积分的总的价格，不包含运费
-			ordes.setAmount(book.getQuantity()*pskubean.getRegularPrice() + (pskubean.getExpressFee() != null ? pskubean.getExpressFee() : 0));
+			ordes.setAmount(book.getQuantity() * price + expressFee);
 			//ordes.setChanelid(book.getChanelId());
 			//渠道从商品服务获取
 			ordes.setChanelid(pskubean.getChannelId());
@@ -527,10 +533,7 @@ public class MOrderService{
 			ordes.setPayTime(new Date());
 			ordes.setPayType(0);// 默认1微信支付、2支付宝支付
 			ordes.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
-			if(pskubean.getSellStrategy()==2) {
-				//ordes.setPoint(pskubean.getFavorPoints());
-				ordes.setPoint(book.getPoint());
-			}
+			ordes.setPoint(book.getPoint());
 			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
 			ordes.setPayMoney(book.getTotalAmount());
 
@@ -543,7 +546,7 @@ public class MOrderService{
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
-			op.setPrice(book.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
+			op.setPrice(book.getSellStrategy() == 1 ? price : pskubean.getFavorPrice());
 			op.setProductId(pskubean.getProductId());
 			op.setProductName(pskubean.getTitle());
 			op.setProductProperty(JsonUtils.toJsonString(pskubean.getSkuPropertyInfos()));
@@ -551,15 +554,16 @@ public class MOrderService{
 			op.setSkuid(book.getGoodsId().intValue());
 			op.setCreateTime(new Date());
 			op.setUpTime(new Date());
-			if(pskubean.getSellStrategy()==2) {
+			if(book.getSellStrategy()==2) {
 				op.setPoint(pskubean.getFavorPoints());
 			} else {
 				op.setPoint(0);
 			}
-			op.setSellStrategy(pskubean.getSellStrategy());
+			op.setSellStrategy(book.getSellStrategy());
 			op.setDisImages(pskubean.getImgPath());
 			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
 			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
+			op.setDeductPrice(pskubean.getDeductPrice() == null ? 0 : pskubean.getDeductPrice());
 			
 			MLogistics logistics=new MLogistics();
 			logistics.setOrderNo(orderNo);

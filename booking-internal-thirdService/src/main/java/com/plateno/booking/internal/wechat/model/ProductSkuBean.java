@@ -59,6 +59,20 @@ public class ProductSkuBean implements java.io.Serializable {
 	 * 限购数量（null不限购）
 	 */
 	private Integer maxSaleQty;
+	
+	/**
+	 * 促销价
+	 */
+	private Integer promotPrice;
+
+	
+	public Integer getPromotPrice() {
+		return promotPrice;
+	}
+
+	public void setPromotPrice(Integer promotPrice) {
+		this.promotPrice = promotPrice;
+	}
 
 	public List<SkuPropertyInfos> getSkuPropertyInfos() {
 		return skuPropertyInfos;

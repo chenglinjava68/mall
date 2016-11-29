@@ -39,10 +39,23 @@ public class OrderProduct implements Serializable {
      * 价格策略描述
      */
     private String priceStrategyDesc;
+    
+    /**
+     * 积分抵扣价格
+     */
+    private Integer deductPrice;
 
     private static final long serialVersionUID = 1L;
 
-    public Integer getPriceStrategy() {
+    public Integer getDeductPrice() {
+		return deductPrice;
+	}
+
+	public void setDeductPrice(Integer deductPrice) {
+		this.deductPrice = deductPrice;
+	}
+
+	public Integer getPriceStrategy() {
 		return priceStrategy;
 	}
 

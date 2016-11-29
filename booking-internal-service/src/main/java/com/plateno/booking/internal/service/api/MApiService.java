@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
@@ -85,7 +84,7 @@ public class MApiService {
 		
 		//是否已经下架或未到开售时间
 		if(!Integer.valueOf(1).equals(pskubean.getStatus())){
-			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
+			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
 			output.setResultMsg("商品未到开售时间或者已经下架！");
 			return output;
 		}
@@ -109,128 +108,72 @@ public class MApiService {
 				return output;
 			}
 		}
-		
-		
-		if(pskubean.getStatus().equals(BookingResultCodeContants.PAY_STATUS_2)){
-			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
-			output.setResultMsg(MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMessage());
-			return output;
+
+		//快递费
+		int expressFee = 0;
+		if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
+			
+			expressFee = pskubean.getExpressFee();
+			
+			if(!addBookingParam.getShippingType().equals(2)) {
+				output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
+				output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
+				return output;
+			}
 		}
 		
-		if(addBookingParam.getSellStrategy().equals(1)){ //使用金额购买
-			/*if(addBookingParam.getShippingType().equals(1)){
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}else{
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()+pskubean.getExpressFee()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}*/
+		//价格
+		int price = 0;
+		int point = 0;
+		
+		//判断是否有促销价
+		if(pskubean.getPromotPrice() != null && pskubean.getPromotPrice() > 0) {
+			price = pskubean.getPromotPrice();
+		} else {
+			price = pskubean.getRegularPrice();
+		}
+		
+		//使用积分购买
+		if(!addBookingParam.getSellStrategy().equals(1)) {
 			
-			addBookingParam.setPoint(0);
-			
-			//pskubean.getExpressFee() > 0 代表需要邮费
-			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
-				if(!addBookingParam.getShippingType().equals(2)) {
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
-					return output;
-				}
-				
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()+pskubean.getExpressFee()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			} else {
-				
-				if(!addBookingParam.getShippingType().equals(1)) {
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
-					return output;
-				}
-				
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getRegularPrice()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}
-			
-		}else{ //使用积分购买
-			 
 			//判断商品是否允许使用积分购买
-			if(pskubean.getSellStrategy() != 2) {
+			if(pskubean.getFavorPrice() == null || pskubean.getFavorPrice() <= 0) {
 				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 				output.setResultMsg("商品不允许使用订单+积分的方式购买，订单校验失败");
 				return output;
 			}
-
-			if(addBookingParam.getPoint() != pskubean.getFavorPoints() * addBookingParam.getQuantity()) {
+			
+			price = pskubean.getFavorPrice();
+			point = pskubean.getFavorPoints();
+		}
+		
+		//判断积分是够足够
+		if(point > 0) {
+			if(!addBookingParam.getPoint().equals(point * addBookingParam.getQuantity())) {
 				output.setResultCode(getClass(), MsgCode.VALIDATE_ORDERPOINT_ERROR.getMsgCode());
 				output.setResultMsg(MsgCode.VALIDATE_ORDERPOINT_ERROR.getMessage());
 				return output;
 			}
 			
-			int point = pointService.getPointSum(addBookingParam.getMemberId());
-			if(point < addBookingParam.getPoint()){
-				logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), point, addBookingParam.getMemberId()));
+			int userPoint = pointService.getPointSum(addBookingParam.getMemberId());
+			if(userPoint < addBookingParam.getPoint()){
+				logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), userPoint, addBookingParam.getMemberId()));
 				output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
 				output.setResultMsg("您的积分余额不足以购买" + addBookingParam.getQuantity() + "个商品，可以修改商品数量再进行支付。");
 				return output;
 			}
 			
-			//判断金额总金额是否对应
-			/*if(addBookingParam.getShippingType().equals(1)){
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}else{
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()+pskubean.getExpressFee()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}*/
-			
-			//pskubean.getExpressFee() > 0 代表需要邮费
-			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
-				if(!addBookingParam.getShippingType().equals(2)) {
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
-					return output;
-				}
-				
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()+pskubean.getExpressFee()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			} else {
-				
-				if(!addBookingParam.getShippingType().equals(1)) {
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERSJIPPINGTYPE_ERROR.getMessage());
-					return output;
-				}
-				
-				if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity()*pskubean.getFavorPrice()))){
-					output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-					output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-					return output;
-				}
-			}
-			
+		} else {
+			addBookingParam.setPoint(0);
 		}
 		
-
+		//判断金额是否足够
+		if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity() * price + expressFee))){
+			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+			output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+			return output;
+		}
+		
 		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
 			return output;
 		}

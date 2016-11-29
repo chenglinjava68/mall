@@ -30,7 +30,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		MAddBookingParam addBookingParam = new MAddBookingParam();
 		addBookingParam.setGoodsId(14L);
 		addBookingParam.setTotalAmount(4800);
-		addBookingParam.setQuantity(4);
+		addBookingParam.setQuantity(1);
 		addBookingParam.setConsigneeName("Zhangsan");
 		addBookingParam.setConsigneeMobile("13999999999");
 		addBookingParam.setConsigneeAddress("宇宙");

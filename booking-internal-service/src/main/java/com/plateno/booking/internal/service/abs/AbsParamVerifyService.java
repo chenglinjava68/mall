@@ -59,17 +59,31 @@ public abstract class AbsParamVerifyService {
 			output.setResultMsg("下单失败,订单来源不能为空");
 			return;
 		}
+
+		if(addBookingParam.getMemberId() == null || addBookingParam.getMemberId() <= 0) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("下单失败,会员ID不能为空");
+			return;
+		}
 		
 		if (!sellStrategyList.contains(addBookingParam.getSellStrategy())) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			output.setResultMsg("下单失败,配送方式错误");
+			output.setResultMsg("下单失败,销售策略错误");
 			return;
 		}
 		
 		if (!shipTypeList.contains(addBookingParam.getShippingType())) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			output.setResultMsg("下单失败,销售策略错误");
+			output.setResultMsg("下单失败,配送方式错误");
 			return;
+		}
+		
+		if(addBookingParam.getSellStrategy() == 2) {
+			if(addBookingParam.getPoint() == null || addBookingParam.getPoint() <= 0) {
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("下单失败,积分错误");
+				return;
+			}
 		}
 		
 	}
