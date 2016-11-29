@@ -75,6 +75,7 @@ import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
+import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.email.model.DeliverGoodContent;
 import com.plateno.booking.internal.email.model.RefundSuccessContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
@@ -1463,7 +1464,10 @@ public class MOrderService{
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
 			deliverDetail.setDeliverNo(logc.getLogisticsNo());
 			deliverDetail.setLogisticsType(logc.getLogisticsType());
-			deliverDetail.setLogisticsTypeDesc(LogisticsEnum.getNameBytype(logc.getLogisticsType()));
+			
+			//数据库维护物流信息
+			//deliverDetail.setLogisticsTypeDesc(LogisticsEnum.getNameBytype(logc.getLogisticsType()));
+			deliverDetail.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(logc.getLogisticsType()));
 			if(order.getDeliverTime()!=null)deliverDetail.setDeliverDate(order.getDeliverTime().getTime());
 			orderDetail.setConsigneeInfo(consigneeInfo);
 			orderDetail.setDeliverDetail(deliverDetail);
