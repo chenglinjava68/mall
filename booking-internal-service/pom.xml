@@ -36,5 +36,10 @@
 			<artifactId>booking-internal-email</artifactId>
 			<version>${com.plateno.booking}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.plateno</groupId>
+			<artifactId>mall-booking-conf</artifactId>
+			<version>${com.plateno.booking}</version>
+		</dependency>
   </dependencies>
 </project>

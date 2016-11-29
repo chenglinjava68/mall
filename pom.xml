@@ -20,6 +20,7 @@
    		<module>booking-internal-activity</module>
    		<module>booking-internal-hotel</module>
 		<module>mall-booking-util</module>
+		<module>mall-booking-conf</module>
 	</modules>
 
 	<properties>
