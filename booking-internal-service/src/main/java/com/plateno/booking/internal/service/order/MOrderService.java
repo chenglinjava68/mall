@@ -1110,7 +1110,7 @@ public class MOrderService{
 		content.setObjectNo(od.getOrderNo());
 		content.setOrderCode(od.getOrderNo());
 		content.setName(bean.getTitle());
-		content.setExpress(LogisticsEnum.getNameBytype(orderParam.getLogisticsType()));
+		content.setExpress(LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
 		content.setExpressCode(StringUtils.isBlank(orderParam.getLogisticsNo()) ? "无" : orderParam.getLogisticsNo());
 		phoneMsgService.sendPhoneMessageAsync(od.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN, content);
 		
@@ -1160,7 +1160,7 @@ public class MOrderService{
 		paramlog.setOperateUsername(orderParam.getOperateUsername());
 		paramlog.setOrderCode(orderParam.getOrderNo());
 		paramlog.setPlateForm(orderParam.getPlateForm());
-		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s", orderParam.getLogisticsNo(), LogisticsEnum.from(orderParam.getLogisticsType()));
+		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s|%s", orderParam.getLogisticsNo(), orderParam.getLogisticsType(), LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
 		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
 		paramlog.setRemark(remark);
 		operateLogService.saveOperateLog(paramlog);		

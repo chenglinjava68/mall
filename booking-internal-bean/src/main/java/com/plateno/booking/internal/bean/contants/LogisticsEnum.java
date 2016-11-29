@@ -1,7 +1,11 @@
 package com.plateno.booking.internal.bean.contants;
 
-
-
+/**
+ * 过期，改成数据库维护 LogisticsTypeData
+ * @author mogt
+ * @date 2016年11月29日
+ */
+@Deprecated
 public enum LogisticsEnum {
 	
 	YT(1,"圆通快递"),

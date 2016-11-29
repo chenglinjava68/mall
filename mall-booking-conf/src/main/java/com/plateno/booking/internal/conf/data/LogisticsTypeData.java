@@ -75,5 +75,19 @@ public class LogisticsTypeData {
 		
 		return dataList;
 	}
+	
+	public static boolean hasType(Integer type) {
+		if(type == null) {
+			return false;
+		}
+		
+		for(LogisticsTypeInfo info : getDataList()) {
+			if(type.equals(info.getType())) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
 }

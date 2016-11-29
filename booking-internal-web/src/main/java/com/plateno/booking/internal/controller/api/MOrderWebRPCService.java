@@ -136,7 +136,7 @@ public class MOrderWebRPCService extends BaseController{
 			return response;
 		}
 		
-		if(param.getLogisticsType() == null || !LogisticsEnum.has(param.getLogisticsType())) {
+		if(param.getLogisticsType() == null || !LogisticsTypeData.hasType(param.getLogisticsType())) {
 			ResultVo<Object> response = new ResultVo<Object>();
 			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
 			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
@@ -177,7 +177,7 @@ public class MOrderWebRPCService extends BaseController{
 			return response;
 		}
 		
-		if(param.getLogisticsType() == null || !LogisticsEnum.has(param.getLogisticsType())) {
+		if(param.getLogisticsType() == null || !LogisticsTypeData.hasType(param.getLogisticsType())) {
 			ResultVo<Object> response = new ResultVo<Object>();
 			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
 			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());

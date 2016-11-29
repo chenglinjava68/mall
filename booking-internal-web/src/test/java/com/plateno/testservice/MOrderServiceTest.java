@@ -245,7 +245,7 @@ public class MOrderServiceTest {
 	public void testDeliverOrder() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1479111919287801128");
+		orderParam.setOrderNo("O1479265160204863145");
 		orderParam.setLogisticsType(1);
 		orderParam.setLogisticsNo("2222222222");
 		
@@ -275,7 +275,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1479370028199240481");
+		orderParam.setOrderNo("O1479265160204863145");
 		orderParam.setLogisticsType(LogisticsEnum.ZT.getType());
 		orderParam.setLogisticsNo(null);
 		orderParam.setOperateUserid("12345");
