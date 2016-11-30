@@ -293,5 +293,12 @@ public class MOrderServiceTest {
 		orderParam.setOrderNo("O1480328556337869185");
 		ResultVo<Object> modifydeliverOrder = service.deleteOrder(orderParam);
 	}
+	
+	@Test
+	public void testGetPruSellAmountByPreDay() throws OrderException, Exception{
+		
+		ResultVo<Object> pruSellAmountByPreDay = service.getPruSellAmountByPreDay(1);
+		System.out.println(pruSellAmountByPreDay);
+	}
 
 }

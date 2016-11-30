@@ -201,6 +201,7 @@ public class PayService {
 
 		if(success) {
 			updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+			updateOrder.setPayTime(new Date());
 		} else {
 			updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			updateOrder.setPayType(0); //支付方式设置成未支付
@@ -315,6 +316,7 @@ public class PayService {
 		Order record = new Order();
 		record.setUpTime(new Date());
 		if(success){
+			record.setPayTime(new Date());
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
 			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
 		}else{

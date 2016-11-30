@@ -179,7 +179,7 @@
     where type = #{type,jdbcType=INTEGER}
   </update>
   
-  <select id="listAll" resultType="mLogisticsType">
+  <select id="listAll" resultMap="BaseResultMap">
   	<![CDATA[ 
 		select * from m_logistics_type
 	]]>

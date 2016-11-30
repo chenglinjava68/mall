@@ -727,17 +727,23 @@
   
   
    <select id="getPruSellAmountByPreDay" resultType="com.plateno.booking.internal.base.model.bill.ProdSellAmountData">
-		SELECT
-			d.product_id  as productId,
-			SUM(sku_count) as sellCount
-		FROM
-		m_order AS m
-			LEFT JOIN m_order_product AS d ON m.order_no = d.order_no
-		WHERE
-			m.pay_status='5'
-		and  m.up_time &gt;  date_sub(now(), interval #{days,jdbcType=INTEGER} day)
-		GROUP BY d.product_id
-		
+	   <![CDATA[ 
+			SELECT
+				d.product_id  as productId,
+				IFNULL(SUM(sku_count), 0) as sellCount
+			FROM
+				m_order AS m
+			LEFT JOIN 
+				m_order_product AS d 
+			ON 
+				m.order_no = d.order_no
+			WHERE
+				m.pay_status in (3, 4, 5, 6, 7, 8, 10, 13)
+			and 
+				m.pay_time > date_sub(now(), interval #{days,jdbcType=INTEGER} day)
+			GROUP BY 
+				d.product_id
+		 ]]>
   </select>
   
   <select id="getPayingAndPayLogPre5Min" resultMap="BaseResultMap" >
