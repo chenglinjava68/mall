@@ -58,8 +58,10 @@ public class LogisticsTypeData {
 			infoList.add(info);
 		}
 		
-		dataList = infoList;
-		dataMap = map;
+		synchronized (LogisticsTypeData.class) {
+			dataList = infoList;
+			dataMap = map;
+		}
 	}
 
 	public static Map<Integer, String> getDataMap() {
