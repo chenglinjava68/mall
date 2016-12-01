@@ -643,7 +643,8 @@ public class MOrderService{
 		order.setLogicDel(LogicDelEnum.DEL.getType());
 		updateOrderStatusByNo(order, call);
 		
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_9, "删除订单", "删除订单成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode());
+		//orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_9, "删除订单", "删除订单成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode());
+		
 		return output;
 	}
 	
@@ -981,7 +982,7 @@ public class MOrderService{
 		order.setUpTime(new Date());
 		updateOrderStatusByNo(order, call);
 		
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, "取消操作", "取消成功", 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_2, PayStatusEnum.PAY_STATUS_2.getDesc(), desc, 0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
 
 		//退还积分
 		if(listOrder.get(0).getPoint()>0){
@@ -1200,7 +1201,7 @@ public class MOrderService{
 		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);//确定收货操作==>已完成
 		order.setUpTime(new Date());
 		updateOrderStatusByNo(order, call);
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_5, "收货操作", "收货成功", 0,ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode());
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_5, "确认收货", "手动确定收货", 0,ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode());
 		//如果是后台操作，取消记录操作日志
 		if(orderParam.getPlateForm() != null && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
 			
@@ -1316,7 +1317,7 @@ public class MOrderService{
 		orderPayLog.setUpTime(new Date());
 		orderPayLog.setOrderId(listOrder.get(0).getId());
 		orderPayLogMapper.insertSelective(orderPayLog);
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_6, "用户申请退款操作", "", 0,ViewStatusEnum.VIEW_STATUS_REFUNDING.getCode());
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_6, PayStatusEnum.PAY_STATUS_6.getDesc(), "申请退款操作", 0,ViewStatusEnum.VIEW_STATUS_REFUNDING.getCode());
 		
 		//后台操作记录操作日志
 		if(orderParam.getPlateForm() != null && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
@@ -1650,7 +1651,7 @@ public class MOrderService{
 			return ;
 		}
 		
-		orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_5, "已完成", "已完成", 0, ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(), "扫单job维护");
+		orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_5, "已完成", "超时确定收货", 0, ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(), "扫单job维护");
 	}
 	
 	
@@ -1740,7 +1741,7 @@ public class MOrderService{
 			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
 			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
-			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "网关退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "支付网关退款同步：退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "扫单job维护");
 			//更新账单状态
 			this.updateOrderStatusByNo(record, orderNo);
 			
@@ -1819,7 +1820,7 @@ public class MOrderService{
 			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
 			record.setRefundFailReason("网关退款失败");
-			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "网关退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "支付网关退款同步：退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
 			//更新账单状态
 			this.updateOrderStatusByNo(record, orderNo);
 		}

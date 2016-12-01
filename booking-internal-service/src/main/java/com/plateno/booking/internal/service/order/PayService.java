@@ -100,6 +100,9 @@ public class PayService {
 		paylog.setType(1);
 		paylog.setUpTime(new Date());
 		orderPayLogMapper.insert(paylog);
+		
+		orderLogService.saveGSOrderLog(order.getOrderNo(), PayStatusEnum.PAY_STATUS_11.getPayStatus(), PayStatusEnum.PAY_STATUS_11.getDesc(), "拉起支付", 0, ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		
 		output.setData(paylog.getTrandNo());
 		
 		return output;
@@ -211,6 +214,11 @@ public class PayService {
 		List<Integer> list = new ArrayList<>(1);
 		list.add(BookingResultCodeContants.PAY_STATUS_11);
 		int row = mOrderService.updateOrderStatusByNo(updateOrder, order.getOrderNo(), list);
+		
+		if(row > 0) {
+			orderLogService.saveGSOrderLog(order.getOrderNo(), updateOrder.getPayStatus(), PayStatusEnum.from(updateOrder.getPayStatus()).getDesc(), "支付网关回调：" + (success ? "支付成功" : "支付失败"), 0, success ? ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode() : ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		}
+		
 		logger.info("更新订单状态, orderNo：{}, row:{}", order.getOrderNo(), row);
 		
 	}
@@ -327,6 +335,10 @@ public class PayService {
 		//更新账单状态
 		List<Integer> list = Arrays.asList(PayStatusEnum.PAY_STATUS_11.getPayStatus());
 		Integer row = mOrderService.updateOrderStatusByNo(record, order.getOrderNo(), list);
+		
+		if(row > 0) {
+			orderLogService.saveGSOrderLog(order.getOrderNo(), record.getPayStatus(), PayStatusEnum.from(record.getPayStatus()).getDesc(), "支付网关支付主动同步：" + (success ? "支付成功" : "支付失败"), 0, success ? ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode() : ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		}
 
 		logger.info("订单更新结果, orderNo:{}, row:{}", order.getOrderNo(), row);
 	}
