@@ -112,16 +112,21 @@ public class BaseController{
         }
         
         switch (PlateFormEnum.from(baseParam.getPlateForm())) {
-		case PROVIDER_ADMIN: //商城前端
+		case PROVIDER_ADMIN: //供应商后台
 			
-			if(baseParam.getChannelId() == null || baseParam.getChannelId() <= 0) {
+			if(baseParam.getChannelId() == null || baseParam.getChannelId() < 0) {
 				log.error("channelId 格式不正确:{}", baseParam.getChannelId());
 				throw new Exception("请输入正确的channelId：" + baseParam.getChannelId());
 			}
 			
+			if(baseParam.getChannelId() == 0) {
+				log.info("供应商后台，channelId:{},  代表查询所有", baseParam.getChannelId());
+				baseParam.setChannelId(null);
+			}
+			
 			break;
-		case USER: //供应商后台
-		case APP: //供应商后台
+		case USER: //商城前端
+		case APP: //APP
 			
 			if(baseParam.getMemberId() == null || baseParam.getMemberId() <= 0) {
 				log.error("memberId 格式不正确:{}", baseParam.getMemberId());
@@ -155,9 +160,14 @@ public class BaseController{
         switch (PlateFormEnum.from(baseParam.getPlateForm())) {
 		case PROVIDER_ADMIN: //供应商后台
 			
-			if(baseParam.getChannelId() == null || baseParam.getChannelId() <= 0) {
+			if(baseParam.getChannelId() == null || baseParam.getChannelId() < 0) {
 				log.error("channelId 格式不正确:{}", baseParam.getChannelId());
 				throw new Exception("请输入正确的channelId：" + baseParam.getChannelId());
+			}
+			
+			if(baseParam.getChannelId() == 0) {
+				log.info("供应商后台，channelId:{},  代表查询所有", baseParam.getChannelId());
+				baseParam.setChannelId(null);
 			}
 			
 			break;
