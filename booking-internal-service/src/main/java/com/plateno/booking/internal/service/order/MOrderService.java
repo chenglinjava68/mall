@@ -1741,7 +1741,7 @@ public class MOrderService{
 			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
 			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
-			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "支付网关退款同步：退款成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "扫单job维护");
+			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "支付网关退款同步：退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "扫单job维护");
 			//更新账单状态
 			this.updateOrderStatusByNo(record, orderNo);
 			
@@ -1820,7 +1820,7 @@ public class MOrderService{
 			
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
 			record.setRefundFailReason("网关退款失败");
-			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "支付网关退款同步：退款失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "支付网关退款同步：退款失败", 0,ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
 			//更新账单状态
 			this.updateOrderStatusByNo(record, orderNo);
 		}
@@ -1930,11 +1930,11 @@ public class MOrderService{
 		Order record = new Order();
 		if(success){
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功", 0,ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
 		}else{
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			record.setPayType(0); //支付方式设置为未支付
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
+			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败", 0,ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
 		}
 		//更新账单状态
 		this.updateOrderStatusByNo(record, order.getOrderNo());
