@@ -69,7 +69,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1480845922424767913");
+		orderParam.setOrderNo("O1480906183189820515");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
 		orderParam.setPlateForm(3);
@@ -292,6 +292,8 @@ public class MOrderServiceTest {
 		MOrderParam orderParam = new MOrderParam();
 		orderParam.setOrderNo("O1480328556337869185");
 		ResultVo<Object> modifydeliverOrder = service.deleteOrder(orderParam);
+		
+		System.out.println(modifydeliverOrder);
 	}
 	
 	@Test

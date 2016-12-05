@@ -270,6 +270,16 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
+		
+		//如果是前端查询，删除状态不返回
+		if(orderParam.getPlateForm() == null || orderParam.getPlateForm().equals(PlateFormEnum.APP.getPlateForm()) || orderParam.getPlateForm().equals(PlateFormEnum.USER.getPlateForm())) {
+			if(listOrder.get(0).getLogicDel().equals(LogicDelEnum.DEL.getType())) {
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("订单查询失败,获取不到订单");
+				return output;
+			}
+		}
+		
 		OrderDetail orderDetail = beansDeal(listOrder, orderParam.getPlateForm());
 		output.setData(orderDetail);
 		return output;
@@ -291,6 +301,16 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
+		
+		//如果是前端查询，删除状态不返回
+		if(orderParam.getPlateForm() == null || orderParam.getPlateForm().equals(PlateFormEnum.APP.getPlateForm()) || orderParam.getPlateForm().equals(PlateFormEnum.USER.getPlateForm())) {
+			if(listOrder.get(0).getLogicDel().equals(LogicDelEnum.DEL.getType())) {
+				output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+				output.setResultMsg("订单查询失败,获取不到订单");
+				return output;
+			}
+		}
+		
 		OrderDetail orderDetail = beansDeal(listOrder, orderParam.getPlateForm());
 		output.setData(orderDetail);
 		return output;

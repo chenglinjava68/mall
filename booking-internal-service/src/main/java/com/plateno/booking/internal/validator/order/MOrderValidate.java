@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
@@ -99,6 +100,12 @@ public class MOrderValidate {
 			return;
 		}
 		if (order.getPayStatus().equals(9)) {
+			output.setResultCode(getClass(), MsgCode.SYSTEM_ORDER_DELETE.getMsgCode());
+			output.setResultMsg(MsgCode.SYSTEM_ORDER_DELETE.getMessage());
+			return;
+		}
+		
+		if (order.getLogicDel().equals(LogicDelEnum.DEL.getType())) {
 			output.setResultCode(getClass(), MsgCode.SYSTEM_ORDER_DELETE.getMsgCode());
 			output.setResultMsg(MsgCode.SYSTEM_ORDER_DELETE.getMessage());
 			return;

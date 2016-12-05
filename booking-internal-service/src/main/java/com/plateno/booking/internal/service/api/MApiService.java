@@ -101,6 +101,8 @@ public class MApiService {
 			//查询用户已经购买的数量 
 			int queryUserProductSum = mOrderService.queryUserProductSum(addBookingParam.getMemberId(), pskubean.getProductId());
 			
+			logger.info("限购：{}， 已购：{}， 准备购：{}", pskubean.getMaxSaleQty(), queryUserProductSum, addBookingParam.getQuantity());
+			
 			int num = pskubean.getMaxSaleQty() - queryUserProductSum;
 			if(num < addBookingParam.getQuantity()) {
 				output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
