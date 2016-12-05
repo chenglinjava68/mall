@@ -563,7 +563,7 @@ public class MOrderService{
 			op.setDisImages(pskubean.getImgPath());
 			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
 			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
-			op.setDeductPrice(pskubean.getDeductPrice() == null ? 0 : pskubean.getDeductPrice());
+			op.setDeductPrice(pskubean.getDeductPrice() == null || book.getSellStrategy() == 1 ? 0 : pskubean.getDeductPrice());
 			
 			MLogistics logistics=new MLogistics();
 			logistics.setOrderNo(orderNo);

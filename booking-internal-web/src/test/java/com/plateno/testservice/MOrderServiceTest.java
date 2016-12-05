@@ -69,7 +69,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1479265160204863145");
+		orderParam.setOrderNo("O1480845922424767913");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
 		orderParam.setPlateForm(3);
@@ -81,7 +81,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("14");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("10");
 		System.out.println(productAndskuStock);
 		
 	}
@@ -91,7 +91,7 @@ public class MOrderServiceTest {
 		
 		
 		SelectOrderParam param = new SelectOrderParam();
-		param.setPlateForm(3);
+		//param.setPlateForm(3);
 		param.setOrderNo("O1478778911490995236");
 		param.setResource(2);
 		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
