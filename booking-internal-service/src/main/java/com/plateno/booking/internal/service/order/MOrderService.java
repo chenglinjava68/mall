@@ -1482,6 +1482,8 @@ public class MOrderService{
 		orderProductExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
 		List<OrderProduct> list=orderProductMapper.selectByExample(orderProductExample);
 		List<ProductInfo> productInfoList=new ArrayList<ProductInfo>();
+
+		int deductPrice = 0;
 		if(CollectionUtils.isNotEmpty(list)){
 			for(OrderProduct orderProduct:list){
 				ProductInfo productInfo=new ProductInfo();
@@ -1494,9 +1496,12 @@ public class MOrderService{
 				productInfo.setSellStrategy(orderProduct.getSellStrategy());
 				productInfo.setDisImages(orderProduct.getDisImages());
 				productInfoList.add(productInfo);
+				
+				deductPrice += orderProduct.getDeductPrice() * orderProduct.getSkuCount();
 			}
 		}
 		orderDetail.setProductInfo(productInfoList);
+		orderInfo.setDeductPrice(deductPrice);
 
 		
 		if(order.getPayStatus().equals(1)){

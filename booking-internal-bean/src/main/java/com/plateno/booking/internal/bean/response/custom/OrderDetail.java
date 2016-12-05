@@ -86,6 +86,11 @@ public class OrderDetail implements java.io.Serializable{
 		 */
 		private String refundReason;
 		
+		/**
+		 * 订单的积分抵扣金额
+		 */
+		private Integer deductPrice;
+		
 		
 		public Integer getViewStatus() {
 			return viewStatus;
@@ -195,6 +200,12 @@ public class OrderDetail implements java.io.Serializable{
 		}
 		public void setRefundReason(String refundReason) {
 			this.refundReason = refundReason;
+		}
+		public Integer getDeductPrice() {
+			return deductPrice;
+		}
+		public void setDeductPrice(Integer deductPrice) {
+			this.deductPrice = deductPrice;
 		}
 		
 	}
