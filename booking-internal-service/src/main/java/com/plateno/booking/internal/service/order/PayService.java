@@ -261,7 +261,7 @@ public class PayService {
 		}
 		
 		if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING) || response.getCode().equals(PayGateCode.UNKNOWN_STATUS)) {
-			logger.error(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", log.getTrandNo(), response.getCode()));
+			logger.info(String.format("支付网关订单不是最终状态, trandNo:%s, code:%s", log.getTrandNo(), response.getCode()));
 			return;
 		}
 		

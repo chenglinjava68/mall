@@ -1723,7 +1723,7 @@ public class MOrderService{
 			}
 			
 			if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-				logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+				logger.info(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
 				return;
 			}
 			
