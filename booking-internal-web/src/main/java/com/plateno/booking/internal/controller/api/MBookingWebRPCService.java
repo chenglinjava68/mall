@@ -60,9 +60,7 @@ public class MBookingWebRPCService extends BaseController{
 		checkBaseParam(addBookingParam);
 		ResultVo<MAddBookResponse> addBooking = botaoMallBookingService.addBooking(addBookingParam);
 		
-		if(log.isDebugEnabled()) {
-			log.debug("下单结果:" + addBooking);
-		}
+		log.info("下单结果:" + addBooking);
 		
 		return addBooking;
 	}
