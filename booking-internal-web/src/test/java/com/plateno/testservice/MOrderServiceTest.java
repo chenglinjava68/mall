@@ -299,7 +299,7 @@ public class MOrderServiceTest {
 	@Test
 	public void testGetPruSellAmountByPreDay() throws OrderException, Exception{
 		
-		ResultVo<Object> pruSellAmountByPreDay = service.getPruSellAmountByPreDay(1);
+		ResultVo<Object> pruSellAmountByPreDay = service.getPruSellAmountByPreDay(10);
 		System.out.println(pruSellAmountByPreDay);
 	}
 

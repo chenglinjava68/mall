@@ -1831,12 +1831,14 @@ public class MOrderService{
 				content.setOrderCode(dbOrder.getOrderNo());
 				content.setMoney(new BigDecimal(dbOrder.getPayMoney()).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_DOWN).toString());
 				content.setName(product.getProductName());
-				if(dbOrder.getRefundPoint() > 0){
+				/*if(dbOrder.getRefundPoint() > 0){
 					content.setJf(dbOrder.getRefundPoint() + "");
 					templateId = Config.SMS_SERVICE_TEMPLATE_NINE;
 				}else{
 					templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
-				}
+				}*/
+				//积分变动不提醒用户，使用同一个模板
+				templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
 				phoneMsgService.sendPhoneMessageAsync(dbOrder.getMobile(), templateId, content);
 			}
 		}else if(fail){
