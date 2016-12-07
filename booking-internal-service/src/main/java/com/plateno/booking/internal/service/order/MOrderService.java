@@ -566,7 +566,7 @@ public class MOrderService{
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
-			op.setPrice(book.getSellStrategy() == 1 ? price : pskubean.getFavorPrice());
+			op.setPrice(price);
 			op.setProductId(pskubean.getProductId());
 			op.setProductName(pskubean.getTitle());
 			op.setProductProperty(JsonUtils.toJsonString(pskubean.getSkuPropertyInfos()));
