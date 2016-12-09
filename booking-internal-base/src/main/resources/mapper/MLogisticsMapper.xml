@@ -14,6 +14,7 @@
     <result column="consignee_newaddress" property="consigneeNewaddress" jdbcType="VARCHAR" />
     <result column="consignee_new_name" property="consigneeNewName" jdbcType="VARCHAR" />
     <result column="consignee_new_mobile" property="consigneeNewMobile" jdbcType="VARCHAR" />
+    <result column="total_express_cost" property="totalExpressCost" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -75,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_no, logistics_type, logistics_no, express_fee, consignee_address, shipping_type, 
-    consignee_name, consignee_mobile, consignee_newaddress, consignee_new_name, consignee_new_mobile
+    consignee_name, consignee_mobile, consignee_newaddress, consignee_new_name, consignee_new_mobile,total_express_cost
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsExample" >
     select
@@ -113,11 +114,11 @@
     </selectKey>
     insert into m_logistics (order_no, logistics_type, logistics_no, 
       express_fee, consignee_address, shipping_type, 
-      consignee_name, consignee_mobile, consignee_newaddress
+      consignee_name, consignee_mobile, consignee_newaddress, total_express_cost
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{logisticsType,jdbcType=INTEGER}, #{logisticsNo,jdbcType=VARCHAR}, 
       #{expressFee,jdbcType=INTEGER}, #{consigneeAddress,jdbcType=VARCHAR}, #{shippingType,jdbcType=INTEGER}, 
-      #{consigneeName,jdbcType=VARCHAR}, #{consigneeMobile,jdbcType=VARCHAR}, #{consigneeNewaddress,jdbcType=VARCHAR}
+      #{consigneeName,jdbcType=VARCHAR}, #{consigneeMobile,jdbcType=VARCHAR}, #{consigneeNewaddress,jdbcType=VARCHAR},#{totalExpressCost,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.MLogistics" >
@@ -153,6 +154,9 @@
       <if test="consigneeNewaddress != null" >
         consignee_newaddress,
       </if>
+      <if test="totalExpressCost != null" >
+        total_express_cost,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -181,6 +185,9 @@
       </if>
       <if test="consigneeNewaddress != null" >
         #{consigneeNewaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="totalExpressCost != null" >
+        #{totalExpressCost,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

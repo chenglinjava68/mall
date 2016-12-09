@@ -18,6 +18,8 @@
     <result column="price_strategy" property="priceStrategy" jdbcType="TINYINT" />
     <result column="price_strategy_desc" property="priceStrategyDesc" jdbcType="VARCHAR" />
     <result column="deduct_price" property="deductPrice" jdbcType="INTEGER" />
+    <result column="product_cost" property="productCost" jdbcType="INTEGER" />
+    <result column="express_cost" property="expressCost" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -79,7 +81,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_no, skuid, sku_count, price, product_id, product_name, product_property, 
-    create_time, up_time, point, sell_strategy, dis_images, price_strategy, price_strategy_desc,deduct_price
+    create_time, up_time, point, sell_strategy, dis_images, price_strategy, price_strategy_desc,deduct_price,product_cost,express_cost
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderProductExample" >
     select
@@ -118,12 +120,12 @@
     insert into m_order_product (order_no, skuid, sku_count, 
       price, product_id, product_name, 
       product_property, create_time, up_time, 
-      point, sell_strategy, dis_images, price_strategy, price_strategy_desc,deduct_price
+      point, sell_strategy, dis_images, price_strategy, price_strategy_desc,deduct_price,product_cost,express_cost
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{skuid,jdbcType=INTEGER}, #{skuCount,jdbcType=INTEGER}, 
       #{price,jdbcType=INTEGER}, #{productId,jdbcType=INTEGER}, #{productName,jdbcType=VARCHAR}, 
       #{productProperty,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP}, 
-      #{point,jdbcType=INTEGER}, #{sellStrategy,jdbcType=INTEGER}, #{disImages,jdbcType=VARCHAR}, #{priceStrategy,jdbcType=TINYINT}, #{priceStrategyDesc,jdbcType=VARCHAR}, #{deductPrice,jdbcType=INTEGER}
+      #{point,jdbcType=INTEGER}, #{sellStrategy,jdbcType=INTEGER}, #{disImages,jdbcType=VARCHAR}, #{priceStrategy,jdbcType=TINYINT}, #{priceStrategyDesc,jdbcType=VARCHAR}, #{deductPrice,jdbcType=INTEGER}, #{productCost,jdbcType=INTEGER}, #{expressCost,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.OrderProduct" >
@@ -177,6 +179,12 @@
       <if test="deductPrice != null" >
         deduct_price,
       </if>
+      <if test="productCost != null" >
+        product_cost,
+      </if>
+      <if test="expressCost != null" >
+        express_cost,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -223,6 +231,12 @@
       </if>
       <if test="deductPrice != null" >
         #{deductPrice,jdbcType=INTEGER},
+      </if>
+      <if test="productCost != null" >
+        #{productCost,jdbcType=INTEGER},
+      </if>
+      <if test="expressCost != null" >
+        #{expressCost,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

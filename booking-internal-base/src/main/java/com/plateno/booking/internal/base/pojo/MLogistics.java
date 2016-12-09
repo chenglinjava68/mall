@@ -32,10 +32,23 @@ public class MLogistics implements Serializable {
      * 最新收货人地址
      */
     private String consigneeNewMobile;
+    
+    /**
+     * 订单总的发货费用
+     */
+    private Integer totalExpressCost;
 
     private static final long serialVersionUID = 1L;
 
-    public Integer getId() {
+    public Integer getTotalExpressCost() {
+		return totalExpressCost;
+	}
+
+	public void setTotalExpressCost(Integer totalExpressCost) {
+		this.totalExpressCost = totalExpressCost;
+	}
+
+	public Integer getId() {
         return id;
     }
 
