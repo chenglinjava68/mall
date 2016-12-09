@@ -374,7 +374,7 @@
   <select id="queryUserProductSum" resultType="integer">
   	<![CDATA[ 
 		select 
-			count(*)
+			ifnull(sum(sku_count), 0)
 		from 
 			m_order o 
 		left join 
