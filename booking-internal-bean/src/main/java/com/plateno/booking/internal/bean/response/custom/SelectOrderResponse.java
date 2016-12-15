@@ -80,6 +80,45 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private String logisticsTypeDesc;
 	
+	/**
+	 * 收货人地址
+	 */
+    private String consigneeAddress;
+
+    /**
+     * 收货人姓名
+     */
+    private String consigneeName;
+
+    /**
+     * 收货人手机
+     */
+    private String consigneeMobile;
+	
+	public String getConsigneeAddress() {
+		return consigneeAddress;
+	}
+
+	public void setConsigneeAddress(String consigneeAddress) {
+		this.consigneeAddress = consigneeAddress;
+	}
+
+	public String getConsigneeName() {
+		return consigneeName;
+	}
+
+	public void setConsigneeName(String consigneeName) {
+		this.consigneeName = consigneeName;
+	}
+
+	public String getConsigneeMobile() {
+		return consigneeMobile;
+	}
+
+	public void setConsigneeMobile(String consigneeMobile) {
+		this.consigneeMobile = consigneeMobile;
+	}
+
 	public String getDeliverNo() {
 		return deliverNo;
 	}

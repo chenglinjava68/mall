@@ -261,6 +261,9 @@ public class MOrderService{
 			sc.setDeliverNo(mLogistics.getLogisticsNo());
 			sc.setLogisticsType(mLogistics.getLogisticsType());
 			sc.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(mLogistics.getLogisticsType()));
+			sc.setConsigneeName(StringUtils.isNotBlank(mLogistics.getConsigneeNewName()) ? mLogistics.getConsigneeNewName() : mLogistics.getConsigneeName());
+			sc.setConsigneeMobile(StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile()) ? mLogistics.getConsigneeNewMobile() : mLogistics.getConsigneeMobile());
+			sc.setConsigneeAddress(StringUtils.isNotBlank(mLogistics.getConsigneeNewaddress()) ? mLogistics.getConsigneeNewaddress() : mLogistics.getConsigneeAddress());
 		}
 		
 		list.add(sc);
