@@ -64,8 +64,34 @@ public class ProductSkuBean implements java.io.Serializable {
 	 * 促销价
 	 */
 	private Integer promotPrice;
+	
+	/**
+	 * 成本价
+	 */
+	private Integer costPrice;
+	
+	/**
+	 * 成本快递费
+	 */
+	private Integer costExpress;
 
 	
+	public Integer getCostPrice() {
+		return costPrice;
+	}
+
+	public void setCostPrice(Integer costPrice) {
+		this.costPrice = costPrice;
+	}
+
+	public Integer getCostExpress() {
+		return costExpress;
+	}
+
+	public void setCostExpress(Integer costExpress) {
+		this.costExpress = costExpress;
+	}
+
 	public Integer getPromotPrice() {
 		return promotPrice;
 	}

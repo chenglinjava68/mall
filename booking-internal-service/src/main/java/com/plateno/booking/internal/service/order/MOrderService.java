@@ -584,8 +584,8 @@ public class MOrderService{
 			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
 			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
 			op.setDeductPrice(pskubean.getDeductPrice() == null || book.getSellStrategy() == 1 ? 0 : pskubean.getDeductPrice());
-			//op.setProductCost(productCost);
-			//op.setExpressCost(expressCost);
+			op.setProductCost(pskubean.getCostPrice());
+			op.setExpressCost(pskubean.getCostExpress());
 			
 			MLogistics logistics=new MLogistics();
 			logistics.setOrderNo(orderNo);
@@ -595,7 +595,7 @@ public class MOrderService{
 			logistics.setConsigneeMobile(book.getConsigneeMobile());
 			logistics.setExpressFee(pskubean.getExpressFee());
 			logistics.setLogisticsType(1);//物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
-			//logistics.setTotalExpressCost(totalExpressCost);
+			logistics.setTotalExpressCost(book.getQuantity() * pskubean.getCostPrice());
 			
 			logger.info("插入数据");
 			
