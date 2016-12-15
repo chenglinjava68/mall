@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.bean.response.custom;
 
+import java.util.Date;
+
 public class SelectOrderResponse implements java.io.Serializable{
 
 	private static final long serialVersionUID = -8927131530279226143L;
@@ -58,6 +60,58 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer logicDel;
 	
+	/**
+	 * 发货单号
+	 */
+	private String deliverNo;
+	
+	/**
+	 * deliverDate
+	 */
+	private Date deliverDate;
+	
+	/**
+	 * logisticsType
+	 */
+	private Integer logisticsType;
+	
+	/**
+	 * 物流类型描述
+	 */
+	private String logisticsTypeDesc;
+	
+	public String getDeliverNo() {
+		return deliverNo;
+	}
+
+	public void setDeliverNo(String deliverNo) {
+		this.deliverNo = deliverNo;
+	}
+
+	public Date getDeliverDate() {
+		return deliverDate;
+	}
+
+	public void setDeliverDate(Date deliverDate) {
+		this.deliverDate = deliverDate;
+	}
+
+	public Integer getLogisticsType() {
+		return logisticsType;
+	}
+
+	public void setLogisticsType(Integer logisticsType) {
+		this.logisticsType = logisticsType;
+	}
+
+	public String getLogisticsTypeDesc() {
+		return logisticsTypeDesc;
+	}
+
+	public void setLogisticsTypeDesc(String logisticsTypeDesc) {
+		this.logisticsTypeDesc = logisticsTypeDesc;
+	}
+
 	public String getOrderNo() {
 		return orderNo;
 	}

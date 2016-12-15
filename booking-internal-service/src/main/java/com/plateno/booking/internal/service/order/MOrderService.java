@@ -250,6 +250,19 @@ public class MOrderService{
 		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
 		sc.setLogicDel(order.getLogicDel());
 		
+		sc.setDeliverDate(order.getDeliverTime());
+		
+		//查询物流信息
+		MLogisticsExample mLogisticsExample = new MLogisticsExample();
+		mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+		List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
+		if(listLogistic.size() > 0) {
+			MLogistics mLogistics = listLogistic.get(0);
+			sc.setDeliverNo(mLogistics.getLogisticsNo());
+			sc.setLogisticsType(mLogistics.getLogisticsType());
+			sc.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(mLogistics.getLogisticsType()));
+		}
+		
 		list.add(sc);
 	}
 	
