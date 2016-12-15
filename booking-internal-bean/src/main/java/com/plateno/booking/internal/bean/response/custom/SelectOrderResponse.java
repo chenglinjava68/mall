@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.bean.response.custom;
 
+import java.util.Date;
+
 public class SelectOrderResponse implements java.io.Serializable{
 
 	private static final long serialVersionUID = -8927131530279226143L;
@@ -58,6 +60,97 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer logicDel;
 	
+	/**
+	 * 发货单号
+	 */
+	private String deliverNo;
+	
+	/**
+	 * deliverDate
+	 */
+	private Date deliverDate;
+	
+	/**
+	 * logisticsType
+	 */
+	private Integer logisticsType;
+	
+	/**
+	 * 物流类型描述
+	 */
+	private String logisticsTypeDesc;
+	
+	/**
+	 * 收货人地址
+	 */
+    private String consigneeAddress;
+
+    /**
+     * 收货人姓名
+     */
+    private String consigneeName;
+
+    /**
+     * 收货人手机
+     */
+    private String consigneeMobile;
+	
+	public String getConsigneeAddress() {
+		return consigneeAddress;
+	}
+
+	public void setConsigneeAddress(String consigneeAddress) {
+		this.consigneeAddress = consigneeAddress;
+	}
+
+	public String getConsigneeName() {
+		return consigneeName;
+	}
+
+	public void setConsigneeName(String consigneeName) {
+		this.consigneeName = consigneeName;
+	}
+
+	public String getConsigneeMobile() {
+		return consigneeMobile;
+	}
+
+	public void setConsigneeMobile(String consigneeMobile) {
+		this.consigneeMobile = consigneeMobile;
+	}
+
+	public String getDeliverNo() {
+		return deliverNo;
+	}
+
+	public void setDeliverNo(String deliverNo) {
+		this.deliverNo = deliverNo;
+	}
+
+	public Date getDeliverDate() {
+		return deliverDate;
+	}
+
+	public void setDeliverDate(Date deliverDate) {
+		this.deliverDate = deliverDate;
+	}
+
+	public Integer getLogisticsType() {
+		return logisticsType;
+	}
+
+	public void setLogisticsType(Integer logisticsType) {
+		this.logisticsType = logisticsType;
+	}
+
+	public String getLogisticsTypeDesc() {
+		return logisticsTypeDesc;
+	}
+
+	public void setLogisticsTypeDesc(String logisticsTypeDesc) {
+		this.logisticsTypeDesc = logisticsTypeDesc;
+	}
+
 	public String getOrderNo() {
 		return orderNo;
 	}

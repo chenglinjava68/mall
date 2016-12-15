@@ -250,6 +250,24 @@ public class MOrderService{
 		sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
 		sc.setLogicDel(order.getLogicDel());
 		
+		sc.setDeliverDate(order.getDeliverTime());
+		
+		//查询物流信息
+		MLogisticsExample mLogisticsExample = new MLogisticsExample();
+		mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+		List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
+		if(listLogistic.size() > 0) {
+			MLogistics mLogistics = listLogistic.get(0);
+			sc.setDeliverNo(mLogistics.getLogisticsNo());
+			if(order.getPayStatus() == PayStatusEnum.PAY_STATUS_4.getPayStatus() || order.getPayStatus() == PayStatusEnum.PAY_STATUS_5.getPayStatus()) {
+				sc.setLogisticsType(mLogistics.getLogisticsType());
+				sc.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(mLogistics.getLogisticsType()));
+			}
+			sc.setConsigneeName(StringUtils.isNotBlank(mLogistics.getConsigneeNewName()) ? mLogistics.getConsigneeNewName() : mLogistics.getConsigneeName());
+			sc.setConsigneeMobile(StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile()) ? mLogistics.getConsigneeNewMobile() : mLogistics.getConsigneeMobile());
+			sc.setConsigneeAddress(StringUtils.isNotBlank(mLogistics.getConsigneeNewaddress()) ? mLogistics.getConsigneeNewaddress() : mLogistics.getConsigneeAddress());
+		}
+		
 		list.add(sc);
 	}
 	
