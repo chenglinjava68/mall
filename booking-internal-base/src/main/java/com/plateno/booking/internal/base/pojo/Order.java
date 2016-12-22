@@ -68,6 +68,16 @@ public class Order implements Serializable {
      * 子来源
      */
     private Integer subResource;
+    
+    /**
+     * 订单总的成本商品成本
+     */
+    private Integer totalProductCost;
+    
+    /**
+     * 订单总的发货费用
+     */
+    private Integer totalExpressCost;
 
     private static final long serialVersionUID = 1L;
 
@@ -79,7 +89,23 @@ public class Order implements Serializable {
         this.id = id;
     }
 
-    public String getOrderNo() {
+    public Integer getTotalProductCost() {
+		return totalProductCost;
+	}
+
+	public void setTotalProductCost(Integer totalProductCost) {
+		this.totalProductCost = totalProductCost;
+	}
+
+	public Integer getTotalExpressCost() {
+		return totalExpressCost;
+	}
+
+	public void setTotalExpressCost(Integer totalExpressCost) {
+		this.totalExpressCost = totalExpressCost;
+	}
+
+	public String getOrderNo() {
         return orderNo;
     }
 

@@ -585,6 +585,9 @@ public class MOrderService{
 			//订单子来源（不同的入口）
 			ordes.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
 			
+			//记录订单商品成本和发货成本
+			ordes.setTotalExpressCost(pskubean.getCostExpress() * book.getQuantity());
+			ordes.setTotalProductCost(pskubean.getCostPrice() * book.getQuantity());
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);

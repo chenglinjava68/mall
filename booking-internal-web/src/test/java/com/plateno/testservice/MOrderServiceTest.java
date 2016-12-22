@@ -92,7 +92,7 @@ public class MOrderServiceTest {
 		
 		SelectOrderParam param = new SelectOrderParam();
 		//param.setPlateForm(3);
-		param.setOrderNo("O1482374758645716517");
+		param.setOrderNo("O1482379210894476495");
 		//param.setResource(1);
 		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
 		//param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));
