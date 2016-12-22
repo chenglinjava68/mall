@@ -580,6 +580,9 @@ public class MOrderService{
 			ordes.setUpTime(new Date());
 			long currentTime = System.currentTimeMillis() + 30 * 60 * 1000;
 			ordes.setWaitPayTime(new Date(currentTime));//加上30分钟
+
+			//订单子来源（不同的入口）
+			ordes.setSubResource(book.getSubResource());
 			
 			
 			OrderProduct op=new OrderProduct();

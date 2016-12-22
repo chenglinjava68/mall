@@ -86,6 +86,11 @@ public abstract class AbsParamVerifyService {
 			}
 		}
 		
+		if(addBookingParam.getSubResource() == null || addBookingParam.getSubResource() <= 0) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("下单失败,订单子来源错误:" + addBookingParam.getSubResource());
+			return;
+		}
 	}
 	
 }

@@ -63,6 +63,11 @@ public class Order implements Serializable {
      * 逻辑删除 ， 1-正常，2-删除
      */
     private Integer logicDel;
+    
+    /**
+     * 子来源
+     */
+    private Integer subResource;
 
     private static final long serialVersionUID = 1L;
 
@@ -280,5 +285,13 @@ public class Order implements Serializable {
 
 	public void setLogicDel(Integer logicDel) {
 		this.logicDel = logicDel;
+	}
+
+	public Integer getSubResource() {
+		return subResource;
+	}
+
+	public void setSubResource(Integer subResource) {
+		this.subResource = subResource;
 	}
 }

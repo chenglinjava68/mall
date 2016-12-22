@@ -54,11 +54,16 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	
 	@NotNull(message = "销售策略,不能为空")
 	private Integer sellStrategy;//销售策略 1:金额(积分不足会员） 2：积分+金额 （够积分的会员使用)
-
+	
 	private Integer point;//积分
 	
 	private String skuProperties;//商品属性,按:分开;
 	
+	/**
+	 * 订单子来源
+	 */
+	@NotNull(message = "请输入订单子来源")
+	private Integer subResource; 
 
 	public Integer getSellStrategy() {
 		return sellStrategy;
@@ -181,7 +186,11 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.chanelId = chanelId;
 	}
 
-	
-	
-	
+	public Integer getSubResource() {
+		return subResource;
+	}
+
+	public void setSubResource(Integer subResource) {
+		this.subResource = subResource;
+	}
 }
