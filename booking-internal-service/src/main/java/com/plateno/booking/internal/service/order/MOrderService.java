@@ -582,7 +582,7 @@ public class MOrderService{
 			ordes.setWaitPayTime(new Date(currentTime));//加上30分钟
 
 			//订单子来源（不同的入口）
-			ordes.setSubResource(book.getSubResource());
+			ordes.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
 			
 			
 			OrderProduct op=new OrderProduct();

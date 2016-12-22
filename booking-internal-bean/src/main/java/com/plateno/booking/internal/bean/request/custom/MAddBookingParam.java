@@ -62,7 +62,6 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	/**
 	 * 订单子来源
 	 */
-	@NotNull(message = "请输入订单子来源")
 	private Integer subResource; 
 
 	public Integer getSellStrategy() {
