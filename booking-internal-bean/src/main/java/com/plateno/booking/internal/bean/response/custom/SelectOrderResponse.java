@@ -94,6 +94,11 @@ public class SelectOrderResponse implements java.io.Serializable{
      * 收货人手机
      */
     private String consigneeMobile;
+    
+    /**
+	 * 订单子来源
+	 */
+	private Integer subResource; 
 	
 	public String getConsigneeAddress() {
 		return consigneeAddress;
@@ -101,6 +106,14 @@ public class SelectOrderResponse implements java.io.Serializable{
 
 	public void setConsigneeAddress(String consigneeAddress) {
 		this.consigneeAddress = consigneeAddress;
+	}
+
+	public Integer getSubResource() {
+		return subResource;
+	}
+
+	public void setSubResource(Integer subResource) {
+		this.subResource = subResource;
 	}
 
 	public String getConsigneeName() {
