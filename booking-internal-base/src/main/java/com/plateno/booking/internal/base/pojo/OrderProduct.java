@@ -44,10 +44,36 @@ public class OrderProduct implements Serializable {
      * 积分抵扣价格
      */
     private Integer deductPrice;
+    
+    /**
+     * 每件产品的成本价格
+     */
+    private Integer productCost;
+    
+    /**
+     * 每件产品的发货费用
+     */
+    private Integer expressCost;
 
     private static final long serialVersionUID = 1L;
 
-    public Integer getDeductPrice() {
+    public Integer getProductCost() {
+		return productCost;
+	}
+
+	public void setProductCost(Integer productCost) {
+		this.productCost = productCost;
+	}
+
+	public Integer getExpressCost() {
+		return expressCost;
+	}
+
+	public void setExpressCost(Integer expressCost) {
+		this.expressCost = expressCost;
+	}
+
+	public Integer getDeductPrice() {
 		return deductPrice;
 	}
 

@@ -29,6 +29,9 @@
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="refund_fail_reason" property="refundFailReason" jdbcType="VARCHAR" />
     <result column="logic_del" property="logicDel" jdbcType="INTEGER" />
+    <result column="sub_resource" property="subResource" jdbcType="INTEGER" />
+    <result column="total_product_cost" property="totalProductCost" jdbcType="INTEGER" />
+    <result column="total_express_cost" property="totalExpressCost" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -92,7 +95,7 @@
     id, order_no, amount, name, mobile, member_id, sid, chanelid, item_id, pay_type, 
     pay_time, wait_pay_time, create_time, up_time, point, refund_amount, refund_time, 
     pay_status, pay_money, deliver_time, refund_successtime, refund_reason, resource, 
-    refund_point, remark, logic_del
+    refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" >
     select
@@ -135,7 +138,7 @@
       up_time, point, refund_amount, 
       refund_time, pay_status, pay_money, 
       deliver_time, refund_successtime, refund_reason, 
-      resource, refund_point, remark, logic_del
+      resource, refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{mobile,jdbcType=VARCHAR}, #{memberId,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, 
@@ -144,7 +147,8 @@
       #{upTime,jdbcType=TIMESTAMP}, #{point,jdbcType=INTEGER}, #{refundAmount,jdbcType=INTEGER}, 
       #{refundTime,jdbcType=TIMESTAMP}, #{payStatus,jdbcType=INTEGER}, #{payMoney,jdbcType=INTEGER}, 
       #{deliverTime,jdbcType=TIMESTAMP}, #{refundSuccesstime,jdbcType=TIMESTAMP}, #{refundReason,jdbcType=VARCHAR}, 
-      #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{logicDel,jdbcType=INTEGER}
+      #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{logicDel,jdbcType=INTEGER}, #{subResource,jdbcType=INTEGER},
+      #{totalProductCost,jdbcType=INTEGER}, #{totalExpressCost,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Order" >
@@ -228,6 +232,15 @@
       <if test="logicDel != null" >
         logic_del,
       </if>
+      <if test="subResource != null" >
+        sub_resource,
+      </if>
+      <if test="totalProductCost != null" >
+        total_product_cost,
+      </if>
+      <if test="totalExpressCost != null" >
+        total_express_cost,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -304,6 +317,15 @@
       </if>
       <if test="logicDel != null" >
         #{logicDel,jdbcType=INTEGER},
+      </if>
+      <if test="subResource != null" >
+        #{subResource,jdbcType=INTEGER},
+      </if>
+      <if test="totalProductCost != null" >
+        #{totalProductCost,jdbcType=INTEGER},
+      </if>
+      <if test="totalExpressCost != null" >
+        #{totalExpressCost,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>

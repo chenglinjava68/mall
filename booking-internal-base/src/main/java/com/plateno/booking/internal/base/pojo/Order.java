@@ -63,6 +63,21 @@ public class Order implements Serializable {
      * 逻辑删除 ， 1-正常，2-删除
      */
     private Integer logicDel;
+    
+    /**
+     * 子来源
+     */
+    private Integer subResource;
+    
+    /**
+     * 订单总的成本商品成本
+     */
+    private Integer totalProductCost;
+    
+    /**
+     * 订单总的发货费用
+     */
+    private Integer totalExpressCost;
 
     private static final long serialVersionUID = 1L;
 
@@ -74,7 +89,23 @@ public class Order implements Serializable {
         this.id = id;
     }
 
-    public String getOrderNo() {
+    public Integer getTotalProductCost() {
+		return totalProductCost;
+	}
+
+	public void setTotalProductCost(Integer totalProductCost) {
+		this.totalProductCost = totalProductCost;
+	}
+
+	public Integer getTotalExpressCost() {
+		return totalExpressCost;
+	}
+
+	public void setTotalExpressCost(Integer totalExpressCost) {
+		this.totalExpressCost = totalExpressCost;
+	}
+
+	public String getOrderNo() {
         return orderNo;
     }
 
@@ -280,5 +311,13 @@ public class Order implements Serializable {
 
 	public void setLogicDel(Integer logicDel) {
 		this.logicDel = logicDel;
+	}
+
+	public Integer getSubResource() {
+		return subResource;
+	}
+
+	public void setSubResource(Integer subResource) {
+		this.subResource = subResource;
 	}
 }

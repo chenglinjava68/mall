@@ -237,6 +237,7 @@ public class MOrderService{
 		sc.setCreateTime(order.getCreateTime().getTime());
 		
 		sc.setPayMoney(order.getPayMoney());
+		sc.setSubResource(order.getSubResource());
 		
 		//退款金额（如果已经生成退款金额，就是实际退款的金额，否则是可以退款的金额）
 		int refundAmount = 0;
@@ -580,7 +581,13 @@ public class MOrderService{
 			ordes.setUpTime(new Date());
 			long currentTime = System.currentTimeMillis() + 30 * 60 * 1000;
 			ordes.setWaitPayTime(new Date(currentTime));//加上30分钟
+
+			//订单子来源（不同的入口）
+			ordes.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
 			
+			//记录订单商品成本和发货成本
+			ordes.setTotalExpressCost(pskubean.getCostExpress() * book.getQuantity());
+			ordes.setTotalProductCost(pskubean.getCostPrice() * book.getQuantity());
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
@@ -602,6 +609,8 @@ public class MOrderService{
 			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
 			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
 			op.setDeductPrice(pskubean.getDeductPrice() == null || book.getSellStrategy() == 1 ? 0 : pskubean.getDeductPrice());
+			op.setProductCost(pskubean.getCostPrice());
+			op.setExpressCost(pskubean.getCostExpress());
 			
 			MLogistics logistics=new MLogistics();
 			logistics.setOrderNo(orderNo);
