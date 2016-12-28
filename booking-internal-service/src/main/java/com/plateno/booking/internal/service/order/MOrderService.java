@@ -640,6 +640,14 @@ public class MOrderService{
 				boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
 				if(!minusPoint) {
 					logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
+					
+					//事务回滚，归还库存
+					boolean result = mallGoodsService.modifyStock(book.getGoodsId() + "", book.getQuantity());
+					if(!result) {
+						LogUtils.DISPERSED_ERROR_LOGGER.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
+						logger.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
+					}
+					
 					throw new OrderException("系统正忙，扣减积分，请重试！");
 				}
 			}
@@ -916,7 +924,9 @@ public class MOrderService{
 		final ProductSkuBean bean=mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid().toString());
 		
 		if(!mallGoodsService.modifyStock(productOrderList.get(0).getSkuid().toString(), productOrderList.get(0).getSkuCount())){
-			LogUtils.sysLoggerInfo("更新库存失败");
+			//LogUtils.sysLoggerInfo("更新库存失败");
+			LogUtils.DISPERSED_ERROR_LOGGER.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
+			logger.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
 		}
 		return bean;
 	}
@@ -928,7 +938,10 @@ public class MOrderService{
 			vb.setPointvalue(dbOrder.getRefundPoint());
 			vb.setMebId(dbOrder.getMemberId());
 			vb.setTrandNo(dbOrder.getOrderNo());
-			pointService.mallAddPoint(vb);
+			int mallAddPoint = pointService.mallAddPoint(vb);
+			if(mallAddPoint > 0) {
+				LogUtils.DISPERSED_ERROR_LOGGER.error("退还积分失败, orderNo:{}, memberId:{}, point:{}", dbOrder.getOrderNo(), dbOrder.getMemberId(), dbOrder.getRefundPoint());
+			}
 		}
 	}
 	
@@ -1040,7 +1053,11 @@ public class MOrderService{
 			vb.setPointvalue(listOrder.get(0).getPoint());
 			vb.setMebId(listOrder.get(0).getMemberId());
 			vb.setTrandNo(listOrder.get(0).getOrderNo());
-			pointService.mallAddPoint(vb);
+			int mallAddPoint = pointService.mallAddPoint(vb);
+			if(mallAddPoint > 0) {
+				logger.error("取消订单，退还积分失败，orderNo:{}, memberId:{}, point:{}", listOrder.get(0).getOrderNo(), listOrder.get(0).getMemberId(), listOrder.get(0).getPoint());
+				LogUtils.DISPERSED_ERROR_LOGGER.error("取消订单，退还积分失败，orderNo:{}, memberId:{}, point:{}", listOrder.get(0).getOrderNo(), listOrder.get(0).getMemberId(), listOrder.get(0).getPoint());
+			}
 		}
 		
 		//退还库存
@@ -1810,7 +1827,8 @@ public class MOrderService{
 				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
 				if(!modifyStock){
 					logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
-					LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+					//LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+					LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
 				}
 				
 				final Order dbOrder = order;
