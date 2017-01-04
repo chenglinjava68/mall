@@ -573,6 +573,12 @@ public class MOrderService{
 			} else {
 				price = pskubean.getRegularPrice();
 			}
+			
+			int orderStatus = BookingResultCodeContants.PAY_STATUS_1;
+			//当优惠券的金额大于商品需要支付的金额的时候，如果包邮，需要支付的金额将会是0，这是直接把订单的状态变成代发货
+			if(book.getTotalAmount() <= 0) {
+				orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
+			}
 
 			ordes.setResource(book.getResource());
 			//商品非积分的总的价格，不包含运费
@@ -588,7 +594,7 @@ public class MOrderService{
 			ordes.setOrderNo(orderNo);
 			ordes.setPayTime(new Date());
 			ordes.setPayType(0);// 默认1微信支付、2支付宝支付
-			ordes.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
+			ordes.setPayStatus(orderStatus);
 			ordes.setPoint(book.getPoint());
 			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
 			ordes.setPayMoney(book.getTotalAmount());
@@ -607,7 +613,7 @@ public class MOrderService{
 			ordes.setTotalProductCost(pskubean.getCostPrice() * book.getQuantity());
 			
 			//优惠券抵扣金额
-			ordes.setCouponAmount(book.getCouponAmount() == null ? 0 : book.getCouponAmount().multiply(new BigDecimal("100")).intValue());
+			ordes.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
 			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
@@ -652,7 +658,7 @@ public class MOrderService{
 				mOrderCouponPO.setSubCouponType(CouponEnum.MONEY_COUPON.getSubType());
 				mOrderCouponPO.setCouponName(book.getCouponName());
 				mOrderCouponPO.setAmount(book.getCouponAmount());
-				mOrderCouponPO.setOrderCouponAmount(book.getCouponAmount());
+				mOrderCouponPO.setOrderCouponAmount(book.getValidCouponAmount());
 				mOrderCouponPO.setCreateTime(new Date());
 				mOrderCouponMapper.insert(mOrderCouponPO);
 			}
@@ -824,13 +830,6 @@ public class MOrderService{
 		}
 		
 		final String orderNo = orderParam.getOrderNo();
-		//构造sql的过滤语句
-		CallMethod<Order> call = new CallMethod<Order>() {
-			@Override
-			 void call(Criteria criteria, Order order) throws Exception { 
-				invoke(criteria,"andOrderNoEqualTo", orderNo);
-			}
-		};
 		
 		//调用网关退款接口 1先检查是否存在支付成功的流水、2申请退款  、3自动job查询网关退款中的订单
 		OrderPayLogExample logExample=new OrderPayLogExample();
@@ -883,71 +882,17 @@ public class MOrderService{
 		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
 		operateLogService.saveOperateLog(paramlog);		
 
+		//构造sql的过滤语句
+		CallMethod<Order> call = new CallMethod<Order>() {
+			@Override
+			 void call(Criteria criteria, Order order) throws Exception { 
+				invoke(criteria,"andOrderNoEqualTo", orderNo);
+			}
+		};
 		output = updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
 		
 		return output;
 		
-//		if(null != response && response.getCode().equals("0000") && response.getReferenceId()!=null){ //退款成功
-//			//退款流水更新状态
-//			refundSucess(orderParam, dbOrder, call, logExample);
-//
-//		}else{ //退款状态不确定，定义为退款中
-//			return updatePaystatusRefunding(orderParam, output, dbOrder,
-//					call, logExample);
-//		}
-//		
-//		//积分返还
-//		returnPoint(dbOrder);
-//		
-//		//更新库存
-//		final ProductSkuBean bean = updateStock(orderParam, output);
-//		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-//			return output;
-//		}
-//		
-//		//发送退款短信
-//		taskExecutor.execute(new Runnable() {
-//			@Override
-//			public void run() {
-//				
-//				SmsMessageReq messageReq = new SmsMessageReq();
-//				Map<String, String> params = new HashMap<String, String>();
-//				if(dbOrder.getPoint()>0){
-//					messageReq.setPhone(dbOrder.getMobile());
-//					params.put("orderCode", dbOrder.getOrderNo());
-//					params.put("name", bean.getTitle());
-//					params.put("money", dbOrder.getPayMoney()+"");
-//					params.put("jf",dbOrder.getPoint()+"");
-//					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
-//				}else{
-//					params.remove("jf");
-//					messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
-//				}
-//				Boolean res=sendService.sendMessage(messageReq);
-//				
-//				//记录短信日志
-//				SmsLog smslog=new SmsLog();
-//				smslog.setCreateTime(new Date());
-//				smslog.setIsSuccess(res==true?1:0);
-//				smslog.setContent(bean.getTitle());
-//				smslog.setObjectNo(dbOrder.getOrderNo());
-//				smslog.setPhone(dbOrder.getMobile());
-//				smslog.setUpdateTime(new Date());
-//				smsLogMapper.insertSelective(smslog);
-//				
-//			}
-//		});
-//		
-//		MOperateLogParam paramlog=new MOperateLogParam();
-//		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
-//		paramlog.setOperateUserid(orderParam.getOperateUserid());
-//		paramlog.setOperateUserName(orderParam.getOperateUsername());
-//		paramlog.setOrderCode(orderParam.getOrderNo());
-//		paramlog.setPlateForm(orderParam.getPlateForm());
-//		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
-//		operateLogService.saveOperateLog(paramlog);		
-//		
-//		return output;
 	}
 
 
@@ -1450,20 +1395,23 @@ public class MOrderService{
 		order.setUpTime(new Date());
 		updateOrderStatusByNo(order, call);
 		
+		//使用优惠券，有可能支付金额是0，这时退款不需要和支付网关交互
+		if(listOrder.get(0).getPayMoney() > 0) {
+			OrderPayLog orderPayLog=new OrderPayLog();
+			orderPayLog.setAmount(-listOrder.get(0).getPayMoney());
+			orderPayLog.setType(2);//支出
+			orderPayLog.setPoint(listOrder.get(0).getPoint());
+			orderPayLog.setClientType(1);
+			orderPayLog.setCreateTime(new Date());
+			orderPayLog.setTrandNo(StringUtil.getCurrentAndRamobe("L"));
+			orderPayLog.setReferenceid("");
+			orderPayLog.setRemark(orderParam.getRefundRemark());
+			orderPayLog.setStatus(1);//状态 1初始化，2成功，3失败
+			orderPayLog.setUpTime(new Date());
+			orderPayLog.setOrderId(listOrder.get(0).getId());
+			orderPayLogMapper.insertSelective(orderPayLog);
+		}
 		
-		OrderPayLog orderPayLog=new OrderPayLog();
-		orderPayLog.setAmount(-listOrder.get(0).getPayMoney());
-		orderPayLog.setType(2);//支出
-		orderPayLog.setPoint(listOrder.get(0).getPoint());
-		orderPayLog.setClientType(1);
-		orderPayLog.setCreateTime(new Date());
-		orderPayLog.setTrandNo(StringUtil.getCurrentAndRamobe("L"));
-		orderPayLog.setReferenceid("");
-		orderPayLog.setRemark(orderParam.getRefundRemark());
-		orderPayLog.setStatus(1);//状态 1初始化，2成功，3失败
-		orderPayLog.setUpTime(new Date());
-		orderPayLog.setOrderId(listOrder.get(0).getId());
-		orderPayLogMapper.insertSelective(orderPayLog);
 		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_6, PayStatusEnum.PAY_STATUS_6.getDesc(), "申请退款操作", 0,ViewStatusEnum.VIEW_STATUS_REFUNDING.getCode());
 		
 		//后台操作记录操作日志

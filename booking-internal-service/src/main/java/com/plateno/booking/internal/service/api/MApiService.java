@@ -224,10 +224,18 @@ public class MApiService {
 			couponAmount = result.getData().getCouponInfo().get(0).getAmount().multiply(new BigDecimal("100")).intValue();
 			addBookingParam.setCouponName(StringUtils.trimToEmpty(result.getData().getCouponInfo().get(0).getCouponName()));
 			addBookingParam.setCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
+			addBookingParam.setValidCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
+		}
+		
+		int productAmount = addBookingParam.getQuantity() * price - couponAmount;
+		if(productAmount < 0) {
+			logger.info("商品需要支付的金额小于优惠券金额, productAmount:{}", productAmount);
+			addBookingParam.setValidCouponAmount(new BigDecimal((addBookingParam.getQuantity() * price / 100) + ""));
+			productAmount = 0;
 		}
 		
 		//判断金额是否足够
-		if(!addBookingParam.getTotalAmount().equals((addBookingParam.getQuantity() * price + expressFee - couponAmount))){
+		if(!addBookingParam.getTotalAmount().equals(productAmount + expressFee)){
 			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
 			output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
 			return output;

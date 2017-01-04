@@ -71,14 +71,21 @@ public class PayService {
 			return output;
 		}
 		
-		//更新订单状态
-		Order order = new Order();
-		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_11);
-		order.setPayType(mOrderParam.getPayType());
 		//代发货和支付中才（多次拉起支付）允许更新订单
 		List<Integer> list = new ArrayList<>();
 		list.add(BookingResultCodeContants.PAY_STATUS_1);
 		list.add(BookingResultCodeContants.PAY_STATUS_11);
+
+		if(list.contains(listOrder.get(0).getPayStatus())) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("目前订单状态不允许支付");
+			return output;
+		}
+		
+		//更新订单状态
+		Order order = new Order();
+		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_11);
+		order.setPayType(mOrderParam.getPayType());
 		int row = mOrderService.updateOrderStatusByNo(order, mOrderParam.getOrderNo(), list);
 		if(row < 1) {
 			logger.info("orderNo:" + mOrderParam.getOrderNo() + ", 目前状态不允许拉起支付, status:" + listOrder.get(0).getPayStatus());

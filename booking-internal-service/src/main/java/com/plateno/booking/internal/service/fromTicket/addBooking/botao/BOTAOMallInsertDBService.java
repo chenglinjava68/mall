@@ -52,7 +52,13 @@ public class BOTAOMallInsertDBService extends MAbsAddOrderService implements ISe
 			logger.error(String.format("该商品【%s】,更新库存失败", income.getAddBookingParam().getGoodsId()));
 		}*/
 		//redisUtils.set(output.getData().getOrderNo(), JsonUtils.toJsonString(income.getAddBookingParam()), BookingConstants.ORDER_SUCCESS_PAY_TTL); 	//设置下单对象,超时时间24h * 7
-		orderLogService.saveGSOrderLog(output.getData().getOrderNo(), BookingConstants.PAY_STATUS_1, "下单成功", "下单成功，等待30分钟内付款", 0,ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		
+		//如果需要支付的金额是0，那么订单状态下单完成直接就是待发货
+		if(income.getAddBookingParam().getTotalAmount() <= 0) {
+			orderLogService.saveGSOrderLog(output.getData().getOrderNo(), BookingConstants.PAY_STATUS_3, "下单成功", "下单成功，无需支付，待发货", 0,ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode());
+		} else {
+			orderLogService.saveGSOrderLog(output.getData().getOrderNo(), BookingConstants.PAY_STATUS_1, "下单成功", "下单成功，等待30分钟内付款", 0,ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
+		}
 	}
 
 	@Override

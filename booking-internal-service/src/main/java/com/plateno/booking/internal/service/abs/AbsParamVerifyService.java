@@ -44,7 +44,12 @@ public abstract class AbsParamVerifyService {
 			output.setResultMsg("下单失败,数量必须大于0");
 			return;
 		}
-		if (addBookingParam.getTotalAmount() <= 0) {
+		if (addBookingParam.getTotalAmount() < 0) {
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("下单失败,订单总价必须大于0");
+			return;
+		}
+		if(addBookingParam.getTotalAmount() == 0 && (addBookingParam.getCouponId() == null || addBookingParam.getCouponId() <= 0)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("下单失败,订单总价必须大于0");
 			return;

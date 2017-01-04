@@ -79,6 +79,19 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 * 优惠券的金额（非前端传）
 	 */
 	private BigDecimal couponAmount;
+	
+	/**
+	 * 有效的优惠券金额（当商品需要支付的金额小于优惠券金额时，就是商品需要支付的金额）
+	 */
+	private BigDecimal validCouponAmount;
+
+	public BigDecimal getValidCouponAmount() {
+		return validCouponAmount;
+	}
+
+	public void setValidCouponAmount(BigDecimal validCouponAmount) {
+		this.validCouponAmount = validCouponAmount;
+	}
 
 	public Integer getCouponId() {
 		return couponId;
