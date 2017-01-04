@@ -1,7 +1,9 @@
 package com.plateno.booking.internal.wechat.model;
 
-import java.util.Date;
 import java.util.List;
+
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 
 public class ProductSkuBean implements java.io.Serializable {
@@ -74,6 +76,16 @@ public class ProductSkuBean implements java.io.Serializable {
 	 * 成本快递费
 	 */
 	private Integer costExpress;
+	
+	/**
+	 * 类目ID
+	 */
+	private Integer categoryId;
+	
+	/**
+	 * 供应商ID
+	 */
+	private Integer providerId;
 
 	
 	public Integer getCostPrice() {
@@ -275,18 +287,25 @@ public class ProductSkuBean implements java.io.Serializable {
 		this.maxSaleQty = maxSaleQty;
 	}
 
-	@Override
-	public String toString() {
-		return "ProductSkuBean [skuPropertyInfos=" + skuPropertyInfos
-				+ ", productId=" + productId + ", title=" + title
-				+ ", category=" + category + ", properties=" + properties
-				+ ", expressFee=" + expressFee + ", marketPrice=" + marketPrice
-				+ ", regularPrice=" + regularPrice + ", favorPrice="
-				+ favorPrice + ", favorPoints=" + favorPoints + ", imgPath="
-				+ imgPath + ", sellStrategy=" + sellStrategy + ", stock="
-				+ stock + ", status=" + status + ", priceStrategy="
-				+ priceStrategy + ", priceName=" + priceName + ", channelId="
-				+ channelId + ", deductPrice=" + deductPrice + ", maxSaleQty="
-				+ maxSaleQty + "]";
+	public Integer getCategoryId() {
+		return categoryId;
 	}
+
+	public void setCategoryId(Integer categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public Integer getProviderId() {
+		return providerId;
+	}
+
+	public void setProviderId(Integer providerId) {
+		this.providerId = providerId;
+	}
+
+	@Override 
+    public String toString() { 
+            return ReflectionToStringBuilder.toString(this,ToStringStyle.SHORT_PREFIX_STYLE); 
+    }
+	
 }

@@ -543,4 +543,67 @@ public final class HttpUtils {
 			}
 		}
 	}
+	
+	
+	/**
+	 * post发送json
+	 * @param strUrl
+	 * @param json
+	 * @param headers
+	 * @return
+	 */
+	@SuppressWarnings({ "rawtypes" })
+	public static String postJson(String strUrl, String json, HashMap<String, String> headers) {
+		try {
+			int socketTimeout = HttpContants.CONNECT_SOKET_TIME_OUT_LONG;
+			int connectTimeout = HttpContants.CONNECT_TIME_OUT_LONG;
+			CloseableHttpClient client = getClient(false);
+			RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(socketTimeout).setConnectTimeout(connectTimeout).build();
+			CloseableHttpResponse response = null;
+			
+			HttpPost post = new HttpPost(strUrl);
+			post.setConfig(requestConfig);
+			HttpEntity postEntity = null;
+
+			post.setHeader("Accept", "application/json");
+			post.setHeader("Content-type","application/json;charset=UTF-8");
+			
+			postEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
+
+			if (headers != null && headers.entrySet().size() > 0) {
+				Iterator iter = headers.entrySet().iterator();
+				while (iter.hasNext()) {
+					Map.Entry entry = (Map.Entry) iter.next();
+					post.setHeader((String) entry.getKey(),(String) entry.getValue());
+				}
+			}
+			
+			// 测试环境下，打印url
+			if (HttpContants.VERIFICATION_CODE_DEBUG == 1) {
+				byte[] b = new byte[(int) postEntity.getContentLength()];
+				postEntity.getContent().read(b);
+				logger.info("postUrl:\n"+ strUrl+ "\n"+ new String(b, 0, (int) postEntity.getContentLength()));
+			}
+
+			post.setEntity(postEntity);
+			response = client.execute(post);
+
+			try {
+				HttpEntity entity = response.getEntity();
+				if (entity != null) {
+					String result = EntityUtils.toString(entity, "UTF-8");
+					if (HttpContants.VERIFICATION_CODE_DEBUG == 1) {
+						logger.info("请求接口结果:\n" + result);
+					}
+					return result;
+				} 
+			} finally {
+				response.close();
+				client.close();
+			}
+		} catch (Exception e) {
+			logger.error("post json exception", e);
+		}
+		return null;
+	}
 }

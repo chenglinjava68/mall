@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.bean.request.custom;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
@@ -63,6 +64,45 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 * 订单子来源
 	 */
 	private Integer subResource; 
+	
+	/**
+	 * 优惠券ID
+	 */
+	private Integer couponId;
+	
+	/**
+	 * 优惠券ID（非前端传）
+	 */
+	private String couponName;
+	
+	/**
+	 * 优惠券的金额（非前端传）
+	 */
+	private BigDecimal couponAmount;
+
+	public Integer getCouponId() {
+		return couponId;
+	}
+
+	public void setCouponId(Integer couponId) {
+		this.couponId = couponId;
+	}
+
+	public String getCouponName() {
+		return couponName;
+	}
+
+	public void setCouponName(String couponName) {
+		this.couponName = couponName;
+	}
+
+	public BigDecimal getCouponAmount() {
+		return couponAmount;
+	}
+
+	public void setCouponAmount(BigDecimal couponAmount) {
+		this.couponAmount = couponAmount;
+	}
 
 	public Integer getSellStrategy() {
 		return sellStrategy;

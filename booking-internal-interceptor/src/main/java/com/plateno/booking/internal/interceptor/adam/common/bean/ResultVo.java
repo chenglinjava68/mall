@@ -21,6 +21,8 @@ import com.plateno.booking.internal.interceptor.adam.service.common.AsynExcutor;
  */
 public class ResultVo<T> implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	private static Logger log = Logger.getLogger(ResultVo.class);
 
 	private String resultCode = "100"; // 返回代码
@@ -30,6 +32,26 @@ public class ResultVo<T> implements Serializable {
 	private transient String latestServiceName = "";
 
 	private T data;
+	
+	public ResultVo() {
+	}
+	
+	public ResultVo(String resultCode) {
+		this.resultCode = resultCode;
+		this.resultMsg = ResultCode.SUCCESS.equals(resultCode) ? "请求成功" : "请求失败";
+	}
+	
+	public ResultVo(String resultCode, T data) {
+		this.resultCode = resultCode;
+		this.resultMsg = ResultCode.SUCCESS.equals(resultCode) ? "请求成功" : "请求失败";
+		this.data = data;
+	}
+	
+	public ResultVo(String resultCode, T data, String resultMsg) {
+		this.resultCode = resultCode;
+		this.resultMsg = resultMsg;
+		this.data = data;
+	}
 
 	/**
 	 * copy resultVo
@@ -126,6 +148,14 @@ public class ResultVo<T> implements Serializable {
 				log.warn("类" + thisClass.getSimpleName() + "要设置@ServiceErrorCode注解规范错误代码");
 			}
 		}
+		this.resultCode = resultCode;
+	}
+	
+	/**
+	 * setResultCode
+	 * @param resultCode
+	 */
+	public void setResultCode(String resultCode) {
 		this.resultCode = resultCode;
 	}
 

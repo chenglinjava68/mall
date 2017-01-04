@@ -91,6 +91,11 @@ public class OrderDetail implements java.io.Serializable{
 		 */
 		private Integer deductPrice;
 		
+		/**
+		 * 使用优惠券的抵扣金额
+		 */
+		private Integer couponAmount;
+		
 		
 		public Integer getViewStatus() {
 			return viewStatus;
@@ -206,6 +211,12 @@ public class OrderDetail implements java.io.Serializable{
 		}
 		public void setDeductPrice(Integer deductPrice) {
 			this.deductPrice = deductPrice;
+		}
+		public Integer getCouponAmount() {
+			return couponAmount;
+		}
+		public void setCouponAmount(Integer couponAmount) {
+			this.couponAmount = couponAmount;
 		}
 		
 	}

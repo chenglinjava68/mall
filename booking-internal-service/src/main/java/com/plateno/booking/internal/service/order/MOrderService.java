@@ -21,6 +21,7 @@ import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
+import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
@@ -32,6 +33,7 @@ import com.plateno.booking.internal.base.model.bill.OrderProductInfo;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
+import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
 import com.plateno.booking.internal.base.pojo.Operatelog;
 import com.plateno.booking.internal.base.pojo.OperatelogExample;
 import com.plateno.booking.internal.base.pojo.Order;
@@ -41,6 +43,7 @@ import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
+import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
 import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
@@ -75,6 +78,14 @@ import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
+import com.plateno.booking.internal.coupon.constant.CouponEnum;
+import com.plateno.booking.internal.coupon.constant.CouponSourceType;
+import com.plateno.booking.internal.coupon.service.CouponService;
+import com.plateno.booking.internal.coupon.vo.BaseResponse;
+import com.plateno.booking.internal.coupon.vo.CancelParam;
+import com.plateno.booking.internal.coupon.vo.CancelResponse;
+import com.plateno.booking.internal.coupon.vo.Conditions;
+import com.plateno.booking.internal.coupon.vo.UseParam;
 import com.plateno.booking.internal.email.model.DeliverGoodContent;
 import com.plateno.booking.internal.email.model.RefundSuccessContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
@@ -152,6 +163,12 @@ public class MOrderService{
 	
 	@Autowired
 	private PhoneMsgService phoneMsgService;
+	
+	@Autowired
+	private CouponService couponService;
+	
+	@Autowired
+	private MOrderCouponMapper mOrderCouponMapper;
 	
 
 	/**
@@ -589,6 +606,9 @@ public class MOrderService{
 			ordes.setTotalExpressCost(pskubean.getCostExpress() * book.getQuantity());
 			ordes.setTotalProductCost(pskubean.getCostPrice() * book.getQuantity());
 			
+			//优惠券抵扣金额
+			ordes.setCouponAmount(book.getCouponAmount() == null ? 0 : book.getCouponAmount().multiply(new BigDecimal("100")).intValue());
+			
 			OrderProduct op=new OrderProduct();
 			op.setOrderNo(orderNo);
 			op.setPrice(price);
@@ -623,6 +643,20 @@ public class MOrderService{
 			
 			logger.info("插入数据");
 			
+			//如果使用优惠券，记录优惠券的使用信息
+			if(book.getCouponId() != null && book.getCouponId() > 0) {
+				MOrderCouponPO mOrderCouponPO = new MOrderCouponPO();
+				mOrderCouponPO.setCouponId(book.getCouponId());
+				mOrderCouponPO.setOrderNo(orderNo);
+				mOrderCouponPO.setCouponType(CouponEnum.MONEY_COUPON.getType());
+				mOrderCouponPO.setSubCouponType(CouponEnum.MONEY_COUPON.getSubType());
+				mOrderCouponPO.setCouponName(book.getCouponName());
+				mOrderCouponPO.setAmount(book.getCouponAmount());
+				mOrderCouponPO.setOrderCouponAmount(book.getCouponAmount());
+				mOrderCouponPO.setCreateTime(new Date());
+				mOrderCouponMapper.insert(mOrderCouponPO);
+			}
+			
 			mallOrderMapper.insertSelective(ordes);
 			mLogisticsMapper.insertSelective(logistics);
 			orderProductMapper.insertSelective(op);
@@ -649,6 +683,50 @@ public class MOrderService{
 					}
 					
 					throw new OrderException("系统正忙，扣减积分，请重试！");
+				}
+			}
+			
+			//使用优惠券
+			if(book.getCouponId() != null && book.getCouponId() > 0) {
+				UseParam useCouponParam = new UseParam();
+				useCouponParam.setCouponId(book.getCouponId());
+				useCouponParam.setMebId(book.getMemberId());
+				useCouponParam.setOrderCode(orderNo);
+				Conditions conditions = new Conditions();
+				useCouponParam.setConditions(conditions);
+				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price / 100) + ""));
+				conditions.setProduceId(pskubean.getProductId());
+				conditions.setCategoryId(pskubean.getCategoryId());
+				conditions.setSourceType(CouponSourceType.fromResource(book.getResource()).getType());
+				
+				ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
+				if(!useCouponResult.success()) {
+					
+					logger.error("优惠券使用失败, memberId:{}, couponId:{}, result:{}", book.getMemberId(), book.getCouponId(), useCouponResult);
+					
+					//事务回滚，归还库存
+					boolean result = mallGoodsService.modifyStock(book.getGoodsId() + "", book.getQuantity());
+					if(!result) {
+						LogUtils.DISPERSED_ERROR_LOGGER.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
+						logger.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
+					}
+					
+					//事务回滚，退还积分
+					if(book.getSellStrategy().equals(2)) {
+						logger.info("使用优惠券失败，退还积分， memberId:{}, point:{}", book.getMemberId(), book.getPoint());
+						
+						ValueBean vb=new ValueBean();
+						vb.setPointvalue(book.getPoint());
+						vb.setMebId(book.getMemberId());
+						vb.setTrandNo(orderNo);
+						int mallAddPoint = pointService.mallAddPoint(vb);
+						if(mallAddPoint > 0) {
+							logger.error("下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}", orderNo, book.getMemberId(), book.getPoint());
+							LogUtils.DISPERSED_ERROR_LOGGER.error("下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}", orderNo, book.getMemberId(), book.getPoint());
+						}
+					}
+					
+					throw new OrderException("系统正忙，使用优惠券失败，请重试！");
 				}
 			}
 			
@@ -1066,6 +1144,11 @@ public class MOrderService{
 			updateStock(orderParam, output);
 		} catch (Exception e) {
 			logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
+		}
+		
+		//如果使用了优惠券，退还优惠券
+		if(listOrder.get(0).getCouponAmount() > 0) {
+			returnCoupon(listOrder.get(0).getOrderNo(), listOrder.get(0).getMemberId());
 		}
 		
 		//如果是后台操作，取消记录操作日志
@@ -1593,6 +1676,7 @@ public class MOrderService{
 		orderInfo.setRefundAmount(order.getRefundAmount());
 		orderInfo.setRefundReason(order.getRefundReason());
 		orderInfo.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
+		orderInfo.setCouponAmount(order.getCouponAmount());
 		
 		orderDetail.setOrderInfo(orderInfo);
 		return orderDetail;
@@ -1886,6 +1970,12 @@ public class MOrderService{
 				templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
 				phoneMsgService.sendPhoneMessageAsync(dbOrder.getMobile(), templateId, content);
 			}
+			
+			//如果使用了优惠券，退还优惠券
+			if(order.getCouponAmount() > 0) {
+				returnCoupon(order.getOrderNo(), order.getMemberId());
+			}
+			
 		}else if(fail){
 			
 			logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
@@ -1895,6 +1985,38 @@ public class MOrderService{
 			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "支付网关退款同步：退款失败", 0,ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
 			//更新账单状态
 			this.updateOrderStatusByNo(record, orderNo);
+		}
+	}
+	
+	/**
+	 * 返回优惠券
+	 * @param orderNo
+	 */
+	private void returnCoupon(String orderNo, Integer memberId) {
+		
+		logger.info("退还优惠券, orderNo:{}", orderNo);
+		
+		MOrderCouponSearchVO svo = new MOrderCouponSearchVO();
+		svo.setOrderNo(orderNo);
+		//查询优惠券信息
+		List<MOrderCouponPO> couponList = mOrderCouponMapper.list(svo);
+		
+		if(couponList.size() <= 0) {
+			logger.error("订单orderNo:{}, 找不到优惠券的使用信息", orderNo);
+		} else {
+			
+			MOrderCouponPO mOrderCouponPO = couponList.get(0);
+			
+			CancelParam param = new CancelParam();
+			param.setCouponId(mOrderCouponPO.getCouponId());
+			param.setMebId(memberId);
+
+			ResultVo<CancelResponse> cancelCouponResult = couponService.cancelCoupon(param);
+			
+			if(!cancelCouponResult.success()) {
+				logger.error("退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo, memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
+				LogUtils.DISPERSED_ERROR_LOGGER.error("退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo, memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
+			}
 		}
 	}
 	

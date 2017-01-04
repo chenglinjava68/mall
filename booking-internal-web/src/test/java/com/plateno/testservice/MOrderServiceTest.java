@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
+import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
@@ -69,7 +70,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1480906183189820515");
+		orderParam.setOrderNo("O1483513542892102624");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
 		orderParam.setPlateForm(3);
@@ -81,7 +82,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("10");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("16");
 		System.out.println(productAndskuStock);
 		
 	}
@@ -113,7 +114,7 @@ public class MOrderServiceTest {
 	public void testUserRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1478076012273383901");
+		param.setOrderNo("O1479179291955945541");
 		ResultVo<Object> userRefund = service.userRefund(param );
 		System.out.println(userRefund);
 		
@@ -123,9 +124,18 @@ public class MOrderServiceTest {
 	public void testConsentRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1478768094167457080");
+		param.setOrderNo("O1479179291955945541");
 		ResultVo<Object> userRefund = service.refundOrder(param);
 		System.out.println(userRefund);
+		
+	}
+	
+	@Test
+	public void testHandleGateWayefund() throws OrderException, Exception{
+		
+		Order order = new Order();
+		order.setOrderNo("O1479179291955945541");
+		service.handleGateWayefund(order);
 		
 	}
 	
@@ -169,7 +179,7 @@ public class MOrderServiceTest {
 	public void testCancelOrder() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1479952202860664675");
+		orderParam.setOrderNo("O1483513542892102624");
 		orderParam.setMemberId(181295316);
 		orderParam.setType(2);
 		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
