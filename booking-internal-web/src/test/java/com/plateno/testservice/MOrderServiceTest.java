@@ -124,7 +124,7 @@ public class MOrderServiceTest {
 	public void testConsentRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1483584283204762088");
+		param.setOrderNo("O1483585776525415467");
 		ResultVo<Object> userRefund = service.refundOrder(param);
 		System.out.println(userRefund);
 		

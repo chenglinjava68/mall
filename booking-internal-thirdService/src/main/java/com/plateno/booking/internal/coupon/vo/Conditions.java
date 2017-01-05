@@ -25,20 +25,7 @@ public class Conditions {
 	 * 铂物管-类目 Id
 	 */
 	private Integer categoryId;
-
-	/**
-	 * 使用渠道
-	 */
-	private String sourceType;
 	
-	public String getSourceType() {
-		return sourceType;
-	}
-
-	public void setSourceType(String sourceType) {
-		this.sourceType = sourceType;
-	}
-
 	public BigDecimal getOrderAmount() {
 		return orderAmount;
 	}

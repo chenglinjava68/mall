@@ -10,7 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.coupon.constant.CouponEnum;
-import com.plateno.booking.internal.coupon.constant.CouponSourceType;
+import com.plateno.booking.internal.coupon.constant.CouponPlatformType;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.BaseResponse;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
@@ -31,7 +31,8 @@ public class CouponServiceTest {
 	@Test
 	public void testQueryCoupon() throws IOException {
 		QueryParam param = new QueryParam();
-		param.setCouponId(19744);
+		param.setPlatformId(CouponPlatformType.APP.getPlatformId());
+		//param.setCouponId(19744);
 		param.setMebId(181295316);
 		param.setAddBusType(CouponEnum.MONEY_COUPON.getType());
 		param.setAddSubBusType(CouponEnum.MONEY_COUPON.getSubType());
@@ -40,7 +41,6 @@ public class CouponServiceTest {
 		conditions.setOrderAmount(new BigDecimal("50"));
 		conditions.setProduceId(7);
 		conditions.setCategoryId(109);
-		conditions.setSourceType(CouponSourceType.WECHAT.getType());
 		
 		ResultVo<QueryResponse> result = service.queryCoupon(param);
 		
@@ -60,7 +60,6 @@ public class CouponServiceTest {
 		conditions.setOrderAmount(new BigDecimal("50"));
 		conditions.setProduceId(7);
 		conditions.setCategoryId(109);
-		conditions.setSourceType(CouponSourceType.WECHAT.getType());
 		
 		ResultVo<BaseResponse> useCouponResult = service.useCoupon(useCouponParam);
 

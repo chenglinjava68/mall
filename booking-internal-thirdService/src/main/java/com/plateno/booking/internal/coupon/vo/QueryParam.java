@@ -85,7 +85,7 @@ public class QueryParam {
 	/**
 	 * 使用平台 
 	 */
-	private Integer platformId = CouponConstant.PLATFORM_ID;
+	private Integer platformId;
 	
 	/**
 	 * 根据限制条件查询可用抵用券 0：所有,1:可用

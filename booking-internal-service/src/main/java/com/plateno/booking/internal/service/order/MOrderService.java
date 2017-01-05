@@ -80,7 +80,6 @@ import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.coupon.constant.CouponEnum;
-import com.plateno.booking.internal.coupon.constant.CouponSourceType;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.BaseResponse;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
@@ -705,7 +704,6 @@ public class MOrderService{
 				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price / 100) + ""));
 				conditions.setProduceId(pskubean.getProductId());
 				conditions.setCategoryId(pskubean.getCategoryId());
-				conditions.setSourceType(CouponSourceType.fromResource(book.getResource()).getType());
 				
 				ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
 				if(!useCouponResult.success()) {

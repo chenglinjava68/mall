@@ -12,7 +12,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgC
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.coupon.constant.CouponEnum;
-import com.plateno.booking.internal.coupon.constant.CouponSourceType;
+import com.plateno.booking.internal.coupon.constant.CouponPlatformType;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.Conditions;
 import com.plateno.booking.internal.coupon.vo.QueryParam;
@@ -189,13 +189,13 @@ public class MApiService {
 		//判断优惠券是否可用
 		if(addBookingParam.getCouponId() != null && addBookingParam.getCouponId() > 0) {
 			QueryParam param = new QueryParam();
+			param.setPlatformId(CouponPlatformType.fromResource(addBookingParam.getResource()).getPlatformId());
 			param.setCouponId(addBookingParam.getCouponId());
 			param.setMebId(addBookingParam.getMemberId());
 			param.setAddBusType(CouponEnum.MONEY_COUPON.getType());
 			param.setAddSubBusType(CouponEnum.MONEY_COUPON.getSubType());
 			Conditions conditions = new Conditions();
 			param.setConditions(conditions);
-			conditions.setSourceType(CouponSourceType.fromResource(addBookingParam.getResource()).getType());
 			conditions.setOrderAmount(new BigDecimal((price2 * addBookingParam.getQuantity() / 100) + ""));
 			conditions.setCategoryId(pskubean.getCategoryId());
 			conditions.setProduceId(pskubean.getProductId());
