@@ -250,7 +250,7 @@ public class MApiService {
 	 * 下单
 	 * 
 	 * @param addBookingParam
-	 * @param orderNo     铂涛订单ID( O开头  ) TODO: O1468920676436108
+	 * @param orderNo     铂涛订单ID( O开头  ) 
 	 * @return
 	 *//*
 	public ResultVo Booking(AddBookingParam addBookingParam,String orderNo,ResultVo output){

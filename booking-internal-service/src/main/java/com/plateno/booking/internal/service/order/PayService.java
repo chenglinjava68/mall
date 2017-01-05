@@ -76,7 +76,7 @@ public class PayService {
 		list.add(BookingResultCodeContants.PAY_STATUS_1);
 		list.add(BookingResultCodeContants.PAY_STATUS_11);
 
-		if(list.contains(listOrder.get(0).getPayStatus())) {
+		if(!list.contains(listOrder.get(0).getPayStatus())) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			output.setResultMsg("目前订单状态不允许支付");
 			return output;
