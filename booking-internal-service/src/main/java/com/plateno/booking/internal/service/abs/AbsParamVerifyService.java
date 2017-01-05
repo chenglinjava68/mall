@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -96,6 +98,11 @@ public abstract class AbsParamVerifyService {
 			output.setResultMsg("下单失败,订单子来源错误:" + addBookingParam.getSubResource());
 			return;
 		}
+		
+		//因为一开始省市县没有分开传输，所以为了兼容不要求必传，如果不传填空串
+		addBookingParam.setProvince(StringUtils.trimToEmpty(addBookingParam.getProvince()));
+		addBookingParam.setCity(StringUtils.trimToEmpty(addBookingParam.getCity()));
+		addBookingParam.setArea(StringUtils.trimToEmpty(addBookingParam.getArea()));
 	}
 	
 }

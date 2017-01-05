@@ -53,10 +53,13 @@ public class MOrderServiceTest {
 	public void testModifyReceiptInfo() throws OrderException, Exception{
 		
 		ReceiptParam receiptParam = new ReceiptParam();
-		receiptParam.setOrderNo("O1474959953609872686");
+		receiptParam.setOrderNo("O1483584685913632952");
 		receiptParam.setReceiptName("张思");
 		receiptParam.setReceiptMobile("13888888888");
-		receiptParam.setReceiptAddress("银河系");
+		receiptParam.setProvince("广东省");
+		receiptParam.setCity("广州市");
+		receiptParam.setArea("番禺区");
+		receiptParam.setReceiptAddress("大学城");
 		receiptParam.setOperateUserid("123456");
 		receiptParam.setOperateUsername("管理员");
 		receiptParam.setPlateForm(1);
@@ -70,10 +73,10 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1483513542892102624");
+		orderParam.setOrderNo("O1483584685913632952");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
-		orderParam.setPlateForm(3);
+		orderParam.setPlateForm(1);
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
 	}
@@ -93,7 +96,7 @@ public class MOrderServiceTest {
 		
 		SelectOrderParam param = new SelectOrderParam();
 		//param.setPlateForm(3);
-		param.setOrderNo("O1482379210894476495");
+		param.setOrderNo("O1483584685913632952");
 		//param.setResource(1);
 		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
 		//param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));

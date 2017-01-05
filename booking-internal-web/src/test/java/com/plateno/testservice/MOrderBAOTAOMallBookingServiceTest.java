@@ -29,11 +29,15 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		
 		MAddBookingParam addBookingParam = new MAddBookingParam();
 		addBookingParam.setGoodsId(16L);
-		addBookingParam.setTotalAmount(0);
+		addBookingParam.setTotalAmount(2);
 		addBookingParam.setQuantity(2);
 		addBookingParam.setConsigneeName("Zhangsan");
 		addBookingParam.setConsigneeMobile("13999999999");
 		addBookingParam.setConsigneeAddress("宇宙");
+		addBookingParam.setProvince("广东省");
+		addBookingParam.setCity("广州市");
+		addBookingParam.setArea("番禺区");
+		addBookingParam.setProvince("广东省");
 		addBookingParam.setShippingType(1);
 		addBookingParam.setPlatformId(1);
 		addBookingParam.setName("李四");
@@ -43,7 +47,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		addBookingParam.setSellStrategy(1);
 		addBookingParam.setSubResource(10086);
 		addBookingParam.setPoint(0);
-		addBookingParam.setCouponId(19742);
+		//addBookingParam.setCouponId(19742);
 		
 		ResultVo<MAddBookResponse> addBooking = service.addBooking(addBookingParam);
 		System.out.println(addBooking);

@@ -282,9 +282,16 @@ public class MOrderService{
 				sc.setLogisticsType(mLogistics.getLogisticsType());
 				sc.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(mLogistics.getLogisticsType()));
 			}
-			sc.setConsigneeName(StringUtils.isNotBlank(mLogistics.getConsigneeNewName()) ? mLogistics.getConsigneeNewName() : mLogistics.getConsigneeName());
-			sc.setConsigneeMobile(StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile()) ? mLogistics.getConsigneeNewMobile() : mLogistics.getConsigneeMobile());
-			sc.setConsigneeAddress(StringUtils.isNotBlank(mLogistics.getConsigneeNewaddress()) ? mLogistics.getConsigneeNewaddress() : mLogistics.getConsigneeAddress());
+			
+			if(StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile())) {
+				sc.setConsigneeName(mLogistics.getConsigneeNewName());
+				sc.setConsigneeMobile(mLogistics.getConsigneeNewMobile());
+				sc.setConsigneeAddress(mLogistics.getNewProvince() + mLogistics.getNewCity() + mLogistics.getNewArea() + mLogistics.getConsigneeNewaddress());
+			} else {
+				sc.setConsigneeName(mLogistics.getConsigneeName());
+				sc.setConsigneeMobile(mLogistics.getConsigneeMobile());
+				sc.setConsigneeAddress(mLogistics.getProvince() + mLogistics.getCity() + mLogistics.getArea() + mLogistics.getConsigneeAddress());
+			}
 		}
 		
 		list.add(sc);
@@ -502,6 +509,13 @@ public class MOrderService{
 	public ResultVo<Object> modifyReceiptInfo(ReceiptParam receiptParam) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
 		
+		receiptParam.setReceiptAddress(StringUtils.trimToEmpty(receiptParam.getReceiptAddress()));
+		receiptParam.setReceiptMobile(StringUtils.trimToEmpty(receiptParam.getReceiptMobile()));
+		receiptParam.setReceiptName(StringUtils.trimToEmpty(receiptParam.getReceiptName()));
+		receiptParam.setProvince(StringUtils.trimToEmpty(receiptParam.getProvince()));
+		receiptParam.setCity(StringUtils.trimToEmpty(receiptParam.getCity()));
+		receiptParam.setArea(StringUtils.trimToEmpty(receiptParam.getArea()));
+		
 		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(receiptParam.getOrderNo(), receiptParam.getMemberId(), receiptParam.getChannelId());
 		if(CollectionUtils.isEmpty(listOrder)) {
 			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
@@ -526,6 +540,9 @@ public class MOrderService{
 		logc.setConsigneeNewaddress(receiptParam.getReceiptAddress());
 		logc.setConsigneeNewMobile(receiptParam.getReceiptMobile());
 		logc.setConsigneeNewName(receiptParam.getReceiptName());
+		logc.setNewProvince(receiptParam.getProvince());
+		logc.setNewCity(receiptParam.getCity());
+		logc.setNewArea(receiptParam.getArea());
 		mLogisticsMapper.updateByPrimaryKeySelective(logc);
 		
 		
@@ -535,7 +552,7 @@ public class MOrderService{
 		paramlog.setOperateUsername(receiptParam.getOperateUsername());
 		paramlog.setOrderCode(receiptParam.getOrderNo());
 		paramlog.setPlateForm(receiptParam.getPlateForm());
-		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s|%s", receiptParam.getReceiptName(), receiptParam.getReceiptMobile(), receiptParam.getReceiptAddress());
+		String remark = OperateLogEnum.MODIFY_DELIVER_OP.getOperateName() + String.format(":%s|%s|%s|%s|%s|%s", receiptParam.getReceiptName(), receiptParam.getReceiptMobile(), receiptParam.getProvince(), receiptParam.getCity(), receiptParam.getArea(), receiptParam.getReceiptAddress());
 		remark = remark.length() > 99 ?  remark.substring(0, 99) : remark;
 		paramlog.setRemark(remark);
 		operateLogService.saveOperateLog(paramlog);
@@ -647,6 +664,9 @@ public class MOrderService{
 			logistics.setConsigneeMobile(book.getConsigneeMobile());
 			logistics.setExpressFee(pskubean.getExpressFee());
 			logistics.setLogisticsType(1);//物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
+			logistics.setProvince(book.getProvince());
+			logistics.setCity(book.getCity());
+			logistics.setArea(book.getArea());
 			
 			logger.info("插入数据");
 			
@@ -1562,17 +1582,17 @@ public class MOrderService{
 			orderInfo.setFee(logc.getExpressFee());
 			ConsigneeInfo consigneeInfo=new ConsigneeInfo();
 			DeliverDetail deliverDetail=new DeliverDetail();
-			consigneeInfo.setConsigneeAddress(logc.getConsigneeAddress());
+			consigneeInfo.setConsigneeAddress(logc.getProvince() + logc.getCity() + logc.getArea() + logc.getConsigneeAddress());
 			consigneeInfo.setConsigneeName(logc.getConsigneeName());
 			consigneeInfo.setMobile(logc.getConsigneeMobile());
 			
 			//针对商城前端，如果地址已经修改了，返回修改后的地址
 			if(plateForm != null && plateForm == 3 && StringUtils.isNotBlank(logc.getConsigneeNewMobile())) {
-				consigneeInfo.setConsigneeAddress(logc.getConsigneeNewaddress());
+				consigneeInfo.setConsigneeAddress(logc.getNewProvince() + logc.getNewCity() + logc.getNewArea() + logc.getConsigneeNewaddress());
 				consigneeInfo.setConsigneeName(logc.getConsigneeNewName());
 				consigneeInfo.setMobile(logc.getConsigneeNewMobile());
 			}
-			consigneeInfo.setNewAddress(logc.getConsigneeNewaddress());
+			consigneeInfo.setNewAddress(logc.getNewProvince() + logc.getNewCity() + logc.getNewArea() + logc.getConsigneeNewaddress());
 			consigneeInfo.setNewName(logc.getConsigneeNewName());
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
 			deliverDetail.setDeliverNo(logc.getLogisticsNo());

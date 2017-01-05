@@ -14,6 +14,12 @@
     <result column="consignee_newaddress" property="consigneeNewaddress" jdbcType="VARCHAR" />
     <result column="consignee_new_name" property="consigneeNewName" jdbcType="VARCHAR" />
     <result column="consignee_new_mobile" property="consigneeNewMobile" jdbcType="VARCHAR" />
+    <result column="province" property="province" jdbcType="VARCHAR" />
+    <result column="city" property="city" jdbcType="VARCHAR" />
+    <result column="area" property="area" jdbcType="VARCHAR" />
+    <result column="new_province" property="newProvince" jdbcType="VARCHAR" />
+    <result column="new_city" property="newCity" jdbcType="VARCHAR" />
+    <result column="new_area" property="newArea" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -75,7 +81,8 @@
   </sql>
   <sql id="Base_Column_List" >
     id, order_no, logistics_type, logistics_no, express_fee, consignee_address, shipping_type, 
-    consignee_name, consignee_mobile, consignee_newaddress, consignee_new_name, consignee_new_mobile
+    consignee_name, consignee_mobile, consignee_newaddress, consignee_new_name, consignee_new_mobile,
+    province, city, area, new_province, new_city, new_area
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsExample" >
     select
@@ -153,6 +160,24 @@
       <if test="consigneeNewaddress != null" >
         consignee_newaddress,
       </if>
+      <if test="province != null" >
+        province,
+      </if>
+      <if test="city != null" >
+        city,
+      </if>
+      <if test="area != null" >
+        area,
+      </if>
+      <if test="newProvince != null" >
+        new_province,
+      </if>
+      <if test="newCity != null" >
+        new_city,
+      </if>
+      <if test="newArea != null" >
+        new_area,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -181,6 +206,24 @@
       </if>
       <if test="consigneeNewaddress != null" >
         #{consigneeNewaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="newProvince != null" >
+        #{new_province,jdbcType=VARCHAR},
+      </if>
+      <if test="newCity != null" >
+        #{new_city,jdbcType=VARCHAR},
+      </if>
+      <if test="newArea != null" >
+        #{new_area,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -280,6 +323,24 @@
       <if test="consigneeNewMobile != null" >
         consignee_new_mobile = #{consigneeNewMobile,jdbcType=VARCHAR},
       </if>
+      <if test="province != null" >
+        province = #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="city != null" >
+        city = #{city,jdbcType=VARCHAR},
+      </if>
+      <if test="area != null" >
+        area = #{area,jdbcType=VARCHAR},
+      </if>
+      <if test="newProvince != null" >
+        new_province = #{newProvince,jdbcType=VARCHAR},
+      </if>
+      <if test="newCity != null" >
+        new_city = #{newCity,jdbcType=VARCHAR},
+      </if>
+      <if test="newArea != null" >
+        new_area = #{newArea,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -295,7 +356,13 @@
       consignee_mobile = #{consigneeMobile,jdbcType=VARCHAR},
       consignee_newaddress = #{consigneeNewaddress,jdbcType=VARCHAR},
       consignee_new_name = #{consigneeNewName,jdbcType=VARCHAR},
-      consignee_new_mobile = #{consigneeNewMobile,jdbcType=VARCHAR}
+      consignee_new_mobile = #{consigneeNewMobile,jdbcType=VARCHAR},
+      province = #{province,jdbcType=VARCHAR},
+      city = #{city,jdbcType=VARCHAR},
+      area = #{area,jdbcType=VARCHAR},
+      new_province = #{newProvince,jdbcType=VARCHAR},
+      new_city = #{newCity,jdbcType=VARCHAR},
+      new_area = #{newArea,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.MLogisticsExample" id="selectByExampleWithRowbounds" >
