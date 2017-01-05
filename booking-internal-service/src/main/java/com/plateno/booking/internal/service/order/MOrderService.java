@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.order;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -91,6 +92,7 @@ import com.plateno.booking.internal.email.model.RefundSuccessContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
+import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.member.PointService;
@@ -816,6 +818,79 @@ public class MOrderService{
 			return output;
 		}
 		
+		ResultVo<Object> result = null;
+		
+		//下单有支付行为
+		if(dbOrder.getPayMoney() > 0) {
+			result = refundOrderWithMoney(orderParam, dbOrder);
+		} else { //没有支付行为，只是退还优惠券
+			result = refundOrderWithoutMoney(orderParam, dbOrder);
+		}
+		
+		if(!result.success()) {
+			return result;
+		}
+		
+		//记录操作日志
+		MOperateLogParam paramlog=new MOperateLogParam();
+		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
+		paramlog.setOperateUserid(orderParam.getOperateUserid());
+		paramlog.setOperateUsername(orderParam.getOperateUsername());
+		paramlog.setOrderCode(orderParam.getOrderNo());
+		paramlog.setPlateForm(orderParam.getPlateForm());
+		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
+		operateLogService.saveOperateLog(paramlog);	
+		
+		return result;
+	}
+
+	/**
+	 * 退款，无需和支付网关交互
+	 * @param orderParam
+	 * @param dbOrder
+	 * @return
+	 * @throws Exception 
+	 */
+	private ResultVo<Object> refundOrderWithoutMoney(MOrderParam orderParam,
+			Order dbOrder) throws Exception {
+		
+		//更新为成功，防并发
+		Order order = new Order();
+		order.setUpTime(new Date());
+		order.setPayStatus(PayStatusEnum.PAY_STATUS_7.getPayStatus());//退款中
+		List<Integer> oldStatus = Arrays.asList(PayStatusEnum.PAY_STATUS_6.getPayStatus());
+		int row = updateOrderStatusByNo(order, orderParam.getOrderNo(), oldStatus);
+		if(row < 1) {
+			logger.info("订单退款已经处理，orderNo:" + orderParam.getOrderNo());
+			return new ResultVo<Object>(ResultCode.FAILURE, null, "订单已经处理，请勿重复请求！");
+		}
+		
+		//记录操作日志
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "退款操作", "无需退还金额，返回优惠券", 0,ViewStatusEnum.VIEW_STATUS_GATE_REFUNDING.getCode());
+		
+		//如果使用了优惠券，退还优惠券
+		if(dbOrder.getCouponAmount() > 0) {
+			ResultVo<String> returnCoupon = returnCoupon(dbOrder.getOrderNo(), dbOrder.getMemberId());
+			if(!returnCoupon.success()) {
+				logger.info("orderNo:{}, 退款失败，返还优惠券失败:{}", orderParam.getOrderNo(), returnCoupon);
+				throw new Exception("退款失败，" + returnCoupon.getResultMsg());
+			}
+		}
+		
+		return new ResultVo<Object>(ResultCode.SUCCESS);
+	}
+
+
+	/**
+	 * 退款，需要和支付网关交互
+	 * @param orderParam
+	 * @param dbOrder
+	 * @return
+	 * @throws Exception
+	 * @throws IOException
+	 */
+	private ResultVo<Object> refundOrderWithMoney(MOrderParam orderParam,
+			final Order dbOrder) throws Exception, IOException {
 		//更新为退款中，防并发
 		Order order = new Order();
 		order.setUpTime(new Date());
@@ -824,12 +899,11 @@ public class MOrderService{
 		Integer row = updateOrderStatusByNo(order, orderParam.getOrderNo(), oldStatus);
 		if(row < 1) {
 			logger.info("订单退款已经处理，orderNo:" + orderParam.getOrderNo());
-			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			output.setResultMsg("订单已经处理，请勿重复请求！");
-			return output;
+			return new ResultVo<Object>(ResultCode.FAILURE, null, "订单已经处理，请勿重复请求！");
 		}
 		
-		final String orderNo = orderParam.getOrderNo();
+		//记录操作日志
+		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_10, "退款操作", "支付网关退款中", 0,ViewStatusEnum.VIEW_STATUS_GATE_REFUNDING.getCode());
 		
 		//调用网关退款接口 1先检查是否存在支付成功的流水、2申请退款  、3自动job查询网关退款中的订单
 		OrderPayLogExample logExample=new OrderPayLogExample();
@@ -873,67 +947,8 @@ public class MOrderService{
 		
 		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
 		
-		MOperateLogParam paramlog=new MOperateLogParam();
-		paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
-		paramlog.setOperateUserid(orderParam.getOperateUserid());
-		paramlog.setOperateUsername(orderParam.getOperateUsername());
-		paramlog.setOrderCode(orderParam.getOrderNo());
-		paramlog.setPlateForm(orderParam.getPlateForm());
-		paramlog.setRemark(OperateLogEnum.AGREE_REFUND_OP.getOperateName());
-		operateLogService.saveOperateLog(paramlog);		
-
-		//构造sql的过滤语句
-		CallMethod<Order> call = new CallMethod<Order>() {
-			@Override
-			 void call(Criteria criteria, Order order) throws Exception { 
-				invoke(criteria,"andOrderNoEqualTo", orderNo);
-			}
-		};
-		output = updatePaystatusRefunding(orderParam, output, dbOrder, call, logExample);
-		
-		return output;
-		
+		return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
 	}
-
-
-	private void refundSucess(final MOrderParam orderParam,
-			final Order dbOrder, CallMethod<Order> call,
-			OrderPayLogExample logExample) throws Exception {
-		OrderPayLog payLog=new OrderPayLog();
-		payLog.setStatus(2);
-		payLog.setPoint(dbOrder.getPoint());
-		orderPayLogMapper.updateByExampleSelective(payLog, logExample);
-		
-		Order order = new Order();
-		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);//退款审核中==>退款成功
-		order.setRefundSuccesstime(new Date());
-		updateOrderStatusByNo(order,call);
-		
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "退款操作", "退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode());
-	}
-
-
-	private ResultVo<Object> updatePaystatusRefunding(
-			final MOrderParam orderParam, ResultVo<Object> output,
-			final Order dbOrder, CallMethod<Order> call,
-			OrderPayLogExample logExample) throws Exception {
-		/*OrderPayLog payLog=new OrderPayLog();
-		payLog.setStatus(3);
-		payLog.setPoint(dbOrder.getPoint());
-		orderPayLogMapper.updateByExampleSelective(payLog, logExample);*/
-		//一律看成请求成功，具体结果看job同步结果
-		//output.setResultCode(getClass(), MsgCode.REFUND_HANDLING.getMsgCode());
-		output.setResultMsg(MsgCode.REFUND_HANDLING.getMessage());
-		
-		//更新为退款中
-		Order order = new Order();
-		order.setUpTime(new Date());
-		order.setPayStatus(BookingResultCodeContants.PAY_STATUS_10);//退款中
-		updateOrderStatusByNo(order, call);
-		orderLogService.saveGSOrderLog(orderParam.getOrderNo(), BookingResultCodeContants.PAY_STATUS_10, "退款操作", "OTA退款中", 0,ViewStatusEnum.VIEW_STATUS_GATE_REFUNDING.getCode());
-		return output;
-	}
-
 
 	private ProductSkuBean updateStock(final MOrderParam orderParam,
 			ResultVo<Object> output) throws OrderException {
@@ -1940,7 +1955,7 @@ public class MOrderService{
 	 * 返回优惠券
 	 * @param orderNo
 	 */
-	private void returnCoupon(String orderNo, Integer memberId) {
+	private ResultVo<String> returnCoupon(String orderNo, Integer memberId) {
 		
 		logger.info("退还优惠券, orderNo:{}", orderNo);
 		
@@ -1951,6 +1966,7 @@ public class MOrderService{
 		
 		if(couponList.size() <= 0) {
 			logger.error("订单orderNo:{}, 找不到优惠券的使用信息", orderNo);
+			return new ResultVo<String>(ResultCode.FAILURE, null, "查询优惠券信息失败");
 		} else {
 			
 			MOrderCouponPO mOrderCouponPO = couponList.get(0);
@@ -1964,7 +1980,11 @@ public class MOrderService{
 			if(!cancelCouponResult.success()) {
 				logger.error("退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo, memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
 				LogUtils.DISPERSED_ERROR_LOGGER.error("退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo, memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
+				
+				return new ResultVo<String>(ResultCode.FAILURE, null, "返回优惠券失败，" + cancelCouponResult.getResultMsg());
 			}
+			
+			return new ResultVo<String>(ResultCode.SUCCESS);
 		}
 	}
 	

@@ -29,7 +29,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		
 		MAddBookingParam addBookingParam = new MAddBookingParam();
 		addBookingParam.setGoodsId(16L);
-		addBookingParam.setTotalAmount(3000);
+		addBookingParam.setTotalAmount(3600);
 		addBookingParam.setQuantity(2);
 		addBookingParam.setConsigneeName("Zhangsan");
 		addBookingParam.setConsigneeMobile("13999999999");
@@ -40,10 +40,10 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		addBookingParam.setMobile("13777777777");
 		addBookingParam.setMemberId(181295316);
 		addBookingParam.setResource(2);
-		addBookingParam.setSellStrategy(2);
+		addBookingParam.setSellStrategy(1);
 		addBookingParam.setSubResource(10086);
-		addBookingParam.setPoint(10);
-		addBookingParam.setCouponId(19745);
+		addBookingParam.setPoint(0);
+		addBookingParam.setCouponId(19743);
 		
 		ResultVo<MAddBookResponse> addBooking = service.addBooking(addBookingParam);
 		System.out.println(addBooking);

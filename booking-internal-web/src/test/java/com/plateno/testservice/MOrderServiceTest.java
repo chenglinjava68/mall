@@ -114,7 +114,7 @@ public class MOrderServiceTest {
 	public void testUserRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1479179291955945541");
+		param.setOrderNo("O1483519528592537419");
 		ResultVo<Object> userRefund = service.userRefund(param );
 		System.out.println(userRefund);
 		
@@ -124,7 +124,7 @@ public class MOrderServiceTest {
 	public void testConsentRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1479179291955945541");
+		param.setOrderNo("O1483519528592537419");
 		ResultVo<Object> userRefund = service.refundOrder(param);
 		System.out.println(userRefund);
 		
@@ -222,7 +222,7 @@ public class MOrderServiceTest {
 	public void testAdminRefuseRefund() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1478568730093888087");
+		orderParam.setOrderNo("O1483519528592537419");
 		orderParam.setMemberId(181295316);
 		orderParam.setOperateUserid("3232323");
 		orderParam.setOperateUsername("xiaoming");

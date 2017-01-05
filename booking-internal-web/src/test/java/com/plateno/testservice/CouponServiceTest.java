@@ -31,7 +31,7 @@ public class CouponServiceTest {
 	@Test
 	public void testQueryCoupon() throws IOException {
 		QueryParam param = new QueryParam();
-		param.setCouponId(19747);
+		param.setCouponId(19744);
 		param.setMebId(181295316);
 		param.setAddBusType(CouponEnum.MONEY_COUPON.getType());
 		param.setAddSubBusType(CouponEnum.MONEY_COUPON.getSubType());
