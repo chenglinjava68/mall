@@ -379,9 +379,14 @@ public class MOrderService{
 	 */
 	private static final List<Integer> CAN_MODIFY_STATUS = Arrays.asList(3, 4, 5, 6, 7);
 	
-	@SuppressWarnings("unchecked")
-	@Transactional(rollbackFor=Exception.class)
-	public ResultVo<Object> modifyOrder(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
+	/**
+	 * 修改订单
+	 * @param modifyOrderParams
+	 * @return
+	 * @throws OrderException
+	 * @throws Exception
+	 */
+	private ResultVo<Object> modifyOrder(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
 		
 		logger.info("修改订单，参数:" + JsonUtils.toJsonString(modifyOrderParams));
 		
@@ -474,6 +479,29 @@ public class MOrderService{
 		
 		output.setData(order.getMemberId());
 		return output;
+	}
+	
+	/**
+	 * 修改订单加锁
+	 * @param modifyOrderParams
+	 * @return
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	@Transactional(rollbackFor=OrderException.class)
+	public ResultVo<Object> modifyOrderLock(final ModifyOrderParams modifyOrderParams) throws Exception {
+		
+		String lockName = "MALL_MODIFY_ORDER_" + modifyOrderParams.getOrderNo();
+		
+		Holder holder = new RedisLock.Holder() {
+			@Override
+			public Object exec() throws Exception {
+				//修改订单
+				return modifyOrder(modifyOrderParams);
+			}
+		};
+		
+		return (ResultVo<Object>) RedisLock.lockExec(lockName, holder);
 	}
 	
 	public ResultVo<List<MOperateLogResponse>> selectOperateLog(MOperateLogParam params) throws Exception {

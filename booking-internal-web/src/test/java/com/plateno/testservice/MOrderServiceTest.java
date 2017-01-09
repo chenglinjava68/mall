@@ -193,13 +193,13 @@ public class MOrderServiceTest {
 	@Test
 	public void testModifyOrder() throws OrderException, Exception{
 		ModifyOrderParams modifyOrderParams = new ModifyOrderParams();
-		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_5);
+		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_6);
 		modifyOrderParams.setOrderNo("O1478568730093888087");
-		modifyOrderParams.setRemark("测试修改状态");
+		modifyOrderParams.setRemark("");
 		modifyOrderParams.setOperateUserid("32323");
 		modifyOrderParams.setOperateUsername("xiaoming");
 		modifyOrderParams.setPlateForm(1);
-		ResultVo<Object> modifyOrder = service.modifyOrder(modifyOrderParams );
+		ResultVo<Object> modifyOrder = service.modifyOrderLock(modifyOrderParams );
 		
 		if(modifyOrder.success() && modifyOrderParams.getNewStatus() == BookingConstants.PAY_STATUS_6) {
 			MOrderParam orderParam = new MOrderParam();
