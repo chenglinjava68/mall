@@ -133,13 +133,27 @@ public class PaymentService {
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             String value = params.get(key);
-            if (i == keys.size() - 1) {//拼接时，不包括最后一个&字符
-                prestr = prestr + key + "=" + value;
-            } else {
-                prestr = prestr + key + "=" + value + "&";
+            
+            if(StringUtils.isBlank(value)) {
+            	continue;
             }
+            
+            prestr = prestr + key + "=" + value + "&";
         }
+        
+        if(prestr.length() > 0) {
+        	prestr = prestr.substring(0, prestr.length() - 1);
+        }
+        
         return prestr;
     }
+	
+	public static void main(String[] args) {
+		Map<String, String> params = new HashMap<>();
+		params.put("key3", "value3");
+		params.put("key2", "");
+		params.put("key1", "value1");
+		System.out.println(createLinkString(params));
+	}
 
 }
