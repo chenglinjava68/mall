@@ -113,7 +113,7 @@ public class CouponService {
 				
 				if(baseResponse.getStatus() == null || baseResponse.getStatus() != 0) {
 					logger.error("使用优惠券失败, status:{}, reason:{}", baseResponse.getStatus(), baseResponse.getReason());
-					return new ResultVo<>(ResultCode.FAILURE, null, "使用优惠券失败，响应吗：" + baseResponse.getStatus() + "， 错误信息：" + baseResponse.getReason());
+					return new ResultVo<>(ResultCode.FAILURE, null, "使用优惠券失败，响应码：" + baseResponse.getStatus() + "， 错误信息：" + baseResponse.getReason());
 				}
 				
 				return new ResultVo<>(ResultCode.SUCCESS, baseResponse);
