@@ -1515,11 +1515,14 @@ public class MOrderService{
 			consigneeInfo.setNewName(logc.getConsigneeNewName());
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
 			deliverDetail.setDeliverNo(logc.getLogisticsNo());
-			deliverDetail.setLogisticsType(logc.getLogisticsType());
 			
-			//数据库维护物流信息
-			//deliverDetail.setLogisticsTypeDesc(LogisticsEnum.getNameBytype(logc.getLogisticsType()));
-			deliverDetail.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(logc.getLogisticsType()));
+			if(order.getPayStatus() == PayStatusEnum.PAY_STATUS_4.getPayStatus() || order.getPayStatus() == PayStatusEnum.PAY_STATUS_5.getPayStatus()) {
+				deliverDetail.setLogisticsType(logc.getLogisticsType());
+				
+				//数据库维护物流信息
+				//deliverDetail.setLogisticsTypeDesc(LogisticsEnum.getNameBytype(logc.getLogisticsType()));
+				deliverDetail.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(logc.getLogisticsType()));
+			}
 			if(order.getDeliverTime()!=null)deliverDetail.setDeliverDate(order.getDeliverTime().getTime());
 			orderDetail.setConsigneeInfo(consigneeInfo);
 			orderDetail.setDeliverDetail(deliverDetail);
