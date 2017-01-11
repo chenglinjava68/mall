@@ -198,7 +198,7 @@ public class MApiService {
 			param.setConditions(conditions);
 			conditions.setOrderAmount(new BigDecimal((price2 * addBookingParam.getQuantity() / 100) + ""));
 			conditions.setCategoryId(pskubean.getCategoryId());
-			conditions.setProduceId(pskubean.getProductId());
+			conditions.setProductId(pskubean.getProductId());
 			ResultVo<QueryResponse> result = couponService.queryCoupon(param);
 			if(!result.success()) {
 				logger.error("memberId:{}, couponId:{}, 获取有优惠券信息失败:{}", addBookingParam.getMemberId(), addBookingParam.getCouponId(), result);

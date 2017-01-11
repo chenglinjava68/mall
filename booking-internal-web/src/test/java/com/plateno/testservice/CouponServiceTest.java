@@ -39,7 +39,7 @@ public class CouponServiceTest {
 		Conditions conditions = new Conditions();
 		param.setConditions(conditions);
 		conditions.setOrderAmount(new BigDecimal("50"));
-		conditions.setProduceId(2);
+		conditions.setProductId(2);
 		conditions.setCategoryId(102);
 		
 		ResultVo<QueryResponse> result = service.queryCoupon(param);
@@ -58,7 +58,7 @@ public class CouponServiceTest {
 		Conditions conditions = new Conditions();
 		useCouponParam.setConditions(conditions);
 		conditions.setOrderAmount(new BigDecimal("50"));
-		conditions.setProduceId(7);
+		conditions.setProductId(7);
 		conditions.setCategoryId(109);
 		
 		ResultVo<BaseResponse> useCouponResult = service.useCoupon(useCouponParam);

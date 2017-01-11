@@ -19,7 +19,7 @@ public class Conditions {
 	/**
 	 * 铂物管-商品 Id
 	 */
-	private Integer produceId;
+	private Integer productId;
 	
 	/**
 	 * 铂物管-类目 Id
@@ -33,12 +33,13 @@ public class Conditions {
 	public void setOrderAmount(BigDecimal orderAmount) {
 		this.orderAmount = orderAmount;
 	}
-	public Integer getProduceId() {
-		return produceId;
+
+	public Integer getProductId() {
+		return productId;
 	}
 
-	public void setProduceId(Integer produceId) {
-		this.produceId = produceId;
+	public void setProductId(Integer productId) {
+		this.productId = productId;
 	}
 
 	public Integer getCategoryId() {

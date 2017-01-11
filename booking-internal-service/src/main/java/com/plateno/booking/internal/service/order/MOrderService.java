@@ -750,7 +750,7 @@ public class MOrderService{
 				Conditions conditions = new Conditions();
 				useCouponParam.setConditions(conditions);
 				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price / 100) + ""));
-				conditions.setProduceId(pskubean.getProductId());
+				conditions.setProductId(pskubean.getProductId());
 				conditions.setCategoryId(pskubean.getCategoryId());
 				
 				ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
