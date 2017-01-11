@@ -62,6 +62,16 @@ public class UseParam {
 	 */
 	private Conditions conditions;
 	
+	private Integer platformId;
+	
+	public Integer getPlatformId() {
+		return platformId;
+	}
+
+	public void setPlatformId(Integer platformId) {
+		this.platformId = platformId;
+	}
+
 	public Integer getCouponId() {
 		return couponId;
 	}
