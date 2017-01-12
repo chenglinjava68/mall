@@ -593,7 +593,7 @@ public class MOrderService{
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=OrderException.class)
-	public String insertOrder(MAddBookingIncomeVo income) throws OrderException {
+	public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income) throws OrderException {
 		try {
 			
 			logger.info("封装参数开始...");
@@ -786,7 +786,7 @@ public class MOrderService{
 				}
 			}
 			
-			return orderNo;
+			return ordes;
 			
 		} catch (Exception e) {
 			//LogUtils.sysErrorLoggerError("订单创建失败", e);

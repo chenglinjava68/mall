@@ -2,6 +2,8 @@ package com.plateno.booking.internal.service.abs;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
+import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.custom.MAddBookResponse;
@@ -89,10 +91,12 @@ public abstract class MAbsAddOrderService {
 	}
 	
 	protected void insertBooking(MAddBookingIncomeVo income, ResultVo output) throws Exception {
-		String orderCode=morderService.insertOrder(income);
+		Order insertOrder = morderService.insertOrder(income);
 		MAddBookResponse addBookResponse = new MAddBookResponse();
 		addBookResponse.setGoodsId(income.getAddBookingParam().getGoodsId().toString());
-		addBookResponse.setOrderNo(orderCode);
+		addBookResponse.setOrderNo(insertOrder.getOrderNo());
+		addBookResponse.setViewStatus(PayStatusEnum.toViewStatus(insertOrder.getPayStatus()));
+		addBookResponse.setPayStatus(insertOrder.getPayStatus());
 		output.setData(addBookResponse);
 	}
 	
