@@ -196,7 +196,7 @@ public class MApiService {
 			param.setAddSubBusType(CouponEnum.MONEY_COUPON.getSubType());
 			Conditions conditions = new Conditions();
 			param.setConditions(conditions);
-			conditions.setOrderAmount(new BigDecimal((price2 * addBookingParam.getQuantity() / 100) + ""));
+			conditions.setOrderAmount(new BigDecimal((price2 * addBookingParam.getQuantity()) + "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
 			conditions.setCategoryId(pskubean.getCategoryId());
 			conditions.setProductId(pskubean.getProductId());
 			ResultVo<QueryResponse> result = couponService.queryCoupon(param);
@@ -230,7 +230,7 @@ public class MApiService {
 		int productAmount = addBookingParam.getQuantity() * price - couponAmount;
 		if(productAmount < 0) {
 			logger.info("商品需要支付的金额小于优惠券金额, productAmount:{}", productAmount);
-			addBookingParam.setValidCouponAmount(new BigDecimal((addBookingParam.getQuantity() * price / 100) + ""));
+			addBookingParam.setValidCouponAmount(new BigDecimal((addBookingParam.getQuantity() * price) + "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
 			productAmount = 0;
 		}
 		

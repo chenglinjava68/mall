@@ -751,7 +751,7 @@ public class MOrderService{
 				useCouponParam.setPlatformId(CouponPlatformType.fromResource(book.getResource()).getPlatformId());
 				Conditions conditions = new Conditions();
 				useCouponParam.setConditions(conditions);
-				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price / 100) + ""));
+				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price) + "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
 				conditions.setProductId(pskubean.getProductId());
 				conditions.setCategoryId(pskubean.getCategoryId());
 				
@@ -1932,41 +1932,6 @@ public class MOrderService{
 				final Order dbOrder = order;
 				final OrderProduct product = productByOrderNo;
 				//发送退款短信
-				/*taskExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						
-						logger.info("发送退款成功短信:{}", dbOrder.getOrderNo());
-						
-						SmsMessageReq messageReq = new SmsMessageReq();
-						Map<String, String> params = new HashMap<String, String>();
-						if(dbOrder.getPoint() > 0){
-							messageReq.setPhone(dbOrder.getMobile());
-							params.put("orderCode", dbOrder.getOrderNo());
-							params.put("name", product.getProductName());
-							params.put("money", dbOrder.getPayMoney()+"");
-							params.put("jf",dbOrder.getPoint()+"");
-							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_NINE));
-						}else{
-							params.remove("jf");
-							messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_EIGHT));
-						}
-						messageReq.setParams(params);
-						Boolean res=sendService.sendMessage(messageReq);
-						
-						logger.info("发送退款成功短信:{}, res:{}", dbOrder.getOrderNo(), res);
-						
-						//记录短信日志
-						SmsLog smslog=new SmsLog();
-						smslog.setCreateTime(new Date());
-						smslog.setIsSuccess(res==true?1:0);
-						smslog.setContent(product.getProductName());
-						smslog.setObjectNo(dbOrder.getOrderNo());
-						smslog.setPhone(dbOrder.getMobile());
-						smslog.setUpdateTime(new Date());
-						smsLogMapper.insertSelective(smslog);
-					}
-				});*/
 				
 				String templateId;
 				RefundSuccessContent content = new RefundSuccessContent();

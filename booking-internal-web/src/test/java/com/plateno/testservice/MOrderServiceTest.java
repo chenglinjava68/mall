@@ -73,7 +73,7 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1483584685913632952");
+		orderParam.setOrderNo("O1484130275182529269");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
 		orderParam.setPlateForm(1);
