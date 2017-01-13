@@ -1035,11 +1035,17 @@ public class MOrderService{
 		}
 		final ProductSkuBean bean=mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid().toString());
 		
+		logger.info("取消订单，退还库存， orderNo:{}, skuId:{}, count:{}", orderParam.getOrderNo(), productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
+		
 		if(!mallGoodsService.modifyStock(productOrderList.get(0).getSkuid().toString(), productOrderList.get(0).getSkuCount())){
 			//LogUtils.sysLoggerInfo("更新库存失败");
 			LogUtils.DISPERSED_ERROR_LOGGER.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
 			logger.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
 		}
+		
+		//更新已经退还的库存
+		orderProductMapper.updateReturnSkuCount(productOrderList.get(0).getSkuCount(), productOrderList.get(0).getId());
+		
 		return bean;
 	}
 
