@@ -1944,16 +1944,19 @@ public class MOrderService{
 			if(productByOrderNo == null) {
 				logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
 			} else {
-				//更新库存
-				/*
-				 * 退还库存改成统一退款时立刻退还
-				 * logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
-				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
-				if(!modifyStock){
-					logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
-					//LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
-					LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
-				}*/
+				
+				//更新已经返还的库存
+				int row = orderProductMapper.updateReturnSkuCount(productByOrderNo.getSkuCount(), productByOrderNo.getId());
+				//同意退款也会退还库存，为了过渡， 两边都加退款逻辑
+				if(row > 0) {
+					logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+					boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
+					if(!modifyStock){
+						logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+						//LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
+						LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
+					}
+				}
 				
 				logger.info(String.format("orderNo:%s， 发送退款短信，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
 				
