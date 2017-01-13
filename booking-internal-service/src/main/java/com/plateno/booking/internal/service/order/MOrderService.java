@@ -210,9 +210,9 @@ public class MOrderService{
 		
 		List<Order> orderReturns = mallOrderMapper.getPageOrders(param);
 		vo=new ResultVo<LstOrder<SelectOrderResponse>>();
-		if (CollectionUtils.isEmpty(orderReturns)){
+		/*if (CollectionUtils.isEmpty(orderReturns)){
 			return vo;
-		}
+		}*/
 		
 		for(Order order:orderReturns){
 			paramsDeal(order,list);
