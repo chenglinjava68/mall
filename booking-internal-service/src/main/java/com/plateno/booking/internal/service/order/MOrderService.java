@@ -866,6 +866,14 @@ public class MOrderService{
 			return output;
 		}
 		
+		OrderProduct productByOrderNo = getProductByOrderNo(dbOrder.getOrderNo());
+		if(productByOrderNo == null) {
+			logger.error("orderNo:{}, 查找商品信息失败", dbOrder.getOrderNo());
+			output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+			output.setResultMsg("获取商品信息失败！");
+			return output;
+		} 
+		
 		ResultVo<Object> result = null;
 		
 		//下单有支付行为
@@ -878,6 +886,22 @@ public class MOrderService{
 		if(!result.success()) {
 			return result;
 		}
+		
+		//更新已经返还的库存
+		int row = orderProductMapper.updateReturnSkuCount(productByOrderNo.getSkuCount(), productByOrderNo.getId());
+		
+		//异常单修改，有可能会进行多次退款，避免多次退还库存
+		if(row > 0) {
+			//退还库存
+			logger.info("orderNo:{}， 退还库存，skuid:{}, count:{}", dbOrder.getOrderNo(), productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
+			boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
+			if(!modifyStock){
+				logger.error(String.format("orderNo:%s, 调用商品服务失败", dbOrder.getOrderNo()));
+				LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", dbOrder.getOrderNo(), productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
+			}
+		}
+		
+		
 		
 		//记录操作日志
 		MOperateLogParam paramlog=new MOperateLogParam();
@@ -1921,13 +1945,17 @@ public class MOrderService{
 				logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
 			} else {
 				//更新库存
-				logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
+				/*
+				 * 退还库存改成统一退款时立刻退还
+				 * logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
 				boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
 				if(!modifyStock){
 					logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
 					//LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
 					LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
-				}
+				}*/
+				
+				logger.info(String.format("orderNo:%s， 发送退款短信，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
 				
 				final Order dbOrder = order;
 				final OrderProduct product = productByOrderNo;

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.coupon.constant.CouponEnum;
 import com.plateno.booking.internal.coupon.constant.CouponPlatformType;
 import com.plateno.booking.internal.coupon.service.CouponService;
@@ -76,5 +77,11 @@ public class CouponServiceTest {
 		ResultVo<CancelResponse> cancelCouponResult = service.cancelCoupon(param);
 		
 		System.out.println(cancelCouponResult);
+	}
+	
+	
+	@Test
+	public void test222() throws IOException {
+		System.out.println(RedisLock.lock("33333"));
 	}
 }

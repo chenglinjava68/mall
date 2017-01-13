@@ -54,6 +54,11 @@ public class OrderProduct implements Serializable {
      * 每件产品的发货费用
      */
     private Integer expressCost;
+    
+    /**
+     * 退还库存的数量
+     */
+    private Integer returnSkuCount;
 
     private static final long serialVersionUID = 1L;
 
@@ -200,4 +205,12 @@ public class OrderProduct implements Serializable {
     public void setDisImages(String disImages) {
         this.disImages = disImages == null ? null : disImages.trim();
     }
+
+	public Integer getReturnSkuCount() {
+		return returnSkuCount;
+	}
+
+	public void setReturnSkuCount(Integer returnSkuCount) {
+		this.returnSkuCount = returnSkuCount;
+	}
 }
