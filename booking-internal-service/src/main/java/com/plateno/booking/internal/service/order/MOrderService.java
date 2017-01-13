@@ -622,9 +622,11 @@ public class MOrderService{
 			}
 			
 			int orderStatus = BookingResultCodeContants.PAY_STATUS_1;
+			int payType = 0;
 			//当优惠券的金额大于商品需要支付的金额的时候，如果包邮，需要支付的金额将会是0，这是直接把订单的状态变成代发货
 			if(book.getTotalAmount() <= 0) {
 				orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
+				payType = 3; //支付方式，无需支付
 			}
 
 			ordes.setResource(book.getResource());
@@ -640,7 +642,7 @@ public class MOrderService{
 			ordes.setName(book.getName());
 			ordes.setOrderNo(orderNo);
 			ordes.setPayTime(new Date());
-			ordes.setPayType(0);// 默认1微信支付、2支付宝支付
+			ordes.setPayType(payType);// 默认1微信支付、2支付宝支付 3无需支付
 			ordes.setPayStatus(orderStatus);
 			ordes.setPoint(book.getPoint());
 			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
