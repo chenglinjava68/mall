@@ -2211,4 +2211,14 @@ public class MOrderService{
 		return orderProductMapper.queryUserProductSum(memberId, productId);
 	}
 
+	/**
+	 * 查询库存已售数量
+	 * @param skuId
+	 * @return
+	 */
+	public ResultVo<Integer> querySkuSoldNum(Integer skuId) {
+		int num = orderProductMapper.querySkuSoldNum(skuId);
+		return new ResultVo<Integer>(ResultCode.SUCCESS, num);
+	}
+
 }

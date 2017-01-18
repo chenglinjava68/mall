@@ -20,5 +20,12 @@ public interface OrderProductMapper extends BaseMapper {
 	 * @return
 	 */
 	int updateReturnSkuCount(@Param("returnSkuCount")Integer returnSkuCount, @Param("id")Integer id);
+
+	/**
+	 * 查询库存已经售出的数量
+	 * @param skuId
+	 * @return
+	 */
+	int querySkuSoldNum(@Param("skuId")Integer skuId);
    
 }
