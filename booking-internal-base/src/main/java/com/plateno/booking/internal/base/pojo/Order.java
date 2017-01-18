@@ -78,6 +78,11 @@ public class Order implements Serializable {
      * 订单总的发货费用
      */
     private Integer totalExpressCost;
+    
+    /**
+     * 优惠券抵扣金额
+     */
+    private Integer couponAmount;
 
     private static final long serialVersionUID = 1L;
 
@@ -319,5 +324,13 @@ public class Order implements Serializable {
 
 	public void setSubResource(Integer subResource) {
 		this.subResource = subResource;
+	}
+
+	public Integer getCouponAmount() {
+		return couponAmount;
+	}
+
+	public void setCouponAmount(Integer couponAmount) {
+		this.couponAmount = couponAmount;
 	}
 }

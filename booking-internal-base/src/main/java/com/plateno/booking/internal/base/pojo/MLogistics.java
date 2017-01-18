@@ -32,6 +32,36 @@ public class MLogistics implements Serializable {
      * 最新收货人地址
      */
     private String consigneeNewMobile;
+    
+    /**
+     * 省
+     */
+    private String province;
+    
+    /**
+     * 市
+     */
+    private String city;
+    
+    /**
+     * 县
+     */
+    private String area;
+    
+    /**
+     * 最新省
+     */
+    private String newProvince;
+    
+    /**
+     * 最新市
+     */
+    private String newCity;
+    
+    /**
+     * 最新区
+     */
+    private String newArea;
 
     private static final long serialVersionUID = 1L;
 
@@ -129,5 +159,53 @@ public class MLogistics implements Serializable {
 
 	public void setConsigneeNewMobile(String consigneeNewMobile) {
 		this.consigneeNewMobile = consigneeNewMobile == null ? null : consigneeNewMobile.trim();
+	}
+
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String getNewProvince() {
+		return newProvince;
+	}
+
+	public void setNewProvince(String newProvince) {
+		this.newProvince = newProvince;
+	}
+
+	public String getNewCity() {
+		return newCity;
+	}
+
+	public void setNewCity(String newCity) {
+		this.newCity = newCity;
+	}
+
+	public String getNewArea() {
+		return newArea;
+	}
+
+	public void setNewArea(String newArea) {
+		this.newArea = newArea;
 	}
 }

@@ -12,5 +12,13 @@ public interface OrderProductMapper extends BaseMapper {
 	 * @return
 	 */
 	int queryUserProductSum(@Param("memberId")int memberId, @Param("productId")int productId);
+
+	/**
+	 * 更新商品的返回库存数量
+	 * @param skuCount
+	 * @param id
+	 * @return
+	 */
+	int updateReturnSkuCount(@Param("returnSkuCount")Integer returnSkuCount, @Param("id")Integer id);
    
 }

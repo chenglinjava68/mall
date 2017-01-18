@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- "namespace" must be the path of interface, or show error “is not known to the MapperRegistry” when launch -->
+<mapper namespace="com.plateno.booking.internal.base.mapper.MOrderCouponMapper">
+	
+	<!-- "id" must be as same as method name of the interface -->
+	<select id="list" resultType="mOrderCouponPO" parameterType="mOrderCouponSearchVO">
+		<![CDATA[select * from m_order_coupon ]]>
+		<where>
+			<if test="orderNo != null and orderNo != ''" >
+				<![CDATA[ order_no = #{orderNo}]]>
+			</if>
+			<if test="couponId != null and couponId != ''" >
+				<![CDATA[ AND coupon_id = #{couponId} ]]>
+			</if>
+			<if test="couponType != null and couponType != ''" >
+				<![CDATA[ AND coupon_type = #{couponType} ]]>
+			</if>
+			<if test="subCouponType != null and subCouponType != ''" >
+				<![CDATA[ AND sub_coupon_type = #{subCouponType} ]]>
+			</if>
+		</where>
+		ORDER BY id DESC 
+		<![CDATA[ LIMIT #{start} , #{size}  ]]>
+	</select>
+	
+	<select id="count" resultType="int" parameterType="mOrderCouponSearchVO">
+		<![CDATA[select count(*) as num from m_order_coupon ]]>
+		<where>
+			<if test="orderNo != null and orderNo != ''" >
+				<![CDATA[ order_no = #{orderNo}  ]]>
+			</if>
+			<if test="couponId != null and couponId != ''" >
+				<![CDATA[ AND coupon_id = #{couponId} ]]>
+			</if>
+			<if test="couponType != null and couponType != ''" >
+				<![CDATA[ AND coupon_type = #{couponType} ]]>
+			</if>
+			<if test="subCouponType != null and subCouponType != ''" >
+				<![CDATA[ AND sub_coupon_type = #{subCouponType} ]]>
+			</if>
+		</where>
+	</select>
+	
+	<select id="get" resultType="mOrderCouponPO" parameterType="Long">
+		<![CDATA[
+			select * from m_order_coupon where id = #{id}
+		]]>
+	</select>
+	
+	<insert id="insert" parameterType="mOrderCouponPO">
+		<![CDATA[
+			insert into m_order_coupon set
+							order_no=#{orderNo},
+									coupon_id=#{couponId},
+									coupon_type=#{couponType},
+									sub_coupon_type=#{subCouponType},
+									coupon_name=#{couponName},
+									amount=#{amount},
+									order_coupon_amount=#{orderCouponAmount},
+									create_time=#{createTime}
+					]]>
+	</insert>
+    
+	<update id="update" parameterType="mOrderCouponPO">
+		<![CDATA[
+			update m_order_coupon set
+							order_no=#{orderNo},
+									coupon_id=#{couponId},
+									coupon_type=#{couponType},
+									sub_coupon_type=#{subCouponType},
+									coupon_name=#{couponName},
+									amount=#{amount},
+									order_coupon_amount=#{orderCouponAmount},
+									create_time=#{createTime}
+				where id = #{id}
+		]]>
+	</update>
+    
+	<delete id="delete" parameterType="Long">
+		<![CDATA[
+			DELETE FROM m_order_coupon WHERE id = #{id}
+		]]>
+	</delete>
+</mapper>

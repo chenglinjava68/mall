@@ -27,7 +27,10 @@ public class LogUtils{
 	 */
 	private static final Logger sysInfoLogger = LoggerFactory.getLogger("sysInfoLogger");
 	
-	
+	/**
+	 * 分布式事务错误，需要人工介入
+	 */
+	public static final Logger DISPERSED_ERROR_LOGGER = LoggerFactory.getLogger("dispersedErrorLogger");
 
 	public static void countTimeLoggerInfo(String msg) {
 		countTimeLogger.info(msg);

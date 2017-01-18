@@ -132,6 +132,15 @@ public class Config {
   	 * 商城地址
   	 */
   	public static String MALL_H5_URL;
+  	
+  	/**
+  	 * 优惠券服务地址
+  	 */
+    public static String COUPON_SERVER_URL;
+    /**
+     * 优惠券服务密钥
+     */
+    public static String COUPON_SERVER_KEY;
    
   /* 载入配置 */
   static {
@@ -186,6 +195,10 @@ public class Config {
 		_JOBDAYS = Integer.parseInt(PropertiesUtil.readPropertiesTools(PROFILE_CXF,"days"));;
 		
 		MALL_H5_URL = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MALL_H5_URL");
+		
+		//优惠券相关
+		COUPON_SERVER_URL = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "COUPON_SERVER_URL");
+		COUPON_SERVER_KEY = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "COUPON_SERVER_KEY");
   	}
 		catch (Exception e) {
 			//e.printStackTrace();

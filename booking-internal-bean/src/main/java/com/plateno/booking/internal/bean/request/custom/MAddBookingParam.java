@@ -1,6 +1,7 @@
 package com.plateno.booking.internal.bean.request.custom;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import javax.validation.constraints.NotNull;
 
@@ -63,6 +64,97 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 * 订单子来源
 	 */
 	private Integer subResource; 
+	
+	/**
+	 * 优惠券ID
+	 */
+	private Integer couponId;
+	
+	/**
+	 * 优惠券ID（非前端传）
+	 */
+	private String couponName;
+	
+	/**
+	 * 优惠券的金额（非前端传）
+	 */
+	private BigDecimal couponAmount;
+	
+	/**
+	 * 有效的优惠券金额（当商品需要支付的金额小于优惠券金额时，就是商品需要支付的金额）
+	 */
+	private BigDecimal validCouponAmount;
+	
+	/**
+     * 省
+     */
+    private String province;
+    
+    /**
+     * 市
+     */
+    private String city;
+    
+    /**
+     * 县
+     */
+    private String area;
+
+	public String getProvince() {
+		return province;
+	}
+
+	public void setProvince(String province) {
+		this.province = province;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public BigDecimal getValidCouponAmount() {
+		return validCouponAmount;
+	}
+
+	public void setValidCouponAmount(BigDecimal validCouponAmount) {
+		this.validCouponAmount = validCouponAmount;
+	}
+
+	public Integer getCouponId() {
+		return couponId;
+	}
+
+	public void setCouponId(Integer couponId) {
+		this.couponId = couponId;
+	}
+
+	public String getCouponName() {
+		return couponName;
+	}
+
+	public void setCouponName(String couponName) {
+		this.couponName = couponName;
+	}
+
+	public BigDecimal getCouponAmount() {
+		return couponAmount;
+	}
+
+	public void setCouponAmount(BigDecimal couponAmount) {
+		this.couponAmount = couponAmount;
+	}
 
 	public Integer getSellStrategy() {
 		return sellStrategy;

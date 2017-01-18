@@ -400,7 +400,7 @@ public class MOrderWebRPCService extends BaseController{
 			return response;
 		}
 		
-		ResultVo<Object> out = mOrderService.modifyOrder(param);
+		ResultVo<Object> out = mOrderService.modifyOrderLock(param);
 		
 		//如果改成审核中，直接调用审核通过退款
 		/*if(out.success() && param.getNewStatus() == BookingConstants.PAY_STATUS_6) {

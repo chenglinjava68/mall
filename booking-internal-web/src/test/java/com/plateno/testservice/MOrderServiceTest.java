@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.base.model.SelectOrderParam;
+import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
@@ -52,10 +53,13 @@ public class MOrderServiceTest {
 	public void testModifyReceiptInfo() throws OrderException, Exception{
 		
 		ReceiptParam receiptParam = new ReceiptParam();
-		receiptParam.setOrderNo("O1474959953609872686");
+		receiptParam.setOrderNo("O1483584685913632952");
 		receiptParam.setReceiptName("张思");
 		receiptParam.setReceiptMobile("13888888888");
-		receiptParam.setReceiptAddress("银河系");
+		receiptParam.setProvince("广东省");
+		receiptParam.setCity("广州市");
+		receiptParam.setArea("番禺区");
+		receiptParam.setReceiptAddress("大学城");
 		receiptParam.setOperateUserid("123456");
 		receiptParam.setOperateUsername("管理员");
 		receiptParam.setPlateForm(1);
@@ -69,10 +73,10 @@ public class MOrderServiceTest {
 		
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1480906183189820515");
+		orderParam.setOrderNo("O1484130275182529269");
 		//orderParam.setMemberId(135964714);
 		//orderParam.setChannelId(1);
-		orderParam.setPlateForm(3);
+		orderParam.setPlateForm(1);
 		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
 		System.out.println("结果：" + orderDetail);
 	}
@@ -81,7 +85,7 @@ public class MOrderServiceTest {
 	public void testGetProductAndskuStock() throws OrderException, Exception{
 		
 		
-		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("10");
+		ProductSkuBean productAndskuStock = mallGoodsService.getProductAndskuStock("16");
 		System.out.println(productAndskuStock);
 		
 	}
@@ -92,7 +96,7 @@ public class MOrderServiceTest {
 		
 		SelectOrderParam param = new SelectOrderParam();
 		//param.setPlateForm(3);
-		param.setOrderNo("O1482379210894476495");
+		param.setOrderNo("O1483584685913632952");
 		//param.setResource(1);
 		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
 		//param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));
@@ -113,7 +117,7 @@ public class MOrderServiceTest {
 	public void testUserRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1478076012273383901");
+		param.setOrderNo("O1483584283204762088");
 		ResultVo<Object> userRefund = service.userRefund(param );
 		System.out.println(userRefund);
 		
@@ -123,9 +127,18 @@ public class MOrderServiceTest {
 	public void testConsentRefund() throws OrderException, Exception{
 		
 		MOrderParam param = new MOrderParam();
-		param.setOrderNo("O1478768094167457080");
+		param.setOrderNo("O1484290387880998108");
 		ResultVo<Object> userRefund = service.refundOrder(param);
 		System.out.println(userRefund);
+		
+	}
+	
+	@Test
+	public void testHandleGateWayefund() throws OrderException, Exception{
+		
+		Order order = new Order();
+		order.setOrderNo("O1479179291955945541");
+		service.handleGateWayefund(order);
 		
 	}
 	
@@ -169,7 +182,7 @@ public class MOrderServiceTest {
 	public void testCancelOrder() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1479952202860664675");
+		orderParam.setOrderNo("O1483513542892102624");
 		orderParam.setMemberId(181295316);
 		orderParam.setType(2);
 		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
@@ -180,13 +193,13 @@ public class MOrderServiceTest {
 	@Test
 	public void testModifyOrder() throws OrderException, Exception{
 		ModifyOrderParams modifyOrderParams = new ModifyOrderParams();
-		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_5);
+		modifyOrderParams.setNewStatus(BookingConstants.PAY_STATUS_6);
 		modifyOrderParams.setOrderNo("O1478568730093888087");
-		modifyOrderParams.setRemark("测试修改状态");
+		modifyOrderParams.setRemark("");
 		modifyOrderParams.setOperateUserid("32323");
 		modifyOrderParams.setOperateUsername("xiaoming");
 		modifyOrderParams.setPlateForm(1);
-		ResultVo<Object> modifyOrder = service.modifyOrder(modifyOrderParams );
+		ResultVo<Object> modifyOrder = service.modifyOrderLock(modifyOrderParams );
 		
 		if(modifyOrder.success() && modifyOrderParams.getNewStatus() == BookingConstants.PAY_STATUS_6) {
 			MOrderParam orderParam = new MOrderParam();
@@ -212,7 +225,7 @@ public class MOrderServiceTest {
 	public void testAdminRefuseRefund() throws OrderException, Exception{
 		
 		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1478568730093888087");
+		orderParam.setOrderNo("O1483519528592537419");
 		orderParam.setMemberId(181295316);
 		orderParam.setOperateUserid("3232323");
 		orderParam.setOperateUsername("xiaoming");
