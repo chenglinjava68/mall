@@ -27,6 +27,7 @@ import com.plateno.booking.internal.bean.request.custom.GetProductBuyNumParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
+import com.plateno.booking.internal.bean.request.custom.OrderSkuQueryParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
@@ -474,5 +475,14 @@ public class MOrderWebRPCService extends BaseController{
 		output.setData(dataList);
 		
 		return output;
+	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/skuSoldNum" ,method = RequestMethod.POST)
+	public ResultVo<Integer> skuSoldNum(@RequestBody @Valid OrderSkuQueryParam param,BindingResult result) throws Exception{
+		log.info("查询已经售出的数量:{}", JsonUtils.toJsonString(param));
+		bindingResultHandler(result);
+		ResultVo<Integer> r = mOrderService.querySkuSoldNum(param.getSkuId());
+		return r;
 	}
 }
