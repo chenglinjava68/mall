@@ -315,5 +315,12 @@ public class MOrderServiceTest {
 		ResultVo<Object> pruSellAmountByPreDay = service.getPruSellAmountByPreDay(10);
 		System.out.println(pruSellAmountByPreDay);
 	}
+	
+	@Test
+	public void testQuerySkuSoldNum() throws OrderException, Exception{
+		
+		ResultVo<Integer> querySkuSoldNum = service.querySkuSoldNum(21);
+		System.out.println(querySkuSoldNum);
+	}
 
 }
