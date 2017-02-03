@@ -1,0 +1,28 @@
+{
+	"reasonList":[
+		{
+			"reasonNo":1,
+			"reasonName":"行程变更"
+		},
+		{
+			"reasonNo":2,
+			"reasonName":"产品订错(时间,数量)"
+		},
+		{
+			"reasonNo":3,
+			"reasonName":"重复订单"
+		},
+		{
+			"reasonNo":4,
+			"reasonName":"在其他网站购买"
+		},
+		{
+			"reasonNo":5,
+			"reasonName":"价格不够优惠"
+		},
+		{
+			"reasonNo":6,
+			"reasonName":"其他"
+		}
+	]
+}

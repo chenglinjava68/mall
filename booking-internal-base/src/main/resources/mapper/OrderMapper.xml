@@ -33,6 +33,8 @@
     <result column="total_product_cost" property="totalProductCost" jdbcType="INTEGER" />
     <result column="total_express_cost" property="totalExpressCost" jdbcType="INTEGER" />
     <result column="coupon_amount" property="couponAmount" jdbcType="INTEGER" />
+    <result column="currency_deposit_amount" property="currencyDepositAmount" jdbcType="INTEGER" />
+    <result column="gateway_amount" property="gatewayAmount" jdbcType="INTEGER" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -96,7 +98,7 @@
     id, order_no, amount, name, mobile, member_id, sid, chanelid, item_id, pay_type, 
     pay_time, wait_pay_time, create_time, up_time, point, refund_amount, refund_time, 
     pay_status, pay_money, deliver_time, refund_successtime, refund_reason, resource, 
-    refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost,coupon_amount
+    refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost,coupon_amount,currency_deposit_amount,gateway_amount
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" >
     select
@@ -139,7 +141,7 @@
       up_time, point, refund_amount, 
       refund_time, pay_status, pay_money, 
       deliver_time, refund_successtime, refund_reason, 
-      resource, refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost, coupon_amount
+      resource, refund_point, remark, logic_del, sub_resource, total_product_cost, total_express_cost, coupon_amount,currency_deposit_amount,gateway_amount
       )
     values (#{orderNo,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, 
       #{mobile,jdbcType=VARCHAR}, #{memberId,jdbcType=INTEGER}, #{sid,jdbcType=INTEGER}, 
@@ -149,7 +151,8 @@
       #{refundTime,jdbcType=TIMESTAMP}, #{payStatus,jdbcType=INTEGER}, #{payMoney,jdbcType=INTEGER}, 
       #{deliverTime,jdbcType=TIMESTAMP}, #{refundSuccesstime,jdbcType=TIMESTAMP}, #{refundReason,jdbcType=VARCHAR}, 
       #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{logicDel,jdbcType=INTEGER}, #{subResource,jdbcType=INTEGER},
-      #{totalProductCost,jdbcType=INTEGER}, #{totalExpressCost,jdbcType=INTEGER}, #{couponAmount,jdbcType=INTEGER}
+      #{totalProductCost,jdbcType=INTEGER}, #{totalExpressCost,jdbcType=INTEGER}, #{couponAmount,jdbcType=INTEGER},
+      #{currencyDepositAmount,jdbcType=INTEGER}, #{gatewayAmount,jdbcType=INTEGER}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Order" >
@@ -245,6 +248,12 @@
       <if test="couponAmount != null" >
         coupon_amount,
       </if>
+      <if test="currencyDepositAmount != null" >
+        currency_deposit_amount,
+      </if>
+      <if test="gatewayAmount != null" >
+        gateway_amount,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="orderNo != null" >
@@ -334,6 +343,12 @@
       <if test="couponAmount != null" >
         #{couponAmount,jdbcType=INTEGER},
       </if>
+      <if test="currencyDepositAmount != null" >
+        #{currencyDepositAmount,jdbcType=INTEGER},
+      </if>
+      <if test="gatewayAmount != null" >
+        #{gatewayAmount,jdbcType=INTEGER},
+      </if>            
     </trim>
   </insert>
   <select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" resultType="java.lang.Integer" >
@@ -426,6 +441,12 @@
       <if test="record.logicDel != null" >
         logic_del = #{record.logicDel,jdbcType=INTEGER},
       </if>
+      <if test="record.currencyDepositAmount != null" >
+        currency_deposit_amount = #{record.currencyDepositAmount,jdbcType=INTEGER},
+      </if>
+      <if test="record.gatewayAmount != null" >
+        gateway_amount = #{record.gatewayAmount,jdbcType=INTEGER},
+      </if>            
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -542,6 +563,12 @@
       <if test="logicDel != null" >
         logic_del = #{logicDel,jdbcType=INTEGER},
       </if>
+      <if test="currencyDepositAmount != null" >
+        currency_deposit_amount = #{currencyDepositAmount,jdbcType=INTEGER},
+      </if>
+      <if test="gatewayAmount != null" >
+        gateway_amount = #{gatewayAmount,jdbcType=INTEGER},
+      </if>      
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -878,6 +905,14 @@
 			<![CDATA[ AND (pay_status != 9 AND logic_del != 2) ]]>
 		</if>
 	</where>
+  </select>
+
+  <select id="getByOrderIdForUpdate" resultMap="BaseResultMap" >
+  	<![CDATA[ 
+    	select *
+    	from m_order
+     	where id= #{orderId,jdbcType=INTEGER} for update
+  	]]>
   </select>
 
 </mapper>

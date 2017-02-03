@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="booking-internal-activity">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <dependent-module archiveName="booking-internal-service-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-service/booking-internal-service">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-dao-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-dao/booking-internal-dao">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-common-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-common/booking-internal-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-base-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-base/booking-internal-base">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="mall-booking-util-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/mall-booking-util/mall-booking-util">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-thirdService-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-thirdService/booking-internal-thirdService">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-interceptor-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-interceptor/booking-internal-interceptor">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-email-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-email/booking-internal-email">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="booking-internal-bean-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/booking-internal-bean/booking-internal-bean">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="mall-booking-conf-0.0.1.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/mall-booking-conf/mall-booking-conf">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="booking-internal-activity"/>
+        <property name="java-output-path" value="/booking-internal-activity/target/classes"/>
+    </wb-module>
+</project-modules>

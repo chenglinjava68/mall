@@ -72,6 +72,8 @@ import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
+import com.plateno.booking.internal.cashierdesk.CashierDeskService;
+import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
@@ -104,7 +106,7 @@ import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
-
+import com.plateno.booking.internal.cashierdesk.vo.*;
 
 
 @Service
@@ -172,7 +174,9 @@ public class MOrderService{
 	@Autowired
 	private MOrderCouponMapper mOrderCouponMapper;
 	
-
+	@Autowired
+	private CashierDeskService cashierDeskService;
+	
 	/**
 	 * 查询订单信息,并支持分页处理
 	 * 
@@ -1011,15 +1015,20 @@ public class MOrderService{
 		refundOrderParam.setRemark(orderPayLog.getRemark());
 		refundOrderParam.setOrderNo(listPayLog.get(0).getTrandNo()); //原交易订单号
 		
-		//调用支付网关退款
-		RefundOrderResponse response = null;
-		try {
-			response = paymentService.refundOrder(refundOrderParam);
-		} catch (Exception e) {
-			logger.error("支付网关申请退款异常:" + orderPayLog.getTrandNo(), e);
+		
+		RefundOrderReq refundOrderReq = new RefundOrderReq();
+		refundOrderReq.setOrderNo(listPayLog.get(0).getTrandNo());//原交易订单号
+		refundOrderReq.setAmount(-orderPayLog.getAmount());
+		refundOrderReq.setMemberId(order.getMemberId());
+		refundOrderReq.setTradeNo(orderPayLog.getTrandNo());//退款申请的订单号
+		com.plateno.booking.internal.cashierdesk.vo.RefundOrderResponse  refundOrderResponse = cashierDeskService.refundOrder(refundOrderReq);
+		//发起退款判断
+		if(null == refundOrderResponse || !refundOrderResponse.getResultCode().equals("100")){
+		    logger.error("支付网关，发起退款失败，tranNo:{},req:{},res:{}",orderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
 		}
 		
-		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
+		
+		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse)));
 		
 		return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
 	}

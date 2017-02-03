@@ -27,6 +27,14 @@ public class OrderPayLog implements Serializable {
     private Integer point;
 
     private Integer type;
+    /**
+     * 储值金额
+     */
+    private Integer currencyDepositAmount;
+    /**
+     * 支付网关金额
+     */
+    private Integer gatewayAmount;
 
     private static final long serialVersionUID = 1L;
 
@@ -124,6 +132,22 @@ public class OrderPayLog implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Integer getCurrencyDepositAmount() {
+        return currencyDepositAmount;
+    }
+
+    public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+        this.currencyDepositAmount = currencyDepositAmount;
+    }
+
+    public Integer getGatewayAmount() {
+        return gatewayAmount;
+    }
+
+    public void setGatewayAmount(Integer gatewayAmount) {
+        this.gatewayAmount = gatewayAmount;
     }
     
     
