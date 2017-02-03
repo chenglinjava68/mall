@@ -15,6 +15,7 @@ public class MAddBookResponse {
 	 */
 	private Integer payStatus;
 	
+	
 	public Integer getViewStatus() {
 		return viewStatus;
 	}

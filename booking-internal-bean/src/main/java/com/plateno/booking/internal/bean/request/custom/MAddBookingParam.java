@@ -2,6 +2,7 @@ package com.plateno.booking.internal.bean.request.custom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,14 +14,16 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 
 	private static final long serialVersionUID = -5028619260613976314L;
 	
-	@NotNull(message = "商品ID,不能为空")
-	private Long goodsId;
+//	@NotNull(message = "商品ID,不能为空")
+//	private Long goodsId;
+	
+	private List<MOrderGoodsParam> goodsList;
 	
 	@NotNull(message = "订单总价,不能为空")
 	private Integer totalAmount;
 	
-	@NotNull(message = "选购数量,不能为空")
-	private Integer quantity;
+//	@NotNull(message = "选购数量,不能为空")
+//	private Integer quantity;
 
 	@NotNull(message = "收货人,不能为空")
 	@NotEmpty(message = "收货人,不能为空")
@@ -58,7 +61,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	
 	private Integer point;//积分
 	
-	private String skuProperties;//商品属性,按:分开;
+//	private String skuProperties;//商品属性,按:分开;
 	
 	/**
 	 * 订单子来源
@@ -100,7 +103,18 @@ public class MAddBookingParam extends BaseParam implements Serializable {
      */
     private String area;
 
-	public String getProvince() {
+    
+    
+    
+	public List<MOrderGoodsParam> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<MOrderGoodsParam> goodsList) {
+        this.goodsList = goodsList;
+    }
+
+    public String getProvince() {
 		return province;
 	}
 
@@ -181,13 +195,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.resource = resource;
 	}
 
-	public Long getGoodsId() {
-		return goodsId;
-	}
 
-	public void setGoodsId(Long goodsId) {
-		this.goodsId = goodsId;
-	}
 
 	public Integer getTotalAmount() {
 		return totalAmount;
@@ -197,13 +205,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.totalAmount = totalAmount;
 	}
 
-	public Integer getQuantity() {
-		return quantity;
-	}
 
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
 
 	public String getConsigneeName() {
 		return consigneeName;
@@ -261,13 +263,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.mobile = mobile;
 	}
 
-	public String getSkuProperties() {
-		return skuProperties;
-	}
 
-	public void setSkuProperties(String skuProperties) {
-		this.skuProperties = skuProperties;
-	}
 
 	public Integer getChanelId() {
 		return chanelId;

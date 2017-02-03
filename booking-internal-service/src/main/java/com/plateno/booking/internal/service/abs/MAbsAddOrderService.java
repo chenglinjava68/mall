@@ -59,10 +59,10 @@ public abstract class MAbsAddOrderService {
 		pointService.mallMinusPoint(v);
 	}
 	
-	public boolean updateStock(MAddBookingIncomeVo income) throws Exception{
-		MAddBookingParam addBookingParam = income.getAddBookingParam();
-		return mallGoodsService.modifyStock(addBookingParam.getGoodsId().toString(), -addBookingParam.getQuantity());
-	}
+//	public boolean updateStock(MAddBookingIncomeVo income) throws Exception{
+//		MAddBookingParam addBookingParam = income.getAddBookingParam();
+//		return mallGoodsService.modifyStock(addBookingParam.getGoodsId().toString(), -addBookingParam.getQuantity());
+//	}
 	
 	
 	/**
@@ -93,7 +93,8 @@ public abstract class MAbsAddOrderService {
 	protected void insertBooking(MAddBookingIncomeVo income, ResultVo output) throws Exception {
 		Order insertOrder = morderService.insertOrder(income);
 		MAddBookResponse addBookResponse = new MAddBookResponse();
-		addBookResponse.setGoodsId(income.getAddBookingParam().getGoodsId().toString());
+		//不需要回传
+//		addBookResponse.setGoodsId(income.getAddBookingParam().getGoodsId().toString());
 		addBookResponse.setOrderNo(insertOrder.getOrderNo());
 		addBookResponse.setViewStatus(PayStatusEnum.toViewStatus(insertOrder.getPayStatus()));
 		addBookResponse.setPayStatus(insertOrder.getPayStatus());

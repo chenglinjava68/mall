@@ -72,6 +72,7 @@ import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
+import com.plateno.booking.internal.bean.vo.order.ProductPriceVo;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
@@ -172,7 +173,9 @@ public class MOrderService{
 	@Autowired
 	private MOrderCouponMapper mOrderCouponMapper;
 	
-
+	@Autowired
+	private ProductCalService productCalService;
+	
 	/**
 	 * 查询订单信息,并支持分页处理
 	 * 
@@ -601,25 +604,7 @@ public class MOrderService{
 			com.plateno.booking.internal.base.pojo.Order ordes=new com.plateno.booking.internal.base.pojo.Order();
 			MAddBookingParam book = income.getAddBookingParam();
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
-			
-			//商品接口获取参数
-			ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(book.getGoodsId().toString());
-			if(pskubean == null) {
-				logger.error("获取商品信息失败");
-				throw new OrderException("获取商品信息失败");
-			}
-			
-			int expressFee = 0;
-			int price = 0;
-			if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
-				expressFee = pskubean.getExpressFee();
-			}
-			//判断是否有促销价
-			if(pskubean.getPromotPrice() != null && pskubean.getPromotPrice() > 0) {
-				price = pskubean.getPromotPrice();
-			} else {
-				price = pskubean.getRegularPrice();
-			}
+			ProductPriceVo productPriceVo = productCalService.calProduct(income.getAddBookingParam());
 			
 			int orderStatus = BookingResultCodeContants.PAY_STATUS_1;
 			int payType = 0;
@@ -631,10 +616,10 @@ public class MOrderService{
 
 			ordes.setResource(book.getResource());
 			//商品非积分的总的价格，不包含运费
-			ordes.setAmount(book.getQuantity() * price + expressFee);
+			ordes.setAmount(productPriceVo.getTotalProductPrice());
 			//ordes.setChanelid(book.getChanelId());
-			//渠道从商品服务获取
-			ordes.setChanelid(pskubean.getChannelId());
+			//渠道从商品服务获取，移除到子订单表中
+//			ordes.setChanelid(pskubean.getChannelId());
 			ordes.setCreateTime(new Date());
 			ordes.setItemId(0);
 			ordes.setMemberId(book.getMemberId());
@@ -646,6 +631,7 @@ public class MOrderService{
 			ordes.setPayStatus(orderStatus);
 			ordes.setPoint(book.getPoint());
 			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
+			//实付金额
 			ordes.setPayMoney(book.getTotalAmount());
 
 			ordes.setRefundAmount(0);
@@ -658,8 +644,8 @@ public class MOrderService{
 			ordes.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
 			
 			//记录订单商品成本和发货成本
-			ordes.setTotalExpressCost(pskubean.getCostExpress() * book.getQuantity());
-			ordes.setTotalProductCost(pskubean.getCostPrice() * book.getQuantity());
+			ordes.setTotalExpressCost(productPriceVo.getTotalExpressCost());
+			ordes.setTotalProductCost(productPriceVo.getTotalProductCost());
 			
 			//优惠券抵扣金额
 			ordes.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
