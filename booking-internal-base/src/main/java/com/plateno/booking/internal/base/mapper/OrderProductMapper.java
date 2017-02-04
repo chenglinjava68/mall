@@ -2,8 +2,11 @@ package com.plateno.booking.internal.base.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
+import com.plateno.booking.internal.base.pojo.OrderProduct;
+import com.plateno.booking.internal.base.pojo.OrderProductExample;
 
-public interface OrderProductMapper extends BaseMapper {
+
+public interface OrderProductMapper extends BaseMapper<OrderProduct,OrderProductExample> {
 
 	/**
 	 * 查询会员已经购买的商品的数量（只要有支付成功，就算是退款也算是已经购买的数量了）

@@ -37,7 +37,7 @@ public class CashierDeskService {
         String postData = sign(req);
         LogUtils.sysErrorLoggerInfo("拉起支付网关退款，传参：" + postData);
         String result =
-                HttpUtils.httpPostNotJsonRequest(Config.MERCHANT_PAY_URL + "/pay/refund", postData);
+                HttpUtils.httpPostNotJsonRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/refund", postData);
         LogUtils.sysErrorLoggerInfo("拉起支付网关退款，支付网关返回信息：" + result);
         if (!StringUtils.isEmpty(result)) {
             RefundOrderResponse refundOrderResponse =

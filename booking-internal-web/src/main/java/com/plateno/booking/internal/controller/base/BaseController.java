@@ -20,6 +20,7 @@ import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.model.BaseParam;
 import com.plateno.booking.internal.base.vo.MallBaseSearchVO;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
+import com.plateno.booking.internal.bean.exception.BizException;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 
@@ -52,12 +53,17 @@ public class BaseController{
 		response.setResultCode(this.getClass(),BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
 		if (e instanceof NullPointerException) {
 			response.setResultMsg("参数空指针异常");
-		}if(e instanceof HttpMessageNotReadableException){
+			log.error(String.format("请求异常[%s]",e), e);
+		}else if(e instanceof HttpMessageNotReadableException){
 			response.setResultMsg("请求参数匹配错误,"+e.getLocalizedMessage());
+			log.error(String.format("请求异常[%s]",e), e);
+		}else if(e instanceof BizException){
+		    response.setResultMsg(e.getMessage());
+		    log.warn("业务异常,"+e.getMessage());
 		}else{
 			response.setResultMsg(e.getMessage());
+			log.error(String.format("请求异常[%s]",e), e);
 		}
-		log.error(String.format("请求异常[%s]",e), e);
 		return response;
 	}
 	
@@ -70,7 +76,7 @@ public class BaseController{
 		return params;
 	}
 	
-	private String getRequestString(HttpServletRequest request) {
+	public String getRequestString(HttpServletRequest request) {
 		BufferedReader br = null;
 		try {
 			br = request.getReader();

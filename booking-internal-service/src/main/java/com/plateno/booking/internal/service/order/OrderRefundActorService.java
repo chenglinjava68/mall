@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
@@ -84,7 +82,6 @@ public class OrderRefundActorService {
     * @return void    
     * @throws
      */
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void doSuccessOrderRefundActor(Order order) throws OrderException{
         order.setRefundSuccesstime(new Date());
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
@@ -187,7 +184,6 @@ public class OrderRefundActorService {
     public OrderProduct getProductByOrderNo(String orderNo) {
         OrderProductExample orderProductExample=new OrderProductExample();
         orderProductExample.createCriteria().andOrderNoEqualTo(orderNo);
-        @SuppressWarnings("unchecked")
         List<OrderProduct> productOrderList = orderProductMapper.selectByExample(orderProductExample);
         if(CollectionUtils.isEmpty(productOrderList)) {
             return null;
@@ -215,7 +211,6 @@ public class OrderRefundActorService {
         } else {
             
             MOrderCouponPO mOrderCouponPO = couponList.get(0);
-            
             CancelParam param = new CancelParam();
             param.setCouponId(mOrderCouponPO.getCouponId());
             param.setMebId(memberId);

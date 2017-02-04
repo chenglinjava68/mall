@@ -53,6 +53,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgC
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
+import com.plateno.booking.internal.bean.exception.BizException;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
@@ -60,7 +61,6 @@ import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
-import com.plateno.booking.internal.bean.request.gateway.RefundOrderParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
@@ -70,7 +70,6 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
-import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.cashierdesk.CashierDeskService;
 import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
@@ -106,7 +105,6 @@ import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
-import com.plateno.booking.internal.cashierdesk.vo.*;
 
 
 @Service
@@ -184,7 +182,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	public ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage(SelectOrderParam param) throws Exception {
 		LstOrder<SelectOrderResponse> lst = new LstOrder<SelectOrderResponse>();
 		ResultVo<LstOrder<SelectOrderResponse>> vo ;
@@ -852,7 +849,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> refundOrder(MOrderParam orderParam) throws Exception{
 		
@@ -895,7 +891,6 @@ public class MOrderService{
 		
 		//更新已经返还的库存
 		int row = orderProductMapper.updateReturnSkuCount(productByOrderNo.getSkuCount(), productByOrderNo.getId());
-		
 		//异常单修改，有可能会进行多次退款，避免多次退还库存
 		if(row > 0) {
 			//退还库存
@@ -906,8 +901,6 @@ public class MOrderService{
 				LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", dbOrder.getOrderNo(), productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
 			}
 		}
-		
-		
 		
 		//记录操作日志
 		MOperateLogParam paramlog=new MOperateLogParam();
@@ -1008,14 +1001,6 @@ public class MOrderService{
 		
 		OrderPayLog orderPayLog = refundLogList.get(0);
 		
-		//封装退款参数
-		RefundOrderParam refundOrderParam=new  RefundOrderParam();
-		refundOrderParam.setRefundAmount(-orderPayLog.getAmount());
-		refundOrderParam.setRefundOrderNo(orderPayLog.getTrandNo());  //退款申请的订单号
-		refundOrderParam.setRemark(orderPayLog.getRemark());
-		refundOrderParam.setOrderNo(listPayLog.get(0).getTrandNo()); //原交易订单号
-		
-		
 		RefundOrderReq refundOrderReq = new RefundOrderReq();
 		refundOrderReq.setOrderNo(listPayLog.get(0).getTrandNo());//原交易订单号
 		refundOrderReq.setAmount(-orderPayLog.getAmount());
@@ -1023,13 +1008,12 @@ public class MOrderService{
 		refundOrderReq.setTradeNo(orderPayLog.getTrandNo());//退款申请的订单号
 		com.plateno.booking.internal.cashierdesk.vo.RefundOrderResponse  refundOrderResponse = cashierDeskService.refundOrder(refundOrderReq);
 		//发起退款判断
-		if(null == refundOrderResponse || !refundOrderResponse.getResultCode().equals("100")){
-		    logger.error("支付网关，发起退款失败，tranNo:{},req:{},res:{}",orderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
+		if(null == refundOrderResponse || !refundOrderResponse.getMsgCode().equals("100")){
+		    logger.warn("支付网关，发起退款失败，tranNo:{},req:{},res:{}",orderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
+		    throw new BizException("支付网关，发起退款失败，" + refundOrderResponse.getResult());
+		}else{
+		    logger.info("orderNo:{}, 网关申请退款, 返回:{}", orderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse));
 		}
-		
-		
-		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse)));
-		
 		return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
 	}
 
@@ -1222,7 +1206,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResultVo<Object> deliverOrder(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
@@ -1568,7 +1551,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public void updateOrderStatusByNo(Order order,CallMethod<Order> call) throws Exception{
 		OrderExample example = new OrderExample();
 		Criteria criteria = example.createCriteria();
@@ -1770,7 +1752,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public ResultVo<Object> updateOrderStatus(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
 		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(modifyOrderParams.getOrderNo(), modifyOrderParams.getMemberId(), modifyOrderParams.getChannelId());
@@ -1811,7 +1792,7 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
-		OrderExample example=new OrderExample();
+		OrderProductExample example=new OrderProductExample();
 		example.createCriteria().andOrderNoEqualTo(listOrder.get(0).getOrderNo());
 		List<OrderProduct> listPro=orderProductMapper.selectByExample(example);
 		
@@ -2060,7 +2041,6 @@ public class MOrderService{
 	public OrderProduct getProductByOrderNo(String orderNo) {
 		OrderProductExample orderProductExample=new OrderProductExample();
 		orderProductExample.createCriteria().andOrderNoEqualTo(orderNo);
-		@SuppressWarnings("unchecked")
 		List<OrderProduct> productOrderList = orderProductMapper.selectByExample(orderProductExample);
 		if(CollectionUtils.isEmpty(productOrderList)) {
 			return null;

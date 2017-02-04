@@ -288,7 +288,6 @@ public class MOrderWebRPCService extends BaseController{
 	public ResultVo<Object> pullerPay(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
 		log.info("拉起支付,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
-		//checkBaseParam(param);
 		
 		if(param.getPayType() == null) {
 			param.setPayType(1);

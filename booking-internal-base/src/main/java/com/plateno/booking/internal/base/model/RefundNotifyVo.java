@@ -8,40 +8,26 @@ package com.plateno.booking.internal.base.model;
 * @date 2017年2月3日 上午11:03:17 
 *
  */
-public class RefundNotifyVo {
-    private String code;
-    private String message;
-    private String merchantNo;
-    private String merchantOrderNo;
+public class RefundNotifyVo extends BaseNotifyVo{
+    private String merchantNo;//收银台分配的商户号
+    private String refundTradeNo;//退款流水号
     private String signData;
-    private Integer gateId;
-    private String platenopayRefundFlowNo;
-    private Integer refundAmount;
-    private Integer refundCurrencyDepositAmount;
-    private Integer refundGatewayAmount;
-    public String getCode() {
-        return code;
-    }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getMessage() {
-        return message;
-    }
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    private Integer currencyDepositAmount;//储值金额
+    private Integer gatewayAmount;//网关金额
+    private Integer amount;//收银台金额
+    private String ext1;//支付方式：1-支付网关+个人储值；2-只用支付网关支付；3-只用个人储值支付；4-企业储值
+    private String ext2;
     public String getMerchantNo() {
         return merchantNo;
     }
     public void setMerchantNo(String merchantNo) {
         this.merchantNo = merchantNo;
     }
-    public String getMerchantOrderNo() {
-        return merchantOrderNo;
+    public String getRefundTradeNo() {
+        return refundTradeNo;
     }
-    public void setMerchantOrderNo(String merchantOrderNo) {
-        this.merchantOrderNo = merchantOrderNo;
+    public void setRefundTradeNo(String refundTradeNo) {
+        this.refundTradeNo = refundTradeNo;
     }
     public String getSignData() {
         return signData;
@@ -49,38 +35,38 @@ public class RefundNotifyVo {
     public void setSignData(String signData) {
         this.signData = signData;
     }
-    public Integer getGateId() {
-        return gateId;
+    public Integer getCurrencyDepositAmount() {
+        return currencyDepositAmount;
     }
-    public void setGateId(Integer gateId) {
-        this.gateId = gateId;
+    public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+        this.currencyDepositAmount = currencyDepositAmount;
     }
-    public String getPlatenopayRefundFlowNo() {
-        return platenopayRefundFlowNo;
+    public Integer getGatewayAmount() {
+        return gatewayAmount;
     }
-    public void setPlatenopayRefundFlowNo(String platenopayRefundFlowNo) {
-        this.platenopayRefundFlowNo = platenopayRefundFlowNo;
+    public void setGatewayAmount(Integer gatewayAmount) {
+        this.gatewayAmount = gatewayAmount;
     }
-    public Integer getRefundAmount() {
-        return refundAmount;
+    public Integer getAmount() {
+        return amount;
     }
-    public void setRefundAmount(Integer refundAmount) {
-        this.refundAmount = refundAmount;
+    public void setAmount(Integer amount) {
+        this.amount = amount;
     }
-    public Integer getRefundCurrencyDepositAmount() {
-        return refundCurrencyDepositAmount;
+    public String getExt1() {
+        return ext1;
     }
-    public void setRefundCurrencyDepositAmount(Integer refundCurrencyDepositAmount) {
-        this.refundCurrencyDepositAmount = refundCurrencyDepositAmount;
+    public void setExt1(String ext1) {
+        this.ext1 = ext1;
     }
-    public Integer getRefundGatewayAmount() {
-        return refundGatewayAmount;
+    public String getExt2() {
+        return ext2;
     }
-    public void setRefundGatewayAmount(Integer refundGatewayAmount) {
-        this.refundGatewayAmount = refundGatewayAmount;
+    public void setExt2(String ext2) {
+        this.ext2 = ext2;
     }
     
-    
+
     
     
 }

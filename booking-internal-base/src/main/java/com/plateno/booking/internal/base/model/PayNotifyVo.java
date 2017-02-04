@@ -8,60 +8,28 @@ package com.plateno.booking.internal.base.model;
 * @date 2017年2月3日 上午10:59:29 
 *
  */
-public class PayNotifyVo {
+public class PayNotifyVo extends BaseNotifyVo{
     
-    private String code;
-    private String message;
-    private String merchantNo;
-    private String merchantOrderNo;
-    private String signData;
-    private Integer gateId;
-    private String platenopayFlowNo;
+
+    private String merchantNo;//收银台分配的商户号
+    private String tradeNo;//支付流水号
     private Integer currencyDepositAmount;
     private Integer gatewayAmount;
     private Integer amount;
-    private Integer payChannel;
-    public String getCode() {
-        return code;
-    }
-    public void setCode(String code) {
-        this.code = code;
-    }
-    public String getMessage() {
-        return message;
-    }
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    private Integer payChannel;//支付网关渠道ID，如果只使用储值则为0
+    private String ext1;//支付方式：1-支付网关+个人储值；2-只用支付网关支付；3-只用个人储值支付；4-企业储值
+    private String ext2;//保留的扩展字段
     public String getMerchantNo() {
         return merchantNo;
     }
     public void setMerchantNo(String merchantNo) {
         this.merchantNo = merchantNo;
     }
-    public String getMerchantOrderNo() {
-        return merchantOrderNo;
+    public String getTradeNo() {
+        return tradeNo;
     }
-    public void setMerchantOrderNo(String merchantOrderNo) {
-        this.merchantOrderNo = merchantOrderNo;
-    }
-    public String getSignData() {
-        return signData;
-    }
-    public void setSignData(String signData) {
-        this.signData = signData;
-    }
-    public Integer getGateId() {
-        return gateId;
-    }
-    public void setGateId(Integer gateId) {
-        this.gateId = gateId;
-    }
-    public String getPlatenopayFlowNo() {
-        return platenopayFlowNo;
-    }
-    public void setPlatenopayFlowNo(String platenopayFlowNo) {
-        this.platenopayFlowNo = platenopayFlowNo;
+    public void setTradeNo(String tradeNo) {
+        this.tradeNo = tradeNo;
     }
     public Integer getCurrencyDepositAmount() {
         return currencyDepositAmount;
@@ -87,6 +55,20 @@ public class PayNotifyVo {
     public void setPayChannel(Integer payChannel) {
         this.payChannel = payChannel;
     }
+    public String getExt1() {
+        return ext1;
+    }
+    public void setExt1(String ext1) {
+        this.ext1 = ext1;
+    }
+    public String getExt2() {
+        return ext2;
+    }
+    public void setExt2(String ext2) {
+        this.ext2 = ext2;
+    }
+    
+
     
     
     
