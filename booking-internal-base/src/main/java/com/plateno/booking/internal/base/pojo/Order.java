@@ -84,6 +84,15 @@ public class Order implements Serializable {
      */
     private Integer couponAmount;
 
+    /**
+     * 储值金额
+     */
+    private Integer currencyDepositAmount;
+    /**
+     * 支付网关金额
+     */
+    private Integer gatewayAmount;
+    
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -333,4 +342,21 @@ public class Order implements Serializable {
 	public void setCouponAmount(Integer couponAmount) {
 		this.couponAmount = couponAmount;
 	}
+
+    public Integer getCurrencyDepositAmount() {
+        return currencyDepositAmount;
+    }
+
+    public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+        this.currencyDepositAmount = currencyDepositAmount;
+    }
+
+    public Integer getGatewayAmount() {
+        return gatewayAmount;
+    }
+
+    public void setGatewayAmount(Integer gatewayAmount) {
+        this.gatewayAmount = gatewayAmount;
+    }
+	
 }

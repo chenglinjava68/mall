@@ -6,7 +6,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,14 +55,15 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgC
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.PayGateCode;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
+import com.plateno.booking.internal.bean.exception.BizException;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
+import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
-import com.plateno.booking.internal.bean.request.gateway.RefundOrderParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
@@ -70,9 +73,10 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
-import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.bean.vo.order.ProductPriceVo;
+import com.plateno.booking.internal.cashierdesk.CashierDeskService;
+import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.StringUtil;
@@ -80,14 +84,9 @@ import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
-import com.plateno.booking.internal.coupon.constant.CouponEnum;
-import com.plateno.booking.internal.coupon.constant.CouponPlatformType;
 import com.plateno.booking.internal.coupon.service.CouponService;
-import com.plateno.booking.internal.coupon.vo.BaseResponse;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
-import com.plateno.booking.internal.coupon.vo.Conditions;
-import com.plateno.booking.internal.coupon.vo.UseParam;
 import com.plateno.booking.internal.email.model.DeliverGoodContent;
 import com.plateno.booking.internal.email.model.RefundSuccessContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
@@ -105,7 +104,6 @@ import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
-
 
 
 @Service
@@ -176,6 +174,12 @@ public class MOrderService{
 	@Autowired
 	private ProductCalService productCalService;
 	
+	@Autowired
+	private CashierDeskService cashierDeskService;
+	
+	@Autowired
+	private OrderInsertActorService orderInsertActorService;
+	
 	/**
 	 * 查询订单信息,并支持分页处理
 	 * 
@@ -183,7 +187,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	public ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage(SelectOrderParam param) throws Exception {
 		LstOrder<SelectOrderResponse> lst = new LstOrder<SelectOrderResponse>();
 		ResultVo<LstOrder<SelectOrderResponse>> vo ;
@@ -233,7 +236,6 @@ public class MOrderService{
 	}
 
 
-	@SuppressWarnings("unchecked")
 	private void paramsDeal(Order order,List<SelectOrderResponse> list) {
 		SelectOrderResponse sc=new SelectOrderResponse();
 		OrderProductExample example=new OrderProductExample();
@@ -537,7 +539,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public ResultVo<Object> modifyReceiptInfo(ReceiptParam receiptParam) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
 		
@@ -594,14 +595,13 @@ public class MOrderService{
 
 
 	
-	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=OrderException.class)
 	public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income) throws OrderException {
 		try {
 			
 			logger.info("封装参数开始...");
 			
-			com.plateno.booking.internal.base.pojo.Order ordes=new com.plateno.booking.internal.base.pojo.Order();
+			com.plateno.booking.internal.base.pojo.Order order=new com.plateno.booking.internal.base.pojo.Order();
 			MAddBookingParam book = income.getAddBookingParam();
 			String orderNo=StringUtil.getCurrentAndRamobe("O");
 			ProductPriceVo productPriceVo = productCalService.calProduct(income.getAddBookingParam());
@@ -614,171 +614,91 @@ public class MOrderService{
 				payType = 3; //支付方式，无需支付
 			}
 
-			ordes.setResource(book.getResource());
+			order.setResource(book.getResource());
 			//商品非积分的总的价格，不包含运费
-			ordes.setAmount(productPriceVo.getTotalProductPrice());
+			order.setAmount(productPriceVo.getTotalProductPrice());
 			//ordes.setChanelid(book.getChanelId());
 			//渠道从商品服务获取，移除到子订单表中
 //			ordes.setChanelid(pskubean.getChannelId());
-			ordes.setCreateTime(new Date());
-			ordes.setItemId(0);
-			ordes.setMemberId(book.getMemberId());
-			ordes.setMobile(book.getMobile());
-			ordes.setName(book.getName());
-			ordes.setOrderNo(orderNo);
-			ordes.setPayTime(new Date());
-			ordes.setPayType(payType);// 默认1微信支付、2支付宝支付 3无需支付
-			ordes.setPayStatus(orderStatus);
-			ordes.setPoint(book.getPoint());
+			order.setCreateTime(new Date());
+			order.setItemId(0);
+			order.setMemberId(book.getMemberId());
+			order.setMobile(book.getMobile());
+			order.setName(book.getName());
+			order.setOrderNo(orderNo);
+			order.setPayTime(new Date());
+			order.setPayType(payType);// 默认1微信支付、2支付宝支付 3无需支付
+			order.setPayStatus(orderStatus);
+			order.setPoint(book.getPoint());
 			//ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
 			//实付金额
-			ordes.setPayMoney(book.getTotalAmount());
+			order.setPayMoney(book.getTotalAmount());
 
-			ordes.setRefundAmount(0);
-			ordes.setSid(0);
-			ordes.setUpTime(new Date());
+			order.setRefundAmount(0);
+			order.setSid(0);
+			order.setUpTime(new Date());
 			long currentTime = System.currentTimeMillis() + 30 * 60 * 1000;
-			ordes.setWaitPayTime(new Date(currentTime));//加上30分钟
+			order.setWaitPayTime(new Date(currentTime));//加上30分钟
 
 			//订单子来源（不同的入口）
-			ordes.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
+			order.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
 			
 			//记录订单商品成本和发货成本
-			ordes.setTotalExpressCost(productPriceVo.getTotalExpressCost());
-			ordes.setTotalProductCost(productPriceVo.getTotalProductCost());
+			order.setTotalExpressCost(productPriceVo.getTotalExpressCost());
+			order.setTotalProductCost(productPriceVo.getTotalProductCost());
 			
 			//优惠券抵扣金额
-			ordes.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
+			order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
 			
-			OrderProduct op=new OrderProduct();
-			op.setOrderNo(orderNo);
-			op.setPrice(price);
-			op.setProductId(pskubean.getProductId());
-			op.setProductName(pskubean.getTitle());
-			op.setProductProperty(JsonUtils.toJsonString(pskubean.getSkuPropertyInfos()));
-			op.setSkuCount(book.getQuantity());
-			op.setSkuid(book.getGoodsId().intValue());
-			op.setCreateTime(new Date());
-			op.setUpTime(new Date());
-			if(book.getSellStrategy()==2) {
-				op.setPoint(pskubean.getFavorPoints());
-			} else {
-				op.setPoint(0);
-			}
-			op.setSellStrategy(book.getSellStrategy());
-			op.setDisImages(pskubean.getImgPath());
-			op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
-			op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
-			op.setDeductPrice(pskubean.getDeductPrice() == null || book.getSellStrategy() == 1 ? 0 : pskubean.getDeductPrice());
-			op.setProductCost(pskubean.getCostPrice());
-			op.setExpressCost(pskubean.getCostExpress());
+			Map<String,ProductSkuBean> productSkuMap = new HashMap<>();			
+	        for(MOrderGoodsParam orderGoodsParam : book.getGoodsList()){
+	            try {
+	                //todo：多次获取商品服务sku，需要优化，减少获取的次数
+	                ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(orderGoodsParam.getGoodsId().toString());
+	                productSkuMap.put(orderGoodsParam.getGoodsId().toString(), pskubean);
+	                
+	                OrderProduct op=new OrderProduct();
+	                op.setOrderNo(orderNo);
+	                op.setPrice(pskubean.getMarketPrice());
+	                op.setProductId(pskubean.getProductId());
+	                op.setProductName(pskubean.getTitle());
+	                op.setProductProperty(JsonUtils.toJsonString(pskubean.getSkuPropertyInfos()));
+	                op.setSkuCount(orderGoodsParam.getQuantity());
+	                op.setSkuid(orderGoodsParam.getGoodsId().intValue());
+	                op.setCreateTime(new Date());
+	                op.setUpTime(new Date());
+	                if(book.getSellStrategy()==2) {
+	                    op.setPoint(pskubean.getFavorPoints());
+	                } else {
+	                    op.setPoint(0);
+	                }
+	                op.setSellStrategy(book.getSellStrategy());
+	                op.setDisImages(pskubean.getImgPath());
+	                op.setPriceStrategy(pskubean.getPriceStrategy() == null ? 1 : pskubean.getPriceStrategy());
+	                op.setPriceStrategyDesc(StringUtils.trimToEmpty(pskubean.getPriceName()));
+	                op.setDeductPrice(pskubean.getDeductPrice() == null || book.getSellStrategy() == 1 ? 0 : pskubean.getDeductPrice());
+	                op.setProductCost(pskubean.getCostPrice());
+	                op.setExpressCost(pskubean.getCostExpress());
+	                op.setOrderSubNo(orderNo+pskubean.getChannelId());
+	                op.setChannelId(pskubean.getChannelId());
+	                op.setProvidedId(pskubean.getProviderId());
+	                orderProductMapper.insertSelective(op);
+	            } catch (OrderException e) {
+	                logger.error("获取商品信息失败");
+	                throw new OrderException("获取商品信息失败");
+	            }
+	            
+	        }
 			
-			MLogistics logistics=new MLogistics();
-			logistics.setOrderNo(orderNo);
-			logistics.setShippingType(1);//1包邮,2普通快递
-			logistics.setConsigneeName(book.getConsigneeName());
-			logistics.setConsigneeAddress(book.getConsigneeAddress());
-			logistics.setConsigneeMobile(book.getConsigneeMobile());
-			logistics.setExpressFee(pskubean.getExpressFee());
-			logistics.setLogisticsType(1);//物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
-			logistics.setProvince(book.getProvince());
-			logistics.setCity(book.getCity());
-			logistics.setArea(book.getArea());
+	        mallOrderMapper.insertSelective(order);
+	        //订单插入成功之后，后续动作
+	        orderInsertActorService.insertAfter(book, order);
 			
-			logger.info("插入数据");
 			
-			//如果使用优惠券，记录优惠券的使用信息
-			if(book.getCouponId() != null && book.getCouponId() > 0) {
-				MOrderCouponPO mOrderCouponPO = new MOrderCouponPO();
-				mOrderCouponPO.setCouponId(book.getCouponId());
-				mOrderCouponPO.setOrderNo(orderNo);
-				mOrderCouponPO.setCouponType(CouponEnum.MONEY_COUPON.getType());
-				mOrderCouponPO.setSubCouponType(CouponEnum.MONEY_COUPON.getSubType());
-				mOrderCouponPO.setCouponName(book.getCouponName());
-				mOrderCouponPO.setAmount(book.getCouponAmount());
-				mOrderCouponPO.setOrderCouponAmount(book.getValidCouponAmount());
-				mOrderCouponPO.setCreateTime(new Date());
-				mOrderCouponMapper.insert(mOrderCouponPO);
-			}
 			
-			mallOrderMapper.insertSelective(ordes);
-			mLogisticsMapper.insertSelective(logistics);
-			orderProductMapper.insertSelective(op);
-			
-			//扣减库存
-			boolean modifyStock = mallGoodsService.modifyStock(book.getGoodsId().toString(), -book.getQuantity());
-			if(!modifyStock) {
-				logger.error("扣减库存失败， {}", modifyStock);
-				throw new OrderException("系统正忙，扣减库存失败，请重试！");
-			}
-			
-			//扣减积分
-			if(book.getSellStrategy().equals(2)) {
-				logger.info("下单扣减积分， sellStrategy:{}, point:{}", book.getSellStrategy(), book.getPoint());
-				boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
-				if(!minusPoint) {
-					logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
-					
-					//事务回滚，归还库存
-					boolean result = mallGoodsService.modifyStock(book.getGoodsId() + "", book.getQuantity());
-					if(!result) {
-						LogUtils.DISPERSED_ERROR_LOGGER.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
-						logger.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
-					}
-					
-					throw new OrderException("系统正忙，扣减积分，请重试！");
-				}
-			}
-			
-			//使用优惠券
-			if(book.getCouponId() != null && book.getCouponId() > 0) {
-				UseParam useCouponParam = new UseParam();
-				useCouponParam.setCouponId(book.getCouponId());
-				useCouponParam.setMebId(book.getMemberId());
-				useCouponParam.setOrderCode(orderNo);
-				useCouponParam.setPlatformId(CouponPlatformType.fromResource(book.getResource()).getPlatformId());
-				Conditions conditions = new Conditions();
-				useCouponParam.setConditions(conditions);
-				conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price) + "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
-				conditions.setProductId(pskubean.getProductId());
-				conditions.setCategoryId(pskubean.getCategoryId());
-				
-				ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
-				if(!useCouponResult.success()) {
-					
-					logger.error("优惠券使用失败, memberId:{}, couponId:{}, result:{}", book.getMemberId(), book.getCouponId(), useCouponResult);
-					
-					//事务回滚，归还库存
-					boolean result = mallGoodsService.modifyStock(book.getGoodsId() + "", book.getQuantity());
-					if(!result) {
-						LogUtils.DISPERSED_ERROR_LOGGER.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
-						logger.error("下单扣减积分失败，回滚事务，归还库存失败，skuId:{}, num:{}", book.getGoodsId(), book.getQuantity());
-					}
-					
-					//事务回滚，退还积分
-					if(book.getSellStrategy().equals(2)) {
-						logger.info("使用优惠券失败，退还积分， memberId:{}, point:{}", book.getMemberId(), book.getPoint());
-						
-						ValueBean vb=new ValueBean();
-						vb.setPointvalue(book.getPoint());
-						vb.setMebId(book.getMemberId());
-						vb.setTrandNo(orderNo);
-						int mallAddPoint = pointService.mallAddPoint(vb);
-						if(mallAddPoint > 0) {
-							logger.error("下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}", orderNo, book.getMemberId(), book.getPoint());
-							LogUtils.DISPERSED_ERROR_LOGGER.error("下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}", orderNo, book.getMemberId(), book.getPoint());
-						}
-					}
-					
-					throw new OrderException("系统正忙，使用优惠券失败，请重试！");
-				}
-			}
-			
-			return ordes;
+			return order;
 			
 		} catch (Exception e) {
-			//LogUtils.sysErrorLoggerError("订单创建失败", e);
-			//e.printStackTrace();
 			logger.error("订单创建失败", e);
 			throw new OrderException("订单创建失败:" + e.getMessage());
 		}
@@ -834,7 +754,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@Transactional(rollbackFor=Exception.class)
 	public ResultVo<Object> refundOrder(MOrderParam orderParam) throws Exception{
 		
@@ -877,7 +796,6 @@ public class MOrderService{
 		
 		//更新已经返还的库存
 		int row = orderProductMapper.updateReturnSkuCount(productByOrderNo.getSkuCount(), productByOrderNo.getId());
-		
 		//异常单修改，有可能会进行多次退款，避免多次退还库存
 		if(row > 0) {
 			//退还库存
@@ -888,8 +806,6 @@ public class MOrderService{
 				LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", dbOrder.getOrderNo(), productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
 			}
 		}
-		
-		
 		
 		//记录操作日志
 		MOperateLogParam paramlog=new MOperateLogParam();
@@ -990,23 +906,19 @@ public class MOrderService{
 		
 		OrderPayLog orderPayLog = refundLogList.get(0);
 		
-		//封装退款参数
-		RefundOrderParam refundOrderParam=new  RefundOrderParam();
-		refundOrderParam.setRefundAmount(-orderPayLog.getAmount());
-		refundOrderParam.setRefundOrderNo(orderPayLog.getTrandNo());  //退款申请的订单号
-		refundOrderParam.setRemark(orderPayLog.getRemark());
-		refundOrderParam.setOrderNo(listPayLog.get(0).getTrandNo()); //原交易订单号
-		
-		//调用支付网关退款
-		RefundOrderResponse response = null;
-		try {
-			response = paymentService.refundOrder(refundOrderParam);
-		} catch (Exception e) {
-			logger.error("支付网关申请退款异常:" + orderPayLog.getTrandNo(), e);
+		RefundOrderReq refundOrderReq = new RefundOrderReq();
+		refundOrderReq.setOrderNo(listPayLog.get(0).getTrandNo());//原交易订单号
+		refundOrderReq.setAmount(-orderPayLog.getAmount());
+		refundOrderReq.setMemberId(order.getMemberId());
+		refundOrderReq.setTradeNo(orderPayLog.getTrandNo());//退款申请的订单号
+		com.plateno.booking.internal.cashierdesk.vo.RefundOrderResponse  refundOrderResponse = cashierDeskService.refundOrder(refundOrderReq);
+		//发起退款判断
+		if(null == refundOrderResponse || !refundOrderResponse.getMsgCode().equals("100")){
+		    logger.warn("支付网关，发起退款失败，tranNo:{},req:{},res:{}",orderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
+		    throw new BizException("支付网关，发起退款失败，" + refundOrderResponse.getResult());
+		}else{
+		    logger.info("orderNo:{}, 网关申请退款, 返回:{}", orderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse));
 		}
-		
-		logger.info(String.format("orderNo:%s, 网关申请退款, 返回:%s", orderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
-		
 		return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
 	}
 
@@ -1199,7 +1111,6 @@ public class MOrderService{
 	 * @return
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	@Transactional
 	public ResultVo<Object> deliverOrder(final MOrderParam orderParam) throws Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
@@ -1545,7 +1456,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public void updateOrderStatusByNo(Order order,CallMethod<Order> call) throws Exception{
 		OrderExample example = new OrderExample();
 		Criteria criteria = example.createCriteria();
@@ -1559,7 +1469,6 @@ public class MOrderService{
 	}
 	
 
-	@SuppressWarnings("unchecked")
 	private void updatLogisticsNoByNo(MLogistics logistics,CallLogisticMethod<MLogistics> call) throws Exception{
 		MLogisticsExample example = new MLogisticsExample();
 		com.plateno.booking.internal.base.pojo.MLogisticsExample.Criteria criteria = example.createCriteria();
@@ -1592,7 +1501,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	private OrderDetail beansDeal(List<Order> listOrder, Integer plateForm) {
 		Order order=listOrder.get(0);
 		OrderDetail  orderDetail=new OrderDetail();
@@ -1747,7 +1655,6 @@ public class MOrderService{
 	}
 	
 	
-	@SuppressWarnings("unchecked")
 	public ResultVo<Object> updateOrderStatus(ModifyOrderParams modifyOrderParams) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
 		List<Order> listOrder=mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(modifyOrderParams.getOrderNo(), modifyOrderParams.getMemberId(), modifyOrderParams.getChannelId());
@@ -1788,7 +1695,7 @@ public class MOrderService{
 			output.setResultMsg("订单查询失败,获取不到订单");
 			return output;
 		}
-		OrderExample example=new OrderExample();
+		OrderProductExample example=new OrderProductExample();
 		example.createCriteria().andOrderNoEqualTo(listOrder.get(0).getOrderNo());
 		List<OrderProduct> listPro=orderProductMapper.selectByExample(example);
 		
@@ -2037,7 +1944,6 @@ public class MOrderService{
 	public OrderProduct getProductByOrderNo(String orderNo) {
 		OrderProductExample orderProductExample=new OrderProductExample();
 		orderProductExample.createCriteria().andOrderNoEqualTo(orderNo);
-		@SuppressWarnings("unchecked")
 		List<OrderProduct> productOrderList = orderProductMapper.selectByExample(orderProductExample);
 		if(CollectionUtils.isEmpty(productOrderList)) {
 			return null;

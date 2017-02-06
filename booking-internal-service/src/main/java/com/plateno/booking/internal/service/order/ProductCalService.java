@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
-import com.plateno.booking.internal.bean.vo.hotel.request.inner.OrderGuestParam;
 import com.plateno.booking.internal.bean.vo.order.ProductPriceVo;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.wechat.model.ProductSkuBean;
