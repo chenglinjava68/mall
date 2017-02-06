@@ -110,9 +110,6 @@ public class PayNotifyService {
         example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
         OrderPayLog record = new OrderPayLog();
         record.setUpTime(new Date());
-        // record.setReferenceid(StringUtils.trimToEmpty(payNotifyVo.getPlatenopayFlowNo()));
-
-
         logger.info("trand_no:{}, 支付成功", log.getTrandNo());
         record.setCurrencyDepositAmount(payNotifyVo.getCurrencyDepositAmount());
         record.setGatewayAmount(payNotifyVo.getGatewayAmount());

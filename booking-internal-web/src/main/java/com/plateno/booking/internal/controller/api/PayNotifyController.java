@@ -11,17 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plateno.booking.internal.base.model.BaseNotifyVo;
 import com.plateno.booking.internal.base.model.PayNotifyVo;
 import com.plateno.booking.internal.base.model.RefundNotifyVo;
-import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.exception.OrderException;
-import com.plateno.booking.internal.cashierdesk.PlatenoException;
-import com.plateno.booking.internal.cashierdesk.vo.CashierBaseParam;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
-import com.plateno.booking.internal.common.util.number.MD5Maker;
 import com.plateno.booking.internal.controller.base.BaseController;
-import com.plateno.booking.internal.interceptor.adam.common.util.JaxrsJacksonJsonObjectMapper;
 import com.plateno.booking.internal.service.order.PayNotifyService;
 
 @RequestMapping("/cashier")
@@ -135,16 +129,6 @@ public class PayNotifyController extends BaseController{
             log.error("序列化失败",e);
         }
         return refundNotifyVo;
-    }
-    
-
-    public boolean checkSign(BaseNotifyVo baseNotifyVo) throws IOException {
-        baseNotifyVo.setSignKey(Config.MERCHANT_PAY_KEY);
-        JaxrsJacksonJsonObjectMapper jacksonMapper = new JaxrsJacksonJsonObjectMapper();
-        String signString = jacksonMapper.writeValueAsString(baseNotifyVo);
-        if(signString.equals(baseNotifyVo.getSignData()))
-            return true;
-        return false;
     }
     
 }
