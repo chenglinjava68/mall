@@ -26,6 +26,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.service.order.OrderCancelService;
 import com.plateno.booking.internal.sms.SMSSendService;
 
 @Service
@@ -70,8 +71,9 @@ public class MallExceptionFlowService {
 	@Autowired
 	private MOrderService mOrderService;
 
+	@Autowired
+	private OrderCancelService orderCancelService;
 	
-	@SuppressWarnings("unchecked")
 	public void handleException() throws Exception {
 		
 		logger.info("处理已发货订单开始...");
@@ -107,7 +109,7 @@ public class MallExceptionFlowService {
 			orderParam.setOrderNo(order.getOrderNo());
 			orderParam.setMemberId(order.getMemberId());
 			orderParam.setType(1);//超时取消
-			ResultVo<Object> result = orderService.cancelOrderLock(orderParam);
+			ResultVo<Object> result = orderCancelService.cancelOrderLock(orderParam);
 
 			logger.info("待付款取消订单结果, orderNo:{}, result:{}", order.getOrderNo(), result);
 		}
@@ -140,7 +142,7 @@ public class MallExceptionFlowService {
 				orderParam.setOrderNo(order.getOrderNo());
 				orderParam.setMemberId(order.getMemberId());
 				orderParam.setType(1);//超时取消
-				ResultVo<Object> result = orderService.cancelOrderLock(orderParam);
+				ResultVo<Object> result = orderCancelService.cancelOrderLock(orderParam);
 				logger.info("支付中取消订单结果, orderNo:{}, result:{}", order.getOrderNo(), result);
 			}
 		}
