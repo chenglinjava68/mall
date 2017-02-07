@@ -164,7 +164,8 @@ public class MOrderService{
 	@Autowired
 	private CashierDeskService cashierDeskService;
 	
-
+	@Autowired
+	private OrderRefundActorService orderRefundActorService;
 	
 	public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException, Exception {
 		ResultVo<Object> output = new ResultVo<Object>();
@@ -801,20 +802,22 @@ public class MOrderService{
 			throw new Exception("存在不止一条的退款流水");
 		}
 		
-		OrderPayLog orderPayLog = refundLogList.get(0);
+		OrderPayLog refundOrderPayLog = refundLogList.get(0);
+		OrderPayLog successOrderPayLog = listPayLog.get(0);
 		
 		RefundOrderReq refundOrderReq = new RefundOrderReq();
-		refundOrderReq.setOrderNo(listPayLog.get(0).getTrandNo());//原交易订单号
-		refundOrderReq.setAmount(-orderPayLog.getAmount());
-		refundOrderReq.setMemberId(order.getMemberId());
-		refundOrderReq.setTradeNo(orderPayLog.getTrandNo());//退款申请的订单号
+		refundOrderReq.setTradeNo(successOrderPayLog.getTrandNo());//支付流水号
+		refundOrderReq.setRefundTradeNo(refundOrderPayLog.getTrandNo());
+		refundOrderReq.setRefundOrderNo(orderParam.getOrderNo());
+		refundOrderReq.setAmount(-refundOrderPayLog.getAmount());//金额
+		refundOrderReq.setMemberId(orderParam.getMemberId());//会员id
 		com.plateno.booking.internal.cashierdesk.vo.RefundOrderResponse  refundOrderResponse = cashierDeskService.refundOrder(refundOrderReq);
 		//发起退款判断
-		if(null == refundOrderResponse || !refundOrderResponse.getMsgCode().equals("100")){
-		    logger.warn("支付网关，发起退款失败，tranNo:{},req:{},res:{}",orderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
-		    throw new BizException("支付网关，发起退款失败，" + refundOrderResponse.getResult());
+		if(null == refundOrderResponse || refundOrderResponse.getMsgCode() != 100 ){
+		    logger.warn("支付网关，发起退款失败，tranNo:{},req:{},res:{}",refundOrderPayLog.getTrandNo(),JsonUtils.toJsonString(refundOrderReq),JsonUtils.toJsonString(refundOrderResponse));
+		    throw new BizException("支付网关，发起退款失败，" + refundOrderResponse.getMessage());
 		}else{
-		    logger.info("orderNo:{}, 网关申请退款, 返回:{}", orderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse));
+		    logger.info("orderNo:{}, 网关申请退款成功, 返回:{}", refundOrderPayLog.getTrandNo(), JsonUtils.toJsonString(refundOrderResponse));
 		}
 		return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
 	}
@@ -1339,9 +1342,6 @@ public class MOrderService{
 			return ;
 		}
 		
-		/*if(!validate(order,BookingConstants.PAY_STATUS_10)) 
-			return ;*/
-		
 		logger.info(String.format("退款中订单处理开始, orderNo:%s", order.getOrderNo()));
 		
 		OrderPayLogExample example=new OrderPayLogExample();
@@ -1400,76 +1400,17 @@ public class MOrderService{
 			}
 		}
 		
-		Order record = new Order();
-		record.setRefundSuccesstime(new Date());
 		if(success){
-			
-			logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
-			
-			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
-			orderLogService.saveGSOrderLog(orderNo, BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "支付网关退款同步：退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "扫单job维护");
-			//更新账单状态
-			this.updateOrderStatusByNo(record, orderNo);
-			
-			//退款归还下单积分
-			logger.info("orderNo:{}， 退还积分，point:{}", orderNo, order.getRefundPoint());
-			returnPoint(order);
-			
-			OrderProduct productByOrderNo = getProductByOrderNo(orderNo);
-			if(productByOrderNo == null) {
-				logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", orderNo));
-			} else {
-				
-				//更新已经返还的库存
-				int row = orderProductMapper.updateReturnSkuCount(productByOrderNo.getSkuCount(), productByOrderNo.getId());
-				//同意退款也会退还库存，为了过渡， 两边都加退款逻辑
-				if(row > 0) {
-					logger.info(String.format("orderNo:%s， 退还库存，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
-					boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
-					if(!modifyStock){
-						logger.error(String.format("orderNo:%s, 调用商品服务失败", orderNo));
-						//LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
-						LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
-					}
-				}
-				
-				logger.info(String.format("orderNo:%s， 发送退款短信，skuid:%s, count:%s", orderNo, productByOrderNo.getSkuid(), productByOrderNo.getSkuCount()));
-				
-				final Order dbOrder = order;
-				final OrderProduct product = productByOrderNo;
-				//发送退款短信
-				
-				String templateId;
-				RefundSuccessContent content = new RefundSuccessContent();
-				content.setObjectNo(dbOrder.getOrderNo());
-				content.setOrderCode(dbOrder.getOrderNo());
-				content.setMoney(new BigDecimal(dbOrder.getPayMoney()).divide(new BigDecimal("100"), 2, BigDecimal.ROUND_DOWN).toString());
-				content.setName(product.getProductName());
-				/*if(dbOrder.getRefundPoint() > 0){
-					content.setJf(dbOrder.getRefundPoint() + "");
-					templateId = Config.SMS_SERVICE_TEMPLATE_NINE;
-				}else{
-					templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
-				}*/
-				//积分变动不提醒用户，使用同一个模板
-				templateId = Config.SMS_SERVICE_TEMPLATE_EIGHT;
-				phoneMsgService.sendPhoneMessageAsync(dbOrder.getMobile(), templateId, content);
-			}
-			
-			//如果使用了优惠券，退还优惠券
-			if(order.getCouponAmount() > 0) {
-				returnCoupon(order.getOrderNo(), order.getMemberId());
-			}
-			
+		    orderRefundActorService.doSuccessOrderRefundActor(order);
 		}else if(fail){
 			
 			logger.info(String.format("orderNo:%s, 退款失败", order.getOrderNo()));
 			
-			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
-			record.setRefundFailReason("网关退款失败");
+			order.setPayStatus(BookingResultCodeContants.PAY_STATUS_13);
+			order.setRefundFailReason("网关退款失败");
 			orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_13, "网关退款失败", "支付网关退款同步：退款失败", 0,ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode(),"扫单job维护");
 			//更新账单状态
-			this.updateOrderStatusByNo(record, orderNo);
+			this.updateOrderStatusByNo(order, orderNo);
 		}
 	}
 	

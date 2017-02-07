@@ -60,7 +60,6 @@ public class PayService {
 	@Autowired
 	private OrderMapper orderMapper;
 	
-	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, rollbackFor=Exception.class)
 	public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception{
 		ResultVo<Object> output = new ResultVo<Object>();
@@ -102,14 +101,15 @@ public class PayService {
 		paylog.setClientType(1);
 		paylog.setTrandNo(StringUtil.getCurrentAndRamobe("L"));
 		paylog.setReferenceid("");
-		paylog.setStatus(1);
+		paylog.setStatus(BookingConstants.BILL_LOG_NORMAL);
 		paylog.setPoint(order.getPoint());
-		paylog.setType(1);
+		paylog.setType(1);//1收入 2支出
 		paylog.setUpTime(new Date());
 		orderPayLogMapper.insert(paylog);
 		
 		orderLogService.saveGSOrderLog(order.getOrderNo(), PayStatusEnum.PAY_STATUS_11.getPayStatus(), PayStatusEnum.PAY_STATUS_11.getDesc(), "拉起支付", 0, ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
 		
+		//回传支付流水号
 		output.setData(paylog.getTrandNo());
 		
 		return output;
@@ -288,28 +288,23 @@ public class PayService {
 				return ;
 			}
 			
-			logger.info(String.format("trandNo:%s, 支付成功", log.getTrandNo()));
+			logger.info("主动查询支付网关，trandNo:{}, 支付成功", log.getTrandNo());
 			
-			//更新支付流水状态(success == 2)
 			updateLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
 			updateLog.setRemark("支付成功");
 			int row = orderPayLogMapper.updateByExampleSelective(updateLog, example);
 			
 			success = true;
-			
 			if(row < 0) {
 				logger.info("trandNo:{}, 流水已经更新", log.getTrandNo());
 				return;
 			}
 			
 		}else{
-			logger.info(String.format("trandNo:%s, 支付失败", log.getTrandNo()));
-			
-			//更新支付流水状态(fail == 3)
+			logger.warn("主动查询支付网关，trandNo：{}，支付失败",log.getTrandNo());
 			updateLog.setStatus(BookingConstants.BILL_LOG_FAIL);
 			updateLog.setRemark(String.format("支付失败:%s", response.getMessage()));
 			int row = orderPayLogMapper.updateByExampleSelective(updateLog, example);
-			
 			if(row < 0) {
 				logger.info("trandNo:{}, 流水已经更新", log.getTrandNo());
 				return;
@@ -318,12 +313,12 @@ public class PayService {
 		
 		Order order = (Order) orderMapper.selectByPrimaryKey(log.getOrderId());
 		if(order == null) {
-			logger.info("找不到对应的订单, orderId:{}", log.getOrderId());
+			logger.error("找不到对应的订单, orderId:{}", log.getOrderId());
 			return;
 		}
 		
 		if(order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
-			logger.info("订单状态非支付中, orderId:{}， paystatus：{}", log.getOrderId(), order.getPayStatus());
+			logger.error("订单状态非支付中, orderId:{}， paystatus：{}", log.getOrderId(), order.getPayStatus());
 			return ;
 		}
 		
@@ -333,11 +328,9 @@ public class PayService {
 		if(success){
 			record.setPayTime(new Date());
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
-			//orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_3, "网关支付成功", "网关支付成功",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_WATIDELIVER.getCode(),"扫单job维护");
 		}else{
 			record.setPayStatus(BookingResultCodeContants.PAY_STATUS_1);
 			record.setPayType(0); //支付方式设置为未支付
-			//orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_1, "网关支付失败", "网关支付失败",order.getChanelid(),ViewStatusEnum.VIEW_STATUS_PAYFAIL.getCode(),"扫单job维护");
 		}
 		//更新账单状态
 		List<Integer> list = Arrays.asList(PayStatusEnum.PAY_STATUS_11.getPayStatus());
@@ -346,7 +339,6 @@ public class PayService {
 		if(row > 0) {
 			orderLogService.saveGSOrderLog(order.getOrderNo(), record.getPayStatus(), PayStatusEnum.from(record.getPayStatus()).getDesc(), "支付网关支付主动同步：" + (success ? "支付成功" : "支付失败"), 0, success ? ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode() : ViewStatusEnum.VIEW_STATUS_PAYING.getCode());
 		}
-
 		logger.info("订单更新结果, orderNo:{}, row:{}", order.getOrderNo(), row);
 	}
 }

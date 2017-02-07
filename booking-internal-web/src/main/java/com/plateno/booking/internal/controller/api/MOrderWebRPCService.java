@@ -235,8 +235,13 @@ public class MOrderWebRPCService extends BaseController{
 				return out;
 			}
 		}
-		
-		return mOrderService.userRefund(param);
+		ResultVo<Object> resultVo = mOrderService.userRefund(param);
+		//c端用户申请退款，直接发起退款流程，不用审核
+		if(resultVo.success() && (param.getPlateForm() == PlateFormEnum.APP.getPlateForm() || param.getPlateForm() == PlateFormEnum.USER.getPlateForm())){
+		    log.info("渠道：{}，发起退款申请，不需要审核，直接发起退款申请，进入到退款中状态",PlateFormEnum.from(param.getPlateForm()).getDesc());
+		    return mOrderService.refundOrder(param);
+		}
+		return resultVo;
 	}
 	
 	

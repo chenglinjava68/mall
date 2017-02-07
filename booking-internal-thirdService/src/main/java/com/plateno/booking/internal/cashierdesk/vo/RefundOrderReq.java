@@ -1,16 +1,30 @@
 package com.plateno.booking.internal.cashierdesk.vo;
 
 public class RefundOrderReq extends CashierBaseParam{
-    private String orderNo;
-    private Integer memberId;
-    private Integer amount;//单位为分
+
+    private String tradeNo;//支付流水号
+    private String refundTradeNo;//退款流水号
+    private String refundOrderNo;//退款流水号
+    private Integer memberId;//会员ID
+    private Integer amount;//订单金额
     private String appId;//商城为mall
-    private String tradeNo;
-    public String getOrderNo() {
-        return orderNo;
+    public String getTradeNo() {
+        return tradeNo;
     }
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
+    public void setTradeNo(String tradeNo) {
+        this.tradeNo = tradeNo;
+    }
+    public String getRefundTradeNo() {
+        return refundTradeNo;
+    }
+    public void setRefundTradeNo(String refundTradeNo) {
+        this.refundTradeNo = refundTradeNo;
+    }
+    public String getRefundOrderNo() {
+        return refundOrderNo;
+    }
+    public void setRefundOrderNo(String refundOrderNo) {
+        this.refundOrderNo = refundOrderNo;
     }
     public Integer getMemberId() {
         return memberId;
@@ -30,12 +44,7 @@ public class RefundOrderReq extends CashierBaseParam{
     public void setAppId(String appId) {
         this.appId = appId;
     }
-    public String getTradeNo() {
-        return tradeNo;
-    }
-    public void setTradeNo(String tradeNo) {
-        this.tradeNo = tradeNo;
-    }
+    
 
     
     

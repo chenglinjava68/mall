@@ -110,14 +110,13 @@ public class PayNotifyService {
         example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
         OrderPayLog record = new OrderPayLog();
         record.setUpTime(new Date());
-        logger.info("trand_no:{}, 支付成功", log.getTrandNo());
         record.setCurrencyDepositAmount(payNotifyVo.getCurrencyDepositAmount());
         record.setGatewayAmount(payNotifyVo.getGatewayAmount());
         // 更新支付流水
         record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
         record.setRemark("支付成功");
         orderPayLogMapper.updateByExampleSelective(record, example);
-
+        logger.info("order_pay_log插入成功，tranNo:{}",payNotifyVo.getMerchantNo());
     }
 
     /**
@@ -221,12 +220,12 @@ public class PayNotifyService {
      */
     private void parseRefundNotify(RefundNotifyVo refundNotifyVo, OrderPayLog orderPayLog,
             Order order) {
-        logger.info("orderNo:{}, 退款成功", order.getOrderNo());
         // 更新支付流水状态(success == 2)
         orderPayLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
         // record.setRemark("退款成功");
         orderPayLog.setUpTime(new Date());
         orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+        logger.info("order_pay_log,orderNo:{}, 退款成功", order.getOrderNo());
     }
 
 

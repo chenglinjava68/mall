@@ -87,7 +87,7 @@ public class PayGatewaySyncService {
 		selectOrderParam.setPayStatus(BookingResultCodeContants.PAY_STATUS_10);
 		//退款中的订单
 		List<Order> orderTList=orderMapper.getPageOrders(selectOrderParam );
-		handleEach(orderTList);
+//		handleEach(orderTList);
 		
 		logger.info("处理退款中订单结束");
 		
@@ -112,11 +112,6 @@ public class PayGatewaySyncService {
 			//处理账单退款中状态：10,验证网关退款查询接口 ==> 7/13
 			case 10:
 				orderService.handleGateWayefund(order);
-				break;
-			
-			//处理支付中账单状态：11,验证网关支付查询接口==>3/12
-			case 11:
-				orderService.handlePaying(order);
 				break;
 			
 			}

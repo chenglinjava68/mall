@@ -46,16 +46,17 @@ public class PayNotifyController extends BaseController{
     public String payNotifyUrl(HttpServletRequest request) throws Exception, OrderException{
         try {
             PayNotifyVo payNotifyVo = resolvePayNotifyParam(request);
-            log.info("支付网关支付结果回调,请求入参:" + JsonUtils.toJsonString(payNotifyVo));
+            log.info("收银台支付结果回调,请求入参:" + JsonUtils.toJsonString(payNotifyVo));
             if(StringUtils.isBlank(payNotifyVo.getTradeNo())) {
-                log.error("支付网关支付结果回调,订单号为空");
+                log.error("收银台支付结果回调,订单号为空");
                 return FAILURE;
             }
             //支付网关回调订单处理
             payNotifyService.payNotify(payNotifyVo);
+            log.info("收银台支付结果回调成功");
             return SUCCES;
         } catch (Exception e) {
-            log.error("支付网关支付结果回调异常："+ e);
+            log.error("收银台支付结果回调异常："+ e);
             return FAILURE;
         }
     }
@@ -75,12 +76,13 @@ public class PayNotifyController extends BaseController{
     public String refundNotifyUrl(HttpServletRequest request) throws Exception, OrderException{
         try {
             RefundNotifyVo refundNotifyVo = resolveRefundNotifyParam(request);
-            log.info("支付网关退款通知回调,请求入参:" + JsonUtils.toJsonString(refundNotifyVo));
+            log.info("收银台退款通知回调,请求入参:" + JsonUtils.toJsonString(refundNotifyVo));
             if(StringUtils.isBlank(refundNotifyVo.getRefundTradeNo())) {
-                log.error("支付网关退款通知回调,订单号为空");
+                log.error("收银台退款通知回调,订单号为空");
                 return FAILURE;
             }
             payNotifyService.payNotifyRefund(refundNotifyVo);
+            log.info("收银台退款结果回调成功");
             return SUCCES;
         } catch (Exception e) {
             log.error("支付网关退款通知异常："+ e);
