@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.cashierdesk.vo.CashierBaseParam;
+import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryReq;
+import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryResponse;
+import com.plateno.booking.internal.cashierdesk.vo.PayQueryReq;
+import com.plateno.booking.internal.cashierdesk.vo.CashierPayQueryResponse;
 import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
-import com.plateno.booking.internal.cashierdesk.vo.RefundOrderResponse;
+import com.plateno.booking.internal.cashierdesk.vo.CashierRefundOrderResponse;
 import com.plateno.booking.internal.common.util.http.HttpUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.MD5Maker;
@@ -34,20 +38,73 @@ public class CashierDeskService {
     * @return RefundOrderResponse    
     * @throws
      */
-    public RefundOrderResponse refundOrder(RefundOrderReq req) throws IOException {
-        req.setAppId("mall");// 商城为mall
-        String postData = sign(req);
-        logger.info("拉起支付网关退款，传参：{}",postData);
-        String result = HttpUtils.httpPostRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/refund", postData);
-        logger.info("拉起支付网关退款，支付网关返回信息：{}",result);
-        if (!StringUtils.isEmpty(result)) {
-            RefundOrderResponse refundOrderResponse =
-                    JsonUtils.jsonToObject(result, RefundOrderResponse.class);
-            return refundOrderResponse;
+    public CashierRefundOrderResponse refundOrder(RefundOrderReq req){
+        try{
+            String postData = sign(req);
+            logger.info("拉起支付网关退款，传参：{}",postData);
+            String result = HttpUtils.httpPostRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/refund", postData);
+            logger.info("拉起支付网关退款，支付网关返回信息：{}",result);
+            if (!StringUtils.isEmpty(result)) {
+                CashierRefundOrderResponse refundOrderResponse =
+                        JsonUtils.jsonToObject(result, CashierRefundOrderResponse.class);
+                return refundOrderResponse;
+            }
+        }catch(Exception e){
+            logger.error("序列化失败",e);
         }
         return null;
     }
 
+    /**
+     * 
+    * @Title: payQuery 
+    * @Description: 查询支付结果
+    * @param @param req
+    * @param @return    
+    * @return PayQueryResponse    
+    * @throws
+     */
+    public CashierPayQueryResponse payQuery(PayQueryReq req){
+        try{
+            String postData = sign(req);
+            logger.info("查询支付中订单状态，传参：{}",postData);
+            String result = HttpUtils.httpPostRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/query", postData);
+            logger.info("查询支付中订单状态，返回数据：{}",result);
+            if(StringUtils.isNotBlank(result)){
+                CashierPayQueryResponse payQueryResponse = JsonUtils.jsonToObject(result, CashierPayQueryResponse.class);
+                return payQueryResponse;
+            }
+        }catch(Exception e){
+            logger.error("序列化失败",e);
+        }
+        return null;
+    }
+    
+    /**
+     * 
+    * @Title: refundQuery 
+    * @Description: TODO
+    * @param @param req
+    * @param @return    
+    * @return CashierRefundQueryResponse    
+    * @throws
+     */
+    public CashierRefundQueryResponse refundQuery(CashierRefundQueryReq req){
+        try{
+            String postData = sign(req);
+            logger.info("查询退款中订单状态，传参：{}",postData);
+            String result = HttpUtils.httpPostRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/queryRefund", postData);
+            logger.info("查询退款中订单状态，返回数据：{}",result);
+            if(StringUtils.isNotBlank(result)){
+                CashierRefundQueryResponse response = JsonUtils.jsonToObject(result, CashierRefundQueryResponse.class);
+                return response;
+            }
+        }catch(Exception e){
+            logger.error("序列化失败",e);
+        }
+        return null;
+    }
+    
     
     
     /**
@@ -58,6 +115,7 @@ public class CashierDeskService {
      * @throws Exception
      */
     public String sign(CashierBaseParam req) throws IOException {
+        req.setAppId("mall");// 商城为mall
         req.setSignData(Config.MERCHANT_PAY_KEY);
         CashierJaxrsJacksonJsonObjectMapper jacksonMapper = new CashierJaxrsJacksonJsonObjectMapper();
         String signString = jacksonMapper.writeValueAsString(req);

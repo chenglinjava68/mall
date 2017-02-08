@@ -76,7 +76,6 @@ public class PayGatewaySyncService {
 	 * 同步支付中和退款中的订单状态
 	 * @throws Exception
 	 */
-	@SuppressWarnings("unchecked")
 	public void sync() throws Exception {
 		
 		logger.info("处理退款中订单开始...");
@@ -87,34 +86,19 @@ public class PayGatewaySyncService {
 		selectOrderParam.setPayStatus(BookingResultCodeContants.PAY_STATUS_10);
 		//退款中的订单
 		List<Order> orderTList=orderMapper.getPageOrders(selectOrderParam );
-//		handleEach(orderTList);
-		
+		handleEach(orderTList);
 		logger.info("处理退款中订单结束");
 		
 		logger.info("处理支付中订单开始...");
-		
-		//支付中的订单
-		//List<Order> orderPayingList=orderMapper.getPayingAndPayLogPre5Min(BookingResultCodeContants.PAY_STATUS_11);
-		//handleEach(orderPayingList);
 		payService.handlePaying();
-		
 		logger.info("处理支付中订单结束");
 		
-		logger.info("处理退款中订单开始...");
 	}
 	
 	private void handleEach(List<Order> listOrder)throws Exception{
 		for(Iterator<Order> iter=listOrder.iterator();iter.hasNext();){
 			Order order = (Order)iter.next();
-			Integer status=order.getPayStatus();
-			switch(status){
-			
-			//处理账单退款中状态：10,验证网关退款查询接口 ==> 7/13
-			case 10:
-				orderService.handleGateWayefund(order);
-				break;
-			
-			}
+			orderService.handleGateWayefund(order);
 		}
 	}
 }

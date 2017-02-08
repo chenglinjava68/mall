@@ -7,7 +7,7 @@ public class RefundOrderReq extends CashierBaseParam{
     private String refundOrderNo;//退款流水号
     private Integer memberId;//会员ID
     private Integer amount;//订单金额
-    private String appId;//商城为mall
+    
     public String getTradeNo() {
         return tradeNo;
     }
@@ -38,12 +38,7 @@ public class RefundOrderReq extends CashierBaseParam{
     public void setAmount(Integer amount) {
         this.amount = amount;
     }
-    public String getAppId() {
-        return appId;
-    }
-    public void setAppId(String appId) {
-        this.appId = appId;
-    }
+
     
 
     

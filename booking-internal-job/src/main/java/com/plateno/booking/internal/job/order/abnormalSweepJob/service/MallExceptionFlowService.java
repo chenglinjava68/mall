@@ -94,17 +94,6 @@ public class MallExceptionFlowService {
 			
 			logger.info(String.format("未支付 -->取消, orderNo:%s", order.getOrderNo()));
 			
-			/*order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
-			order.setUpTime(new Date());
-			orderMapper.updateByPrimaryKeySelective(order);
-			
-			returnPoint(order);
-			
-			//退还库存
-			calcelOrderReturnSku(order.getOrderNo());
-			
-			orderLogService.saveGSOrderLog(order.getOrderNo(), BookingConstants.PAY_STATUS_2, "已取消", "订单取消成功",0,ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(),"扫单job维护");*/
-			
 			MOrderParam orderParam = new MOrderParam();
 			orderParam.setOrderNo(order.getOrderNo());
 			orderParam.setMemberId(order.getMemberId());
