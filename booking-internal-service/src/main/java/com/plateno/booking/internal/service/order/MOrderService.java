@@ -1654,7 +1654,12 @@ public class MOrderService{
 				consigneeInfo.setConsigneeName(logc.getConsigneeNewName());
 				consigneeInfo.setMobile(logc.getConsigneeNewMobile());
 			}
-			consigneeInfo.setNewAddress(logc.getNewProvince() + logc.getNewCity() + logc.getNewArea() + logc.getConsigneeNewaddress());
+			
+			String newAddress = StringUtils.trimToEmpty(logc.getNewProvince()) + StringUtils.trimToEmpty(logc.getNewCity()) + StringUtils.trimToEmpty(logc.getNewArea()) + StringUtils.trimToEmpty(logc.getConsigneeNewaddress());
+			if(StringUtils.isBlank(newAddress)) {
+				newAddress = null;
+			}
+			consigneeInfo.setNewAddress(newAddress);
 			consigneeInfo.setNewName(logc.getConsigneeNewName());
 			consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
 			deliverDetail.setDeliverNo(logc.getLogisticsNo());
