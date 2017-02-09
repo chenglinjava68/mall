@@ -1,1 +1,16 @@
+<<<<<<< HEAD
 /target/
+=======
+/bin/
+/target/
+.svn/
+*.class
+*.prefs
+*.log
+*.gz
+/log/
+*.project
+*.mvn
+*.settings
+*.classpath
+>>>>>>> v1.3-cash

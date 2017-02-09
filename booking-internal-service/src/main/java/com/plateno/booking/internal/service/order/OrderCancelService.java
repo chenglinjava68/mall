@@ -1,6 +1,5 @@
 package com.plateno.booking.internal.service.order;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
@@ -20,17 +20,18 @@ import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
-import com.plateno.booking.internal.base.pojo.OrderExample.Criteria;
 import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
+import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
-import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.common.util.LogUtils;
+import com.plateno.booking.internal.common.util.redis.RedisLock;
+import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
@@ -74,6 +75,31 @@ public class OrderCancelService {
 
     @Autowired
     private MallGoodsService mallGoodsService;
+
+
+    /**
+     * 更新订单状态(取消)
+     * 
+     * @param orderParam
+     * @return
+     * @throws Exception
+     */
+    @Transactional(rollbackFor=OrderException.class)
+    public ResultVo<Object> cancelOrderLock(final MOrderParam orderParam) throws Exception{
+        
+        String lockName = "MALL_CANEL_ORDER_" + orderParam.getOrderNo();
+        
+        Holder holder = new RedisLock.Holder() {
+            @Override
+            public Object exec() throws Exception {
+                //取消订单
+                return cancelOrder(orderParam);
+            }
+        };
+        
+        return (ResultVo<Object>) RedisLock.lockExec(lockName, holder );
+    }
+    
 
 
     /**

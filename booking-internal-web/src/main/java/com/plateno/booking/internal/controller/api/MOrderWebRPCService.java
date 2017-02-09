@@ -18,11 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
-import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.LogisticsEnum;
-import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.GetProductBuyNumParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
@@ -30,8 +28,6 @@ import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.OrderSkuQueryParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail;
-import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.conf.vo.LogisticsTypeInfo;
@@ -39,6 +35,7 @@ import com.plateno.booking.internal.controller.base.BaseController;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.fromTicket.BOTAOMallBookingService;
 import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.service.order.OrderCancelService;
 import com.plateno.booking.internal.service.order.PayService;
 
 @RestController
@@ -56,27 +53,8 @@ public class MOrderWebRPCService extends BaseController{
 	@Autowired
 	private BOTAOMallBookingService botaoMallBookingService;
 	
-
-	@ResponseBody
-	@RequestMapping(value="/queryOrderByPage",method = RequestMethod.POST)
-	public ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage(@RequestBody @Valid SelectOrderParam  param,BindingResult result) throws Exception{
-		log.info("查询订单列表项,请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		return mOrderService.queryOrderByPage(param);
-	}
-	
-
-	@ResponseBody
-	@RequestMapping(value = "/getOrderDetail",method = RequestMethod.POST)
-	public ResultVo<OrderDetail> getOrderDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("查询订单详情,请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		return mOrderService.getOrderDetail(param);
-	}
-	
+	@Autowired
+	private OrderCancelService orderCancelService;
 
 	@ResponseBody
 	@RequestMapping(value = "/removeOrder" ,method = RequestMethod.POST)
@@ -112,7 +90,7 @@ public class MOrderWebRPCService extends BaseController{
 			}
 		}
 		
-		return mOrderService.cancelOrderLock(param);
+		return orderCancelService.cancelOrderLock(param);
 	}
 	
 	
@@ -257,8 +235,8 @@ public class MOrderWebRPCService extends BaseController{
 				return out;
 			}
 		}
-		
-		return mOrderService.userRefund(param);
+		ResultVo<Object> resultVo = mOrderService.userConsentRefund(param);
+		return resultVo;
 	}
 	
 	
@@ -303,15 +281,7 @@ public class MOrderWebRPCService extends BaseController{
 		return payService.pullerPay(param);
 	}
 	
-	@ResponseBody
-	@RequestMapping(value = "/getPaySuccessDetail" ,method = RequestMethod.POST)
-	public ResultVo<OrderDetail> getPaySuccessDetail(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("购买成功页面参数请求:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		return mOrderService.getPaySuccessDetail(param);
-	}
+	
 	
 	
 	@ResponseBody
@@ -401,25 +371,6 @@ public class MOrderWebRPCService extends BaseController{
 		}
 		
 		ResultVo<Object> out = mOrderService.modifyOrderLock(param);
-		
-		//如果改成审核中，直接调用审核通过退款
-		/*if(out.success() && param.getNewStatus() == BookingConstants.PAY_STATUS_6) {
-			MOrderParam orderParam = new MOrderParam();
-			orderParam.setOrderNo(param.getOrderNo());
-			orderParam.setMemberId((int)out.getData());
-			orderParam.setRefundRemark(param.getRemark());
-			orderParam.setOperateUserid(param.getOperateUserid());
-			orderParam.setOperateUsername(param.getOperateUsername());
-			orderParam.setPlateForm(param.getPlateForm());
-			
-			try {
-				ResultVo<Object> refundOrder = mOrderService.refundOrder(orderParam);
-				log.info(String.format("orderNo:%s, 执行退款，结果：%s", param.getOrderNo(), refundOrder));
-			} catch (Exception e) {
-				log.error("退款审核失败:" + param.getOrderNo(), e);
-			}
-		}*/
-		
 		return out;
 	}
 	
@@ -431,16 +382,6 @@ public class MOrderWebRPCService extends BaseController{
 		bindingResultHandler(result);
 		checkBaseParam(param);
 		return mOrderService.updateOrderStatus(param);
-	}
-	
-	
-	@ResponseBody
-	@RequestMapping(value = "/getOrderInfo" ,method = RequestMethod.POST)
-	public ResultVo<Object> getOrderInfo(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("获取订单状态参数，用于前端轮询支付结果:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		//checkBaseParam(param);
-		return mOrderService.getOrderInfo(param);
 	}
 	
 	

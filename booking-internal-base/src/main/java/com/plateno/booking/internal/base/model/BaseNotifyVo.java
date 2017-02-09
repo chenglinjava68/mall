@@ -1,7 +1,7 @@
 package com.plateno.booking.internal.base.model;
 
-public class BaseNotifyVo {
 
+public class BaseNotifyVo {
     private String signData;
 
     

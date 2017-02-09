@@ -1,6 +1,5 @@
 package com.plateno.booking.internal.service.order;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -16,17 +15,15 @@ import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.model.BookingPayQueryVo;
 import com.plateno.booking.internal.base.model.PayNotifyVo;
 import com.plateno.booking.internal.base.model.RefundNotifyVo;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
-import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
-import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
-import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
-import com.plateno.booking.internal.service.log.OrderLogService;
+import com.plateno.booking.internal.common.util.bean.BeanUtils;
 
 /**
  * 
@@ -46,20 +43,14 @@ public class PayNotifyService {
     private OrderMapper mallOrderMapper;
 
     @Autowired
-    private OrderMapper orderMapper;
-
-    @Autowired
-    private MOrderService mOrderService;
-
-    @Autowired
-    private OrderLogService orderLogService;
-
-    @Autowired
     private OrderProductMapper orderProductMapper;
 
     @Autowired
     private OrderRefundActorService orderRefundActorService;
 
+    @Autowired
+    private PayService payService;
+    
     /**
      * 支付网关回调，更新订单的状态
      * 
@@ -69,111 +60,18 @@ public class PayNotifyService {
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void payNotify(PayNotifyVo payNotifyVo) throws Exception {
 
-        OrderPayLog log = orderPayLogMapper.getByTrandNo(payNotifyVo.getTradeNo());
+        OrderPayLog orderPayLog = orderPayLogMapper.getByTrandNo(payNotifyVo.getTradeNo());
         // 查询订单是否存在
-        if (log == null) {
+        if (orderPayLog == null) {
             logger.warn("支付网关支付回调,获取不到对应的流水信息：" + payNotifyVo.getTradeNo());
             throw new RuntimeException("找不到支付流水信息");
         }
-        // 判断是否已经处理
-        if (log.getStatus() != 1) {
-            logger.warn("流水已经处理, trand_no：{}，status：{}", payNotifyVo.getTradeNo(), log.getStatus());
-            return;
-        }
-
-        if (payNotifyVo.getAmount() == null || !payNotifyVo.getAmount().equals(log.getAmount())) {
-            logger.warn("trand_no:{}, 流水金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}",
-                    log.getTrandNo(), log.getAmount(), payNotifyVo.getAmount());
-            throw new RuntimeException("实付金额与网关金额对应不上");
-        }
-        doSuccessOrderPayLog(payNotifyVo, log);
-        Order order = orderMapper.selectByPrimaryKey(log.getOrderId());
-        // 查询订单状态
-        checkOrderStatus(order, log);
-        // 更新订单状态
-        doUpdateOrderStatus(order, payNotifyVo);
+       
+        BookingPayQueryVo bookingPayQueryVo = new BookingPayQueryVo();
+        BeanUtils.copyProperties(bookingPayQueryVo, payNotifyVo);
+        
+        payService.doWithOrderPayLogAndOrder(orderPayLog, bookingPayQueryVo);
     }
-
-    /**
-     * 
-     * @Title: doSuccessOrderPayLog
-     * @Description: 处理成功流水，成功返回true
-     * @param @param record
-     * @param @param example
-     * @param @return
-     * @return boolean
-     * @throws
-     */
-    private void doSuccessOrderPayLog(PayNotifyVo payNotifyVo, OrderPayLog log) {
-
-        OrderPayLogExample example = new OrderPayLogExample();
-        example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
-        OrderPayLog record = new OrderPayLog();
-        record.setUpTime(new Date());
-        logger.info("trand_no:{}, 支付成功", log.getTrandNo());
-        record.setCurrencyDepositAmount(payNotifyVo.getCurrencyDepositAmount());
-        record.setGatewayAmount(payNotifyVo.getGatewayAmount());
-        // 更新支付流水
-        record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-        record.setRemark("支付成功");
-        orderPayLogMapper.updateByExampleSelective(record, example);
-
-    }
-
-    /**
-     * 
-     * @Title: checkOrderStatus
-     * @Description: 检查订单状态
-     * @param @param order
-     * @param @param log
-     * @return void
-     * @throws
-     */
-    private void checkOrderStatus(Order order, OrderPayLog log) {
-        if (order == null) {
-            logger.warn("找不到对应的订单, orderId:{}", log.getOrderId());
-            throw new RuntimeException("找不到对应的订单");
-        }
-
-        if (order.getPayStatus() != PayStatusEnum.PAY_STATUS_11.getPayStatus()) {
-            logger.warn("订单状态非支付中, orderNo:{}， paystatus：{}", order.getOrderNo(),
-                    order.getPayStatus());
-            throw new RuntimeException("订单状态非支付中");
-        }
-    }
-
-    /**
-     * 
-     * @Title: doUpdateOrderStatus
-     * @Description: 更新订单状态，后期需要更新子订单状态
-     * @param @param success
-     * @param @param order
-     * @param @throws Exception
-     * @return void
-     * @throws
-     */
-    private void doUpdateOrderStatus(Order order, PayNotifyVo payNotifyVo) throws Exception {
-        Order updateOrder = new Order();
-        updateOrder.setUpTime(new Date());
-        updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
-        updateOrder.setPayTime(new Date());
-        updateOrder.setCurrencyDepositAmount(payNotifyVo.getCurrencyDepositAmount());
-        updateOrder.setGatewayAmount(payNotifyVo.getGatewayAmount());
-
-
-        // 更新订单状态
-        List<Integer> list = new ArrayList<>(1);
-        list.add(BookingResultCodeContants.PAY_STATUS_11);
-        int row = mOrderService.updateOrderStatusByNo(updateOrder, order.getOrderNo(), list);
-
-        if (row > 0) {
-            orderLogService.saveGSOrderLog(order.getOrderNo(), updateOrder.getPayStatus(),
-                    PayStatusEnum.from(updateOrder.getPayStatus()).getDesc(), "支付网关回调：支付成功", 0,
-                    ViewStatusEnum.VIEW_STATUS_PAY_USE.getCode());
-        }
-        logger.info("更新订单状态, orderNo：{}, row:{}", order.getOrderNo(), row);
-    }
-
 
     /**
      * 
@@ -221,12 +119,12 @@ public class PayNotifyService {
      */
     private void parseRefundNotify(RefundNotifyVo refundNotifyVo, OrderPayLog orderPayLog,
             Order order) {
-        logger.info("orderNo:{}, 退款成功", order.getOrderNo());
         // 更新支付流水状态(success == 2)
         orderPayLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
         // record.setRemark("退款成功");
         orderPayLog.setUpTime(new Date());
         orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+        logger.info("order_pay_log,orderNo:{}, 退款成功", order.getOrderNo());
     }
 
 

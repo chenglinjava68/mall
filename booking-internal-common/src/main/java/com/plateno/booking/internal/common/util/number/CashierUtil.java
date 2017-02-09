@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 
 import com.plateno.booking.internal.base.model.BaseNotifyVo;
 import com.plateno.booking.internal.bean.config.Config;
-import com.plateno.booking.internal.interceptor.adam.common.util.JaxrsJacksonJsonObjectMapper;
+import com.plateno.booking.internal.interceptor.adam.common.util.CashierJaxrsJacksonJsonObjectMapper;
 
 public class CashierUtil {
     
@@ -25,7 +25,7 @@ public class CashierUtil {
         try{
             String oldSign = baseNotifyVo.getSignData();
             baseNotifyVo.setSignData(Config.MERCHANT_PAY_KEY);
-            JaxrsJacksonJsonObjectMapper jacksonMapper = new JaxrsJacksonJsonObjectMapper();
+            CashierJaxrsJacksonJsonObjectMapper jacksonMapper = new CashierJaxrsJacksonJsonObjectMapper();
             String signString = jacksonMapper.writeValueAsString(baseNotifyVo);
             if(MD5Maker.getMD5(signString).equals(oldSign))
                 return true;
@@ -34,4 +34,6 @@ public class CashierUtil {
         }
         return false;
     }
+    
+    
 }

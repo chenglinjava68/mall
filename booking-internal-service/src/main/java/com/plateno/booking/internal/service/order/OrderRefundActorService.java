@@ -132,6 +132,7 @@ public class OrderRefundActorService {
     * @throws
      */
     private OrderProduct returnProduct(Order order) throws OrderException{
+        logger.info("order_product返还库存,orderNo:{}",order.getOrderNo());
         OrderProduct productByOrderNo = getProductByOrderNo(order.getOrderNo());
         if(productByOrderNo == null) {
             logger.error(String.format("orderNo:%s, 退款退库存失败, 找不到购买的商品信息", order.getOrderNo()));
@@ -145,7 +146,6 @@ public class OrderRefundActorService {
                 boolean modifyStock = mallGoodsService.modifyStock(productByOrderNo.getSkuid().toString(), productByOrderNo.getSkuCount());
                 if(!modifyStock){
                     logger.error(String.format("orderNo:%s, 调用商品服务失败", order.getOrderNo()));
-                    //LogUtils.sysLoggerInfo(String.format("orderNo:%s, 调用商品服务失败", orderNo));
                     LogUtils.DISPERSED_ERROR_LOGGER.error("退款归还库存失败, orderNo:{}, skuId:{}, count:{}", order.getOrderNo(), productByOrderNo.getSkuid(), productByOrderNo.getSkuCount());
                 }
             }
