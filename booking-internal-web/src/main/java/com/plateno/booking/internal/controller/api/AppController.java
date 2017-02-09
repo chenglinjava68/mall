@@ -20,7 +20,7 @@ import com.plateno.booking.internal.common.util.date.DateUtil;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.controller.base.BaseController;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
-import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.service.order.OrderQueryService;
 import com.plateno.booking.internal.util.vo.PageInfo;
 
 @RestController
@@ -28,8 +28,9 @@ public class AppController extends BaseController{
 
 	private final static Logger log = Logger.getLogger(MBookingWebRPCService.class);
 	
+
 	@Autowired
-	private MOrderService mOrderService;
+	private OrderQueryService orderQueryService;
 	
 	@ResponseBody
 	@RequestMapping(value="/mApp/orderList", method = RequestMethod.POST)
@@ -47,7 +48,7 @@ public class AppController extends BaseController{
 			search.setSize(1000);
 		}
 		
-		return mOrderService.queryOrderList(search);
+		return orderQueryService.queryOrderList(search);
 	}
 	
 }

@@ -68,18 +68,7 @@ public class MOrderServiceTest {
 		System.out.println("结果：" + modifyReceiptInfo);
 	}
 	
-	@Test
-	public void testGetOrderDetail() throws OrderException, Exception{
-		
-		
-		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1484130275182529269");
-		//orderParam.setMemberId(135964714);
-		//orderParam.setChannelId(1);
-		orderParam.setPlateForm(1);
-		ResultVo<OrderDetail> orderDetail = service.getOrderDetail(orderParam );
-		System.out.println("结果：" + orderDetail);
-	}
+	
 	
 	@Test
 	public void testGetProductAndskuStock() throws OrderException, Exception{
@@ -90,28 +79,7 @@ public class MOrderServiceTest {
 		
 	}
 	
-	@Test
-	public void testQueryOrderByPage() throws OrderException, Exception{
-		
-		
-		SelectOrderParam param = new SelectOrderParam();
-		//param.setPlateForm(3);
-		param.setOrderNo("O1483584685913632952");
-		//param.setResource(1);
-		//param.setBookingStartDate(DateUtil.dateToFormatStr("2016-11-03 08:00:01", "yyyy-MM-dd HH:mm:ss"));
-		//param.setBookingEndDate(DateUtil.dateToFormatStr("2016-11-09 08:00:01", "yyyy-MM-dd HH:mm:ss"));
-		//param.setViewStatus(0);
-		//param.setMemberId("181295316");
-		/*param.setChannelId(1);
-		List<Integer> statusList = new ArrayList<>();
-		statusList.add(2);
-		param.setStatusList(statusList);*/
-		//param.setName("四");
-		
-		ResultVo<LstOrder<SelectOrderResponse>> queryOrderByPage = service.queryOrderByPage(param);
-		System.out.println(queryOrderByPage);
-		
-	}
+
 	
 	@Test
 	public void testUserRefund() throws OrderException, Exception{
@@ -178,17 +146,7 @@ public class MOrderServiceTest {
 	}
 	
 	
-	@Test
-	public void testCancelOrder() throws OrderException, Exception{
-		
-		MOrderParam orderParam = new MOrderParam();
-		orderParam.setOrderNo("O1483513542892102624");
-		orderParam.setMemberId(181295316);
-		orderParam.setType(2);
-		ResultVo<Object> userRefund = service.cancelOrderLock(orderParam);
-		System.out.println(userRefund);
-		
-	}
+
 	
 	@Test
 	public void testModifyOrder() throws OrderException, Exception{
@@ -268,20 +226,7 @@ public class MOrderServiceTest {
 	}
 	
 	
-	@Test
-	public void testQueryOrderList() throws OrderException, Exception{
-		
-		
-		MOrderSearchVO svo = new MOrderSearchVO();
-		
-		svo.setMemberId(181295316);
-		
-		ResultVo<PageInfo<SelectOrderResponse>> queryOrderList = service.queryOrderList(svo );
-		
-		System.out.println(queryOrderList);
-		
-		
-	}
+
 	
 	@Test
 	public void testModifydeliverOrder() throws OrderException, Exception{

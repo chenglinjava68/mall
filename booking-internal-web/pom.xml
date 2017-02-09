@@ -13,7 +13,7 @@
 	<groupId>com.plateno</groupId>
 	<artifactId>booking-internal-web</artifactId>
 	<version>0.0.1</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>booking-internal-web Maven Webapp</name>
 	<url>http://maven.apache.org</url>
