@@ -445,14 +445,15 @@ public class MOrderService {
         try {
 
             logger.info("封装参数开始...");
-
             com.plateno.booking.internal.base.pojo.Order order =
                     new com.plateno.booking.internal.base.pojo.Order();
             MAddBookingParam book = income.getAddBookingParam();
+            //生成订单号
             String orderNo = StringUtil.getCurrentAndRamobe("O");
             ProductPriceVo productPriceVo =
                     productCalService.calProduct(income.getAddBookingParam());
-
+            
+            //订单初始状态
             int orderStatus = BookingResultCodeContants.PAY_STATUS_1;
             int payType = 0;
             // 当优惠券的金额大于商品需要支付的金额的时候，如果包邮，需要支付的金额将会是0，这是直接把订单的状态变成代发货
@@ -464,9 +465,6 @@ public class MOrderService {
             order.setResource(book.getResource());
             // 商品非积分的总的价格，不包含运费
             order.setAmount(productPriceVo.getTotalProductPrice());
-            // ordes.setChanelid(book.getChanelId());
-            // 渠道从商品服务获取，移除到子订单表中
-            // ordes.setChanelid(pskubean.getChannelId());
             order.setCreateTime(new Date());
             order.setItemId(0);
             order.setMemberId(book.getMemberId());
@@ -477,23 +475,19 @@ public class MOrderService {
             order.setPayType(payType);// 默认1微信支付、2支付宝支付 3无需支付
             order.setPayStatus(orderStatus);
             order.setPoint(book.getPoint());
-            // ordes.setPayMoney(pskubean.getSellStrategy()==1?pskubean.getRegularPrice():pskubean.getFavorPrice());
             // 实付金额
             order.setPayMoney(book.getTotalAmount());
-
+            //退款金额
             order.setRefundAmount(0);
             order.setSid(0);
             order.setUpTime(new Date());
             long currentTime = System.currentTimeMillis() + 30 * 60 * 1000;
             order.setWaitPayTime(new Date(currentTime));// 加上30分钟
-
             // 订单子来源（不同的入口）
             order.setSubResource(book.getSubResource() == null ? 0 : book.getSubResource());
-
             // 记录订单商品成本和发货成本
             order.setTotalExpressCost(productPriceVo.getTotalExpressCost());
             order.setTotalProductCost(productPriceVo.getTotalProductCost());
-
             // 优惠券抵扣金额
             order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book
                     .getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
@@ -536,8 +530,8 @@ public class MOrderService {
                     op.setProvidedId(pskubean.getProviderId());
                     orderProductMapper.insertSelective(op);
                 } catch (OrderException e) {
-                    logger.error("获取商品信息失败");
-                    throw new OrderException("获取商品信息失败");
+                    logger.error("获取商品信息失败",e);
+                    throw new OrderException("获取商品信息失败:"+e.getMessage());
                 }
 
             }
@@ -545,9 +539,6 @@ public class MOrderService {
             mallOrderMapper.insertSelective(order);
             // 订单插入成功之后，后续动作
             orderInsertActorService.insertAfter(book, order);
-
-
-
             return order;
 
         } catch (Exception e) {

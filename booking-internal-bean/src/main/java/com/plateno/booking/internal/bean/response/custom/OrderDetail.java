@@ -9,14 +9,24 @@ public class OrderDetail implements java.io.Serializable{
 	
 	private OrderInfo orderInfo;
 	
-	private DeliverDetail deliverDetail;
 	
 	private ConsigneeInfo consigneeInfo;
 	
 	private List<ProductInfo> productInfo;
 	
+	private List<SubOrderDetail> subOrderDetails;
 	
-	public OrderInfo getOrderInfo() {
+	
+	
+	public List<SubOrderDetail> getSubOrderDetails() {
+        return subOrderDetails;
+    }
+
+    public void setSubOrderDetails(List<SubOrderDetail> subOrderDetails) {
+        this.subOrderDetails = subOrderDetails;
+    }
+
+    public OrderInfo getOrderInfo() {
 		return orderInfo;
 	}
 
@@ -24,13 +34,6 @@ public class OrderDetail implements java.io.Serializable{
 		this.orderInfo = orderInfo;
 	}
 
-	public DeliverDetail getDeliverDetail() {
-		return deliverDetail;
-	}
-
-	public void setDeliverDetail(DeliverDetail deliverDetail) {
-		this.deliverDetail = deliverDetail;
-	}
 
 	public ConsigneeInfo getConsigneeInfo() {
 		return consigneeInfo;
@@ -96,6 +99,14 @@ public class OrderDetail implements java.io.Serializable{
 		 */
 		private Integer couponAmount;
 		
+	    /**
+	     * 储值金额
+	     */
+	    private Integer currencyDepositAmount;
+	    /**
+	     * 支付网关金额
+	     */
+	    private Integer gatewayAmount;
 		
 		public Integer getViewStatus() {
 			return viewStatus;
@@ -218,6 +229,18 @@ public class OrderDetail implements java.io.Serializable{
 		public void setCouponAmount(Integer couponAmount) {
 			this.couponAmount = couponAmount;
 		}
+        public Integer getCurrencyDepositAmount() {
+            return currencyDepositAmount;
+        }
+        public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+            this.currencyDepositAmount = currencyDepositAmount;
+        }
+        public Integer getGatewayAmount() {
+            return gatewayAmount;
+        }
+        public void setGatewayAmount(Integer gatewayAmount) {
+            this.gatewayAmount = gatewayAmount;
+        }
 		
 	}
 	

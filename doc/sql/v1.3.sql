@@ -23,9 +23,9 @@ create table m_logistics_package
 (
    id                   int not null auto_increment,
    order_no             varchar(45) comment '订单号',
-   logistics_type       varchar(45) comment '快递类型',
+   logistics_type       int comment '快递类型',
    logistics_no         varchar(45) comment '快递单号',
-   express_fee          varchar(45) comment '快递费用',
+   express_fee          int comment '快递费用',
    package_flag         int comment '包裹状态',
    primary key (id)
 );

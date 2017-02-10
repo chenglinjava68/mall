@@ -44,45 +44,6 @@ public abstract class MAbsAddOrderService {
 	}
 	
 	
-	/**
-	 * 扣减积分
-	 * 
-	 * @param income
-	 * @param output
-	 * @throws Exception 
-	 */
-	public void minusPoint(MAddBookingIncomeVo income) throws Exception{
-		MAddBookingParam addBookingParam = income.getAddBookingParam();
-		ValueBean v=new ValueBean();
-		v.setMebId(addBookingParam.getMemberId());
-		v.setPointvalue(-addBookingParam.getPoint());
-		pointService.mallMinusPoint(v);
-	}
-	
-//	public boolean updateStock(MAddBookingIncomeVo income) throws Exception{
-//		MAddBookingParam addBookingParam = income.getAddBookingParam();
-//		return mallGoodsService.modifyStock(addBookingParam.getGoodsId().toString(), -addBookingParam.getQuantity());
-//	}
-	
-	
-	/**
-	 * 积分
-	 * 
-	 * @param income
-	 * @param output
-	 * @throws Exception 
-	 */
-	public void addPoint(MAddBookingIncomeVo income) throws Exception{
-		MAddBookingParam addBookingParam = income.getAddBookingParam();
-		if(addBookingParam.getShippingType().equals(2)){
-			ValueBean v=new ValueBean();
-			v.setMebId(addBookingParam.getMemberId());
-			v.setPointvalue(addBookingParam.getPoint());
-			pointService.mallAddPoint(v);
-		}
-	}
-
-	
 	public void addBooking(MAddBookingIncomeVo income, ResultVo<MAddBookResponse> output) throws Exception{
 		/*AddBookingParam addBookingParam = income.getAddBookingParam();
 		String orderNo = StringUtil.getCurrentAndRamobe("O");
@@ -94,7 +55,6 @@ public abstract class MAbsAddOrderService {
 		Order insertOrder = morderService.insertOrder(income);
 		MAddBookResponse addBookResponse = new MAddBookResponse();
 		//不需要回传
-//		addBookResponse.setGoodsId(income.getAddBookingParam().getGoodsId().toString());
 		addBookResponse.setOrderNo(insertOrder.getOrderNo());
 		addBookResponse.setViewStatus(PayStatusEnum.toViewStatus(insertOrder.getPayStatus()));
 		addBookResponse.setPayStatus(insertOrder.getPayStatus());
