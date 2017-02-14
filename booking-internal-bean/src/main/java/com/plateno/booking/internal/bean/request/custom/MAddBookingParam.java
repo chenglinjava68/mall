@@ -106,7 +106,20 @@ public class MAddBookingParam extends BaseParam implements Serializable {
     
     
     
-	public List<MOrderGoodsParam> getGoodsList() {
+	@Override
+    public String toString() {
+        return "MAddBookingParam [goodsList=" + goodsList + ", totalAmount=" + totalAmount
+                + ", consigneeName=" + consigneeName + ", consigneeMobile=" + consigneeMobile
+                + ", consigneeAddress=" + consigneeAddress + ", shippingType=" + shippingType
+                + ", platformId=" + platformId + ", name=" + name + ", mobile=" + mobile
+                + ", resource=" + resource + ", chanelId=" + chanelId + ", sellStrategy="
+                + sellStrategy + ", point=" + point + ", subResource=" + subResource
+                + ", couponId=" + couponId + ", couponName=" + couponName + ", couponAmount="
+                + couponAmount + ", validCouponAmount=" + validCouponAmount + ", province="
+                + province + ", city=" + city + ", area=" + area + "]";
+    }
+
+    public List<MOrderGoodsParam> getGoodsList() {
         return goodsList;
     }
 

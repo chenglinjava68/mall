@@ -26,12 +26,12 @@ import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.goods.MallGoodsService;
+import com.plateno.booking.internal.goods.vo.ProductSkuBean;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.order.MOrderService;
 import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.sms.model.SmsMessageReq;
 import com.plateno.booking.internal.util.vo.PageInfo;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:applicationContext.xml")

@@ -22,6 +22,7 @@ import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.bean.request.logistics.OrderLogisticsQueryReq;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
+import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 
 @Service
 public class LogisticsService {
@@ -52,6 +53,7 @@ public class LogisticsService {
             PackageProduct packageProduct = new PackageProduct();
             packageProduct.setLogisticsNo(mLogistics.getLogisticsNo());
             packageProduct.setLogisticsType(mLogistics.getLogisticsType());
+            packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(mLogistics.getLogisticsType()));
             packageProduct.setExpressFee(mLogistics.getExpressFee());
             List<ProductInfo> productInfos = Lists.newArrayList();
             ProductInfo productInfo = new ProductInfo();
@@ -79,6 +81,7 @@ public class LogisticsService {
                 PackageProduct packageProduct = new PackageProduct();
                 packageProduct.setLogisticsNo(logisticsPackage.getLogisticsNo());
                 packageProduct.setLogisticsType(logisticsPackage.getLogisticsType());
+                packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(logisticsPackage.getLogisticsType()));
                 packageProduct.setExpressFee(logisticsPackage.getExpressFee());
                 
                 List<ProductInfo> productInfos = Lists.newArrayList();

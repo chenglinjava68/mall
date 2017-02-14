@@ -1,153 +1,145 @@
 package com.plateno.booking.internal.validator.order;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
-import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
 import com.plateno.booking.internal.goods.MallGoodsService;
+import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
+import com.plateno.booking.internal.goods.vo.OrderCheckInfo;
+import com.plateno.booking.internal.goods.vo.OrderCheckParamInfo;
+import com.plateno.booking.internal.goods.vo.OrderCheckReq;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.service.order.MOrderService;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 @Service
 @ServiceErrorCode(BookingConstants.CODE_VERIFY_ERROR)
 public class ProductValidateService {
 
     private final static Logger logger = LoggerFactory.getLogger(ProductValidateService.class);
-    
+
     @Autowired
-    private  MallGoodsService mallGoodsService;
+    private MallGoodsService mallGoodsService;
 
     @Autowired
     private MOrderService mOrderService;
-    
+
     /**
      * 
-    * @Title: checkProduct 
-    * @Description: 校验商品
-    * @param @param addBookingParam
-    * @param @param output    
-    * @return void    
-    * @throws
+     * @Title: checkProduct
+     * @Description: 校验商品
+     * @param @param addBookingParam
+     * @param @param output
+     * @return void
+     * @throws
      */
-    public void checkProductAndCal(MAddBookingParam addBookingParam,ResultVo output){
-        int totalGoodsPrice = 0;
-        for(MOrderGoodsParam orderGoodsParam : addBookingParam.getGoodsList()){
-            //计算每个商品价格
-            ResultVo<Integer> result = calProduct(addBookingParam, orderGoodsParam);
-            if(result.getResultCode().equals(ResultCode.SUCCESS)){
-                totalGoodsPrice += result.getData();
-            }else{
+    public void checkProductAndCal(MAddBookingParam addBookingParam, ResultVo output) {
+
+        OrderCheckReq orderCheckReq = new OrderCheckReq();
+        List<OrderCheckParamInfo> orderCheckParamInfos = Lists.newArrayList();
+        orderCheckReq.setOrderCheckParamInfos(orderCheckParamInfos);
+        orderCheckReq.setMemberPoints(addBookingParam.getPoint());
+        for (MOrderGoodsParam orderGoodsParam : addBookingParam.getGoodsList()) {
+            OrderCheckParamInfo orderCheckParamInfo = new OrderCheckParamInfo();
+            orderCheckParamInfo.setGoodsId(orderGoodsParam.getGoodsId());
+            orderCheckParamInfo.setQuantity(orderGoodsParam.getQuantity());
+            orderCheckParamInfos.add(orderCheckParamInfo);
+        }
+        OrderCheckDetail orderCheckDetail = mallGoodsService.orderCheck(orderCheckReq);
+        if (null == orderCheckDetail) {
+            output.setResultCode(getClass(), MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMsgCode());
+            output.setResultMsg(MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMessage());
+            return;
+        }
+        // list to map ，方便获取
+        Map<Long, OrderCheckInfo> orderCheckInfoMap = Maps.newHashMap();
+        for (OrderCheckInfo orderCheckInfo : orderCheckDetail.getOrderCheckInfo()) {
+            orderCheckInfoMap.putIfAbsent(orderCheckInfo.getGoodsId(), orderCheckInfo);
+        }
+
+        //检查单个商品
+        for (MOrderGoodsParam orderGoodsParam : addBookingParam.getGoodsList()) {
+            checkSingleProduct(addBookingParam, orderGoodsParam, orderCheckInfoMap, output);
+            if (!output.getResultCode().equals(ResultCode.SUCCESS)) {
                 return;
             }
         }
-        output.setData(totalGoodsPrice);
+
+        //比较订单总价
+        if(addBookingParam.getTotalAmount().intValue() != orderCheckDetail.getTotalPrice().intValue()){
+            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+            output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+            return;
+        }
+        //比较积分
+        if(null != orderCheckDetail.getPointDeductValue()){
+            if(addBookingParam.getPoint().intValue() != orderCheckDetail.getPointDeductValue().getCostPoints().intValue()){
+                output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
+                output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
+                return;
+            }
+        }
+        orderCheckDetail.setOrderCheckInfoMap(orderCheckInfoMap);
+        output.setData(orderCheckDetail);
+        
     }
-    
+
     /**
      * 
-    * @Title: calProduct 
-    * @Description: 校验并返回单个商品价格
-    * @param @param addBookingParam
-    * @param @param output
-    * @param @return    
-    * @return ResultVo    
-    * @throws
+     * @Title: calProduct
+     * @Description: 校验并返回单个商品价格
+     * @param @param addBookingParam
+     * @param @param output
+     * @param @return
+     * @return ResultVo
+     * @throws
      */
-    public ResultVo<Integer> calProduct(MAddBookingParam addBookingParam,MOrderGoodsParam orderGoodsParam){
-        ResultVo<Integer> output = new ResultVo<Integer>(ResultCode.SUCCESS);
-        ProductSkuBean pskubean=new ProductSkuBean() ;
-        try {
-            pskubean = mallGoodsService.getProductAndskuStock(orderGoodsParam.getGoodsId().toString());
-        } catch (OrderException e) {
-            logger.info("查询商品信息失败", e);
-            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMsgCode());
-            output.setResultMsg(MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMessage());
-            return output;  
-        }
+    public void checkSingleProduct(MAddBookingParam addBookingParam,MOrderGoodsParam orderGoodsParam,Map<Long,OrderCheckInfo> orderCheckInfoMap,ResultVo output){
         
-        if(pskubean==null){
-            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMsgCode());
-            output.setResultMsg(MsgCode.VALIDATE_ORDER_ERROR_PRODUCTNULL.getMessage());
-            return output;
-        }
+        OrderCheckInfo orderCheckInfo = orderCheckInfoMap.get(orderGoodsParam.getGoodsId());
         
         //是否已经下架或未到开售时间
-        if(!Integer.valueOf(1).equals(pskubean.getStatus())){
+        if(!Integer.valueOf(1).equals(orderCheckInfo.getStatus())){
             output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
-            output.setResultMsg("商品未到开售时间或者已经下架！");
-            return output;
+            output.setResultMsg("商品未到开售时间或者已经下架！skuId:"+orderCheckInfo.getGoodsId());
+            return;
         }
 
         //库存
-        if(orderGoodsParam.getQuantity()>pskubean.getStock()){
+        if(null == orderCheckInfo.getStock() || orderGoodsParam.getQuantity() > orderCheckInfo.getStock()){
             output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
-            output.setResultMsg(MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMessage());
-            return output;
+            output.setResultMsg(String.format("msg:%s,skuId:%s,quantity:%s", MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMessage(),
+                    orderCheckInfo.getGoodsId(),orderGoodsParam.getQuantity()));
+            return;
         }
         
         //限购
-        if(pskubean.getMaxSaleQty() != null && pskubean.getMaxSaleQty() > 0) {
+        if(orderCheckInfo.getMaxSaleQty() != null && orderCheckInfo.getMaxSaleQty() > 0) {
             //查询用户已经购买的数量 
-            int queryUserProductSum = mOrderService.queryUserProductSum(addBookingParam.getMemberId(), pskubean.getProductId());
+            int queryUserProductSum = mOrderService.queryUserProductSum(addBookingParam.getMemberId(), orderCheckInfo.getGoodsId().intValue());
             
-            logger.info("限购：{}， 已购：{}， 准备购：{}", pskubean.getMaxSaleQty(), queryUserProductSum, orderGoodsParam.getQuantity());
+            logger.warn("限购：{}， 已购：{}， 准备购：{}", orderCheckInfo.getMaxSaleQty(), queryUserProductSum, orderGoodsParam.getQuantity());
             
-            int num = pskubean.getMaxSaleQty() - queryUserProductSum;
+            int num = orderCheckInfo.getMaxSaleQty() - queryUserProductSum;
             if(num < orderGoodsParam.getQuantity()) {
                 output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
                 output.setResultMsg("您购买的总数量已经超过限制的数量，目前您最多只能购买：" + (num >=0 ? num : 0) + "件");
-                return output;
+                return ;
             }
         }
-        
-      //价格
-        int price = 0;
-        int point = 0;
-        
-        //判断是否有促销价
-        if(pskubean.getPromotPrice() != null && pskubean.getPromotPrice() > 0) {
-            price = pskubean.getPromotPrice();
-        } else {
-            price = pskubean.getRegularPrice();
-        }
-        
-        int price2 = price;
-        
-        //使用积分购买
-        if(!addBookingParam.getSellStrategy().equals(1)) {
-            
-            //判断商品是否允许使用积分购买
-            if(pskubean.getFavorPrice() == null || pskubean.getFavorPrice() <= 0) {
-                output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-                output.setResultMsg("商品不允许使用订单+积分的方式购买，订单校验失败");
-                return output;
-            }
-            
-            price = pskubean.getFavorPrice();
-            point = pskubean.getFavorPoints();
-        }
-        
-        
-        
-        
-        //判断优惠券
-        
         //判断金额是否足够，外移
-        
-        //返回商品金额
-        output.setData(orderGoodsParam.getQuantity()*price + pskubean.getExpressFee());
-        
-        return output;
+        return ;
     }
-    
-    
 }

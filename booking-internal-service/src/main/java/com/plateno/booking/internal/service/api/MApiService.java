@@ -1,22 +1,12 @@
 package com.plateno.booking.internal.service.api;
 
-import java.math.BigDecimal;
-
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
-import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
-import com.plateno.booking.internal.coupon.constant.CouponEnum;
-import com.plateno.booking.internal.coupon.constant.CouponPlatformType;
 import com.plateno.booking.internal.coupon.service.CouponService;
-import com.plateno.booking.internal.coupon.vo.Conditions;
-import com.plateno.booking.internal.coupon.vo.QueryParam;
-import com.plateno.booking.internal.coupon.vo.QueryResponse;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -24,7 +14,6 @@ import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.order.MOrderService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.validator.order.ProductValidateService;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 /**
  * @author user
@@ -87,22 +76,6 @@ public class MApiService {
 		//校验不通过则直接返回
 		if(!output.getResultCode().equals(ResultCode.SUCCESS))
 		    return output;
-		
-		//商品总金额，对比优惠券金额处理，校验优惠券等
-		int productAmount = (int) output.getData();
-//		if(productAmount < 0) {
-//			logger.info("商品需要支付的金额小于优惠券金额, productAmount:{}", productAmount);
-//			addBookingParam.setValidCouponAmount(new BigDecimal((addBookingParam.getQuantity() * price) + "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
-//			productAmount = 0;
-//		}
-		
-		//判断金额是否足够
-		if(!addBookingParam.getTotalAmount().equals(productAmount)){
-			output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-			output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-			return output;
-		}
-		
 		return output;
 	}
 	

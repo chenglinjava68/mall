@@ -7,6 +7,7 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo
 public class PackageProduct {
 
     private Integer logisticsType;//快递类型
+    private String logisticsName;//快递名称
     private String logisticsNo;
     private Integer  expressFee;
     private Integer packageFlag;//包裹状态
@@ -15,6 +16,12 @@ public class PackageProduct {
     
     
     
+    public String getLogisticsName() {
+        return logisticsName;
+    }
+    public void setLogisticsName(String logisticsName) {
+        this.logisticsName = logisticsName;
+    }
     public List<ProductInfo> getProducts() {
         return products;
     }

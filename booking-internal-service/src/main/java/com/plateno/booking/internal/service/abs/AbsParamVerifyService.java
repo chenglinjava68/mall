@@ -56,13 +56,6 @@ public abstract class AbsParamVerifyService {
                 return;
             }
         }
-        /*
-         * if (addBookingParam.getGoodsId() == null || addBookingParam.getGoodsId() <= 0) {
-         * output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-         * output.setResultMsg("下单失败,商品ID不能为空"); return; } if (addBookingParam.getQuantity() <= 0) {
-         * output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-         * output.setResultMsg("下单失败,数量必须大于0"); return; }
-         */
         if (addBookingParam.getTotalAmount() < 0) {
             output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
             output.setResultMsg("下单失败,订单总价必须大于0");

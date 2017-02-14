@@ -14,18 +14,14 @@ import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
-import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderExample;
-import com.plateno.booking.internal.base.pojo.OrderProduct;
-import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
-import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.point.ValueBean;
@@ -35,14 +31,12 @@ import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
-import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
 
 @Service
 public class OrderCancelService {
@@ -68,14 +62,10 @@ public class OrderCancelService {
     private OperateLogService operateLogService;
 
     @Autowired
-    private OrderProductMapper orderProductMapper;
-
-    @Autowired
     private CouponService couponService;
 
     @Autowired
-    private MallGoodsService mallGoodsService;
-
+    private OrderStockService orderStockService;
 
     /**
      * 更新订单状态(取消)
@@ -84,7 +74,7 @@ public class OrderCancelService {
      * @return
      * @throws Exception
      */
-    @Transactional(rollbackFor=OrderException.class)
+    @Transactional(rollbackFor=Exception.class)
     public ResultVo<Object> cancelOrderLock(final MOrderParam orderParam) throws Exception{
         
         String lockName = "MALL_CANEL_ORDER_" + orderParam.getOrderNo();
@@ -144,7 +134,7 @@ public class OrderCancelService {
                 return output;
             }
         }
-
+        
         Order order = new Order();
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
         order.setUpTime(new Date());
@@ -180,7 +170,7 @@ public class OrderCancelService {
         // 退还库存
         try {
             logger.info("取消订单，退还库存，orderNo:{}", listOrder.get(0).getOrderNo());
-            updateStock(orderParam, output);
+            orderStockService.returnStock( listOrder.get(0).getOrderNo());
         } catch (Exception e) {
             logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
         }
@@ -205,43 +195,6 @@ public class OrderCancelService {
         }
 
         return output;
-    }
-
-
-
-
-
-    private ProductSkuBean updateStock(final MOrderParam orderParam, ResultVo<Object> output)
-            throws OrderException {
-        OrderProductExample orderProductExample = new OrderProductExample();
-        orderProductExample.createCriteria().andOrderNoEqualTo(orderParam.getOrderNo());
-        List<OrderProduct> productOrderList =
-                orderProductMapper.selectByExample(orderProductExample);
-        if (CollectionUtils.isEmpty(productOrderList)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单获取不到对应的产品信息");
-        }
-        final ProductSkuBean bean =
-                mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid()
-                        .toString());
-
-        logger.info("取消订单，退还库存， orderNo:{}, skuId:{}, count:{}", orderParam.getOrderNo(),
-                productOrderList.get(0).getSkuid(), productOrderList.get(0).getSkuCount());
-
-        if (!mallGoodsService.modifyStock(productOrderList.get(0).getSkuid().toString(),
-                productOrderList.get(0).getSkuCount())) {
-            // LogUtils.sysLoggerInfo("更新库存失败");
-            LogUtils.DISPERSED_ERROR_LOGGER.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList
-                    .get(0).getSkuid(), productOrderList.get(0).getSkuCount());
-            logger.error("取消订单返回库存失败, skuId:{}, num:{}", productOrderList.get(0).getSkuid(),
-                    productOrderList.get(0).getSkuCount());
-        }
-
-        // 更新已经退还的库存
-        orderProductMapper.updateReturnSkuCount(productOrderList.get(0).getSkuCount(),
-                productOrderList.get(0).getId());
-
-        return bean;
     }
 
     /**

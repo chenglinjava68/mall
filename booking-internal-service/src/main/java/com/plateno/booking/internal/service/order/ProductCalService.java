@@ -10,7 +10,7 @@ import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
 import com.plateno.booking.internal.bean.vo.order.ProductPriceVo;
 import com.plateno.booking.internal.goods.MallGoodsService;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
+import com.plateno.booking.internal.goods.vo.ProductSkuBean;
 
 /**
  * 
@@ -38,18 +38,11 @@ public class ProductCalService {
                 //todo：多次获取商品服务sku，需要优化，减少获取的次数
                 ProductSkuBean pskubean=mallGoodsService.getProductAndskuStock(orderGoodsParam.getGoodsId().toString());
                 int expressFee = 0;
-                int price = 0;
                 if(pskubean.getExpressFee() != null && pskubean.getExpressFee() > 0) {
                     expressFee = pskubean.getExpressFee();
                 }
-                //判断是否有促销价
-                if(pskubean.getPromotPrice() != null && pskubean.getPromotPrice() > 0) {
-                    price = pskubean.getPromotPrice();
-                } else {
-                    price = pskubean.getRegularPrice();
-                }
                 //商品价格*数量+快递费
-                totalProductPrice = totalProductPrice + price * orderGoodsParam.getQuantity() + expressFee;
+                totalProductPrice = totalProductPrice + pskubean.getPrice() * orderGoodsParam.getQuantity() + expressFee;
                 //快递费成本
                 totalExpressCost = totalExpressCost + pskubean.getCostExpress();
                 //商品成本价

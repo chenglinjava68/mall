@@ -18,10 +18,13 @@ import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
 import com.plateno.booking.internal.common.util.LogUtils;
 import com.plateno.booking.internal.common.util.http.HttpUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean;
-import com.plateno.booking.internal.wechat.model.ProductSkuBean.SkuPropertyInfos;
-import com.plateno.booking.internal.wechat.model.SkuBean;
-import com.plateno.booking.internal.wechat.model.SkuStock;
+import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
+import com.plateno.booking.internal.goods.vo.OrderCheckReq;
+import com.plateno.booking.internal.goods.vo.OrderCheckResponse;
+import com.plateno.booking.internal.goods.vo.ProductSkuBean;
+import com.plateno.booking.internal.goods.vo.SkuBean;
+import com.plateno.booking.internal.goods.vo.SkuStock;
+import com.plateno.booking.internal.goods.vo.ProductSkuBean.SkuPropertyInfos;
 
 @Service
 public class MallGoodsService {
@@ -271,6 +274,38 @@ public class MallGoodsService {
             return false;
         }
         
+    }
+    
+    /**
+     * 
+    * @Title: commitOrder 
+    * @Description: 商品详情
+    * @param @param req
+    * @param @return    
+    * @return CommitOrderDetail    
+    * @throws
+     */
+    public OrderCheckDetail orderCheck(OrderCheckReq req){
+        OrderCheckDetail orderCheckDetail = null;
+        String response = "";
+        try{
+            String url = Config.MALL_GOODS_URL + "/productService/orderCheck";
+            response = HttpUtils.httpPostRequest(url, JsonUtils.toJsonString(req));
+            OrderCheckResponse orderCheckResponse= JsonUtils.jsonToObject(response, OrderCheckResponse.class);
+            if(null == orderCheckResponse)
+                return orderCheckDetail;
+            if(!orderCheckResponse.getResultCode().equals("100")){
+                logger.error("获取商品信息失败，req:{},res:{}",JsonUtils.toJsonString(req),response);
+                return null;
+            }
+            return orderCheckResponse.getData();
+            
+        }catch(Exception e){
+            logger.error("获取商品信息失败",e);
+        }
+        
+        
+        return orderCheckDetail;
     }
     
 }

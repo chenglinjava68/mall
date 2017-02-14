@@ -52,7 +52,7 @@ public abstract class MAbsAddOrderService {
 	}
 	
 	protected void insertBooking(MAddBookingIncomeVo income, ResultVo output) throws Exception {
-		Order insertOrder = morderService.insertOrder(income);
+		Order insertOrder = morderService.insertOrder(income,output);
 		MAddBookResponse addBookResponse = new MAddBookResponse();
 		//不需要回传
 		addBookResponse.setOrderNo(insertOrder.getOrderNo());

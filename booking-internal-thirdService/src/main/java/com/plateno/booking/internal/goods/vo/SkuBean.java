@@ -1,4 +1,4 @@
-package com.plateno.booking.internal.wechat.model;
+package com.plateno.booking.internal.goods.vo;
 
 import java.util.List;
 

@@ -30,6 +30,7 @@ import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
 import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
+import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.order.build.OrderBuildService;
@@ -214,49 +215,7 @@ public class OrderQueryService {
         return output;
     }
 
-    /**
-     * 分页查询订单
-     * 
-     * @param search
-     * @return
-     */
-    public ResultVo<PageInfo<SelectOrderResponse>> queryOrderList(MOrderSearchVO svo) {
-
-        PageInfo<SelectOrderResponse> paginInfo = new PageInfo<SelectOrderResponse>();
-
-        if (svo.getPlateForm() == null || svo.getPlateForm() == PlateFormEnum.USER.getPlateForm()
-                || svo.getPlateForm() == PlateFormEnum.APP.getPlateForm()) {
-            svo.setQueryDel(false);
-        }
-
-        List<Order> list = mallOrderMapper.list(svo);
-
-
-        List<SelectOrderResponse> volist = new ArrayList<SelectOrderResponse>();
-        for (Order po : list) {
-            paramsDeal(po, volist);
-        }
-        paginInfo.setList(volist);
-
-        if (list.size() > 0) {
-            int totalNum = mallOrderMapper.count(svo);
-            int totalPage =
-                    totalNum % svo.getSize() == 0 ? totalNum / svo.getSize() : totalNum
-                            / svo.getSize() + 1;
-
-            paginInfo.setCount(totalNum);
-            paginInfo.setPage(svo.getPage());
-            paginInfo.setPageCount(totalPage);
-        } else {
-            paginInfo.setCount(0);
-            paginInfo.setPage(svo.getPage());
-            paginInfo.setPageCount(0);
-        }
-
-        ResultVo<PageInfo<SelectOrderResponse>> result = new ResultVo<>();
-        result.setData(paginInfo);
-        return result;
-    }
+    
 
     private OrderDetail beansDeal(List<Order> listOrder, Integer plateForm) {
         Order order = listOrder.get(0);
@@ -269,18 +228,6 @@ public class OrderQueryService {
 
     private void paramsDeal(Order order, List<SelectOrderResponse> list) {
         SelectOrderResponse sc = new SelectOrderResponse();
-        OrderProductExample example = new OrderProductExample();
-        example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-        // Integer count = orderProductMapper.countByExample(example);
-        List<OrderProduct> listProduct = orderProductMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(listProduct)) {
-            sc.setGoodsName(listProduct.get(0).getProductName());
-            sc.setGoodsProperties(listProduct.get(0).getProductProperty());
-            sc.setQuatity(listProduct.get(0).getSkuCount());
-            sc.setDisImage(listProduct.get(0).getDisImages());
-            sc.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId="
-                    + listProduct.get(0).getProductId());
-        }
         sc.setPoint(order.getPoint());
         sc.setAmount(order.getAmount());
         sc.setMemberId(Long.parseLong(order.getMemberId().toString()));
@@ -307,7 +254,6 @@ public class OrderQueryService {
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         sc.setLogicDel(order.getLogicDel());
 
-        sc.setDeliverDate(order.getDeliverTime());
 
         // 查询物流信息
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
@@ -315,14 +261,6 @@ public class OrderQueryService {
         List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
         if (listLogistic.size() > 0) {
             MLogistics mLogistics = listLogistic.get(0);
-            sc.setDeliverNo(mLogistics.getLogisticsNo());
-            if (order.getPayStatus() == PayStatusEnum.PAY_STATUS_4.getPayStatus()
-                    || order.getPayStatus() == PayStatusEnum.PAY_STATUS_5.getPayStatus()) {
-                sc.setLogisticsType(mLogistics.getLogisticsType());
-                sc.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(
-                        mLogistics.getLogisticsType()));
-            }
-
             if (StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile())) {
                 sc.setConsigneeName(mLogistics.getConsigneeNewName());
                 sc.setConsigneeMobile(mLogistics.getConsigneeNewMobile());
@@ -336,6 +274,23 @@ public class OrderQueryService {
             }
         }
 
+        OrderProductExample example = new OrderProductExample();
+        example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+        List<OrderProduct> listProduct = orderProductMapper.selectByExample(example);
+        List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
+        for (OrderProduct orderProduct : listProduct) {
+            ProductInfo productInfo = new ProductInfo();
+            productInfo.setProductId(orderProduct.getProductId());
+            productInfo.setCount(orderProduct.getSkuCount());
+            productInfo.setPrice(orderProduct.getPrice());
+            productInfo.setProductName(orderProduct.getProductName());
+            productInfo.setProductPropertis(orderProduct.getProductProperty());
+            productInfo.setDisImages(orderProduct.getDisImages());
+            productInfo.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId="
+                    + orderProduct.getProductId());
+            productInfoList.add(productInfo);
+        }
+        sc.setProductInfos(productInfoList);
         list.add(sc);
     }
 

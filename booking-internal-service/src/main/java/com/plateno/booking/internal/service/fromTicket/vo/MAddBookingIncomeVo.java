@@ -15,7 +15,14 @@ public class MAddBookingIncomeVo extends AbsRunningAccountVo {
 
 	
 	
-	public MAddBookingParam getAddBookingParam() {
+	@Override
+    public String toString() {
+        return "MAddBookingIncomeVo [addBookingParam=" + addBookingParam + ", orderNo=" + orderNo
+                + ", partnerOrderId=" + partnerOrderId + ", waitPaymentTime=" + waitPaymentTime
+                + "]";
+    }
+
+    public MAddBookingParam getAddBookingParam() {
 		return addBookingParam;
 	}
 

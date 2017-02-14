@@ -390,9 +390,20 @@ public class OrderDetail implements java.io.Serializable{
 		
 		private Integer sellStrategy;//销售策略 1:金额(积分不足会员） 2：积分+金额 （够积分的会员使用）
 		
+		private String goodsUrl;//商品详情地址
+		
+		
 		
 
-		public String getDisImages() {
+		public String getGoodsUrl() {
+            return goodsUrl;
+        }
+
+        public void setGoodsUrl(String goodsUrl) {
+            this.goodsUrl = goodsUrl;
+        }
+
+        public String getDisImages() {
 			return disImages;
 		}
 

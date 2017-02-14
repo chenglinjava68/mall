@@ -1,6 +1,9 @@
 package com.plateno.booking.internal.bean.response.custom;
 
 import java.util.Date;
+import java.util.List;
+
+import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 
 public class SelectOrderResponse implements java.io.Serializable{
 
@@ -11,15 +14,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 	private Long memberId;
 	
 	private Integer payStatus;
-	
-	private String goodsName;
-	
-	private String disImage;
-	
-	private String goodsProperties;
-	
-	private Integer quatity;
-	
 	private Integer amount;
 	
 	private Integer point;
@@ -50,35 +44,12 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer viewStatus;
 	
-	/**
-	 * 商品详情页面地址
-	 */
-	private String goodsUrl;
 	
 	/**
 	 * 逻辑删除， 1-正常，2-删除
 	 */
 	private Integer logicDel;
 	
-	/**
-	 * 发货单号
-	 */
-	private String deliverNo;
-	
-	/**
-	 * deliverDate
-	 */
-	private Date deliverDate;
-	
-	/**
-	 * logisticsType
-	 */
-	private Integer logisticsType;
-	
-	/**
-	 * 物流类型描述
-	 */
-	private String logisticsTypeDesc;
 	
 	/**
 	 * 收货人地址
@@ -100,7 +71,20 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer subResource; 
 	
-	public String getConsigneeAddress() {
+	
+	private List<ProductInfo> productInfos;
+	
+	
+	
+	public List<ProductInfo> getProductInfos() {
+        return productInfos;
+    }
+
+    public void setProductInfos(List<ProductInfo> productInfos) {
+        this.productInfos = productInfos;
+    }
+
+    public String getConsigneeAddress() {
 		return consigneeAddress;
 	}
 
@@ -132,37 +116,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 		this.consigneeMobile = consigneeMobile;
 	}
 
-	public String getDeliverNo() {
-		return deliverNo;
-	}
-
-	public void setDeliverNo(String deliverNo) {
-		this.deliverNo = deliverNo;
-	}
-
-	public Date getDeliverDate() {
-		return deliverDate;
-	}
-
-	public void setDeliverDate(Date deliverDate) {
-		this.deliverDate = deliverDate;
-	}
-
-	public Integer getLogisticsType() {
-		return logisticsType;
-	}
-
-	public void setLogisticsType(Integer logisticsType) {
-		this.logisticsType = logisticsType;
-	}
-
-	public String getLogisticsTypeDesc() {
-		return logisticsTypeDesc;
-	}
-
-	public void setLogisticsTypeDesc(String logisticsTypeDesc) {
-		this.logisticsTypeDesc = logisticsTypeDesc;
-	}
 
 	public String getOrderNo() {
 		return orderNo;
@@ -188,29 +141,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 		this.payStatus = payStatus;
 	}
 
-	public String getGoodsName() {
-		return goodsName;
-	}
-
-	public void setGoodsName(String goodsName) {
-		this.goodsName = goodsName;
-	}
-
-	public String getGoodsProperties() {
-		return goodsProperties;
-	}
-
-	public void setGoodsProperties(String goodsProperties) {
-		this.goodsProperties = goodsProperties;
-	}
-
-	public Integer getQuatity() {
-		return quatity;
-	}
-
-	public void setQuatity(Integer quatity) {
-		this.quatity = quatity;
-	}
 
 	public Integer getAmount() {
 		return amount;
@@ -268,13 +198,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 		this.resource = resource;
 	}
 
-	public String getDisImage() {
-		return disImage;
-	}
-
-	public void setDisImage(String disImage) {
-		this.disImage = disImage;
-	}
 
 	public Integer getPayMoney() {
 		return payMoney;
@@ -300,13 +223,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 		this.viewStatus = viewStatus;
 	}
 
-	public String getGoodsUrl() {
-		return goodsUrl;
-	}
-
-	public void setGoodsUrl(String goodsUrl) {
-		this.goodsUrl = goodsUrl;
-	}
 
 	public Integer getLogicDel() {
 		return logicDel;

@@ -163,7 +163,6 @@ public class PayService {
 
         boolean success = false;
 
-
         OrderPayLogExample example = new OrderPayLogExample();
         example.createCriteria().andIdEqualTo(log.getId()).andStatusEqualTo(1);
         OrderPayLog record = new OrderPayLog();

@@ -73,7 +73,7 @@ public class OrderInsertActorService {
         }
 
 
-        //
+        //扣减库存
         boolean modifyStock = mallGoodsService.deductBatchStock(book.getGoodsList());
         if (!modifyStock) {
             logger.error("扣减库存失败， {}", modifyStock);

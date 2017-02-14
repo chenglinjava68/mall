@@ -1,4 +1,6 @@
 --新增字段
+ALTER TABLE m_order ADD `point_money` INT(11)  COMMENT '积分抵扣的金额';
+
 ALTER TABLE m_order_product ADD `order_sub_no` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '子订单code';
 ALTER TABLE m_order_product ADD `channel_id` INT(11)  COMMENT '仓库id';
 ALTER TABLE m_order_product ADD `provided_id` INT(11)  COMMENT '供应商id';

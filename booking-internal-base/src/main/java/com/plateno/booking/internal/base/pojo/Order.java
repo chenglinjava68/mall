@@ -93,6 +93,18 @@ public class Order implements Serializable {
      */
     private Integer gatewayAmount;
     
+    private Integer pointMoney;
+    
+    
+    
+    public Integer getPointMoney() {
+        return pointMoney;
+    }
+
+    public void setPointMoney(Integer pointMoney) {
+        this.pointMoney = pointMoney;
+    }
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {

@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plateno.booking.internal.base.model.NotifyReturn;
-import com.plateno.booking.internal.base.model.bill.BillOrderDetail;
-import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.MAddBookingParam;
 import com.plateno.booking.internal.bean.response.custom.MAddBookResponse;
@@ -69,10 +67,8 @@ public class MBookingWebRPCService extends BaseController{
 	//支付网关回调
 	@RequestMapping(value = "/payNotifyUrl",method = RequestMethod.POST)
 	public String payNotifyUrl(HttpServletRequest request) throws Exception, OrderException{
-//		ResultVo<Object> object=new ResultVo<Object>();
 		long start = System.currentTimeMillis();
 		log.info("支付网关回调开始时间：" + start);
-//		BillOrderDetail bill=new BillOrderDetail();
 		try {
 			NotifyReturn notifyReturn = resolveParam(request);
 			
@@ -85,44 +81,7 @@ public class MBookingWebRPCService extends BaseController{
 			
 			//支付网关回调订单处理
 			payService.payNotify(notifyReturn);
-			
 			return "SUCCESS";
-			
-//			if (notifyReturn.getCode().equals("0000")) {
-//				log.info("支付网关回调,请求入参:" + JsonUtils.toJsonString(notifyReturn));
-//				
-//				 bill = payService.getOrderNoByTradeNo(notifyReturn.getOrderNo());
-//				//更新状态为支付中
-//					updateStatus(bill,BookingResultCodeContants.PAY_STATUS_11);
-//				if (bill == null){
-//					log.error("支付网关支付回调,获取不到对应的账单信息");
-//					object.setData("FAILURE");
-//					return object;
-//				}
-//				//更新状态为支付成功(待发货)
-//				updateStatus(bill,BookingResultCodeContants.PAY_STATUS_3);
-//				object.setData("SUCCESS");
-//				return object;
-//				/*String strBookingRequestParam = redisUtils.get(bill.getOrderNo());
-//				if(strBookingRequestParam != null){
-//					MAddBookingParam mAddBookingParam = JsonUtils.jsonToObject(strBookingRequestParam, MAddBookingParam.class);
-//					long end = System.currentTimeMillis();
-//					
-//						//发送支付成功模版
-//						//wechatTemplementSerivce.paying(bill.getTradeNo(),null,bill.getMemberId().intValue(),mAddBookingParam.getChanelId());
-//						// 删除redis订单信息
-//						redisUtils.del(bill.getOrderNo());
-//						return "SUCCESS";
-//				}else{
-//					log.info("获取缓存订单信息为空");
-//					return "FAILURE";
-//				}*/
-//			}else{
-//				//更新订单的状态,支付失败
-//				updateStatus(bill,BookingResultCodeContants.PAY_STATUS_12);		
-//				object.setData("SUCCESS");
-//				return object;
-//			}
 		} catch (Exception e) {
 			log.error(ExceptionUtils.getStackTrace(e));
 			log.error("异常日志："+ e);
@@ -132,15 +91,6 @@ public class MBookingWebRPCService extends BaseController{
 		
 	}
 
-
-	private void updateStatus(BillOrderDetail bill,Integer status)
-			throws Exception {
-		Order order = new Order();
-		order.setPayStatus(status);
-		order.setPayType(bill.getPayId());
-		mOrderService.updateOrderStatusByNo(order,bill.getOrderNo());
-	}
-	
 	private NotifyReturn resolveParam(HttpServletRequest request){
 		NotifyReturn notifyReturn = new NotifyReturn();
 		notifyReturn.setCode(request.getParameter("code").toString());
