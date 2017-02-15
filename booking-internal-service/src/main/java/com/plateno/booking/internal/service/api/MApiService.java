@@ -12,6 +12,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.order.MOrderService;
+import com.plateno.booking.internal.validator.order.CouponValidateService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 import com.plateno.booking.internal.validator.order.ProductValidateService;
 
@@ -44,24 +45,8 @@ public class MApiService {
 	@Autowired
 	private ProductValidateService productValidateService;
 	
-	/*
-
-	@Resource(name = "ticketStrategyMap")
-    private OwnerStrategyMap ownerStrategyMap ;
-	
-	
-	private ThirdApiService getStrategyMap(ResultVo vo,Integer channel){
-		ThirdApiService thirdApiService = ownerStrategyMap.getFindOwnerStrategyMap().get(ThirdServiceEnum.getServiceNameByChannel(channel));
-		if (thirdApiService == null) {
-			vo.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-			vo.setResultMsg("渠道有误,获取不到对应的服务对象");
-		}
-		return thirdApiService;
-	}
-*/
-	
-	
-	
+	@Autowired
+	private CouponValidateService couponValidateService;
 	
 	/**
 	 * 校验订单
@@ -70,52 +55,25 @@ public class MApiService {
 	 * @return
 	 * @throws Exception 
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ResultVo Validate(MAddBookingParam addBookingParam,ResultVo output){
 		productValidateService.checkProductAndCal(addBookingParam, output);
 		//校验不通过则直接返回
 		if(!output.getResultCode().equals(ResultCode.SUCCESS))
 		    return output;
+		
+		//判断优惠券规则
+        if(addBookingParam.getCouponId() != null && addBookingParam.getCouponId() > 0) {
+            couponValidateService.checkCoupon(addBookingParam, output);
+            //校验不通过则直接返回
+            if(!output.getResultCode().equals(ResultCode.SUCCESS))
+                return output;
+        }
 		return output;
 	}
 	
 	
 	
-	/**
-	 * 下单
-	 * 
-	 * @param addBookingParam
-	 * @param orderNo     铂涛订单ID( O开头  ) 
-	 * @return
-	 *//*
-	public ResultVo Booking(AddBookingParam addBookingParam,String orderNo,ResultVo output){
-		ConvertBookingParam convertBookingParam = new ConvertBookingParam();
-		ThirdApiService thirdApiService = getStrategyMap(output,addBookingParam.getChannel());
-		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-			return output;
-		}
-		BeanUtils.copyProperties(addBookingParam, convertBookingParam);
-		convertBookingParam.setOrderNo(orderNo);
-		return thirdApiService.Booking(convertBookingParam,output);
-	}*/
 	
-	
-	/**
-	 * 支付接口
-	 * 
-	 * @return
-	 *//*
-	public ResultVo Pay(ConvertThirdPayParam payParam,Integer channel,ResultVo output){
-		ThirdApiService thirdApiService = getStrategyMap(output,channel);
-		if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-			return output;
-		}
-		Runnable runnable = null;
-		if (channel.equals(Config.CHANNEL_TC)) {
-			runnable = new TCRunnable(payParam);
-		}
-		return thirdApiService.Pay(payParam,output,runnable);
-	}*/
 	
 	
 	

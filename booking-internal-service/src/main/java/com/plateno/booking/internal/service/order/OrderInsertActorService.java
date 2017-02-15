@@ -2,6 +2,7 @@ package com.plateno.booking.internal.service.order;
 
 import java.util.Date;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import com.plateno.booking.internal.coupon.vo.BaseResponse;
 import com.plateno.booking.internal.coupon.vo.Conditions;
 import com.plateno.booking.internal.coupon.vo.UseParam;
 import com.plateno.booking.internal.goods.MallGoodsService;
+import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.member.PointService;
 
@@ -42,7 +44,7 @@ public class OrderInsertActorService {
     @Autowired
     private CouponService couponService;
 
-    public void insertAfter(MAddBookingParam book, Order order) throws Exception {
+    public void insertAfter(MAddBookingParam book, Order order,OrderCheckDetail orderCheckDetail) throws Exception {
 
 
         // 插入快递单信息
@@ -73,7 +75,7 @@ public class OrderInsertActorService {
         }
 
 
-        //扣减库存
+        // 扣减库存
         boolean modifyStock = mallGoodsService.deductBatchStock(book.getGoodsList());
         if (!modifyStock) {
             logger.error("扣减库存失败， {}", modifyStock);
@@ -108,11 +110,11 @@ public class OrderInsertActorService {
                     .getPlatformId());
             Conditions conditions = new Conditions();
             useCouponParam.setConditions(conditions);
-            // conditions.setOrderAmount(new BigDecimal((book.getQuantity() * price) +
-            // "").divide(new BigDecimal("100"), 2, BigDecimal.ROUND_HALF_DOWN));
-            // conditions.setProductId(pskubean.getProductId());
-            // conditions.setCategoryId(pskubean.getCategoryId());
-
+            conditions.setOrderAmount(book.getCouponOrderAmount());
+            if(CollectionUtils.isNotEmpty(orderCheckDetail.getCouponProductList())){
+                conditions.setProductId(orderCheckDetail.getCouponProductList().get(0).getSpuId().intValue());
+                conditions.setCategoryId(orderCheckDetail.getCouponProductList().get(0).getCategoryId().intValue());
+            }
             ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
             if (!useCouponResult.success()) {
 
@@ -144,7 +146,6 @@ public class OrderInsertActorService {
                                 order.getOrderNo(), book.getMemberId(), book.getPoint());
                     }
                 }
-
                 throw new OrderException("系统正忙，使用优惠券失败，请重试！");
             }
         }

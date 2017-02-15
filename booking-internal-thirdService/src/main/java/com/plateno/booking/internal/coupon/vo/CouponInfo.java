@@ -2,7 +2,9 @@ package com.plateno.booking.internal.coupon.vo;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -147,7 +149,19 @@ public class CouponInfo {
 	 */
 	private Integer usedMebCategory;
 
-	public Integer getCouponId() {
+	private Map<String, List<AttrValInfo>> extAttrs= new HashMap<String, List<AttrValInfo>>() ;
+	
+	
+	
+	public Map<String, List<AttrValInfo>> getExtAttrs() {
+        return extAttrs;
+    }
+
+    public void setExtAttrs(Map<String, List<AttrValInfo>> extAttrs) {
+        this.extAttrs = extAttrs;
+    }
+
+    public Integer getCouponId() {
 		return couponId;
 	}
 

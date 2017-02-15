@@ -29,7 +29,25 @@ public class OrderCheckDetail {
      */
     private Integer totalExpressCost;
 
+    /**
+     * 根据skuId为key
+     */
+    private Map<Long, OrderCheckInfo> orderCheckInfoMap;
+
+    /**
+     * 优惠券适用商品集合
+     */
+    List<OrderCheckInfo> couponProductList;
     
+    
+    
+    public List<OrderCheckInfo> getCouponProductList() {
+        return couponProductList;
+    }
+
+    public void setCouponProductList(List<OrderCheckInfo> couponProductList) {
+        this.couponProductList = couponProductList;
+    }
 
     public Integer getTotalProductCost() {
         return totalProductCost;
@@ -47,7 +65,7 @@ public class OrderCheckDetail {
         this.totalExpressCost = totalExpressCost;
     }
 
-    private Map<Long, OrderCheckInfo> orderCheckInfoMap;
+    
 
 
     public Map<Long, OrderCheckInfo> getOrderCheckInfoMap() {

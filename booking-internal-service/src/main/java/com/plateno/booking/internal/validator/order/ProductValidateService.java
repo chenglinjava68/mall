@@ -66,7 +66,10 @@ public class ProductValidateService {
         // list to map ，方便获取
         Map<Long, OrderCheckInfo> orderCheckInfoMap = Maps.newHashMap();
         for (OrderCheckInfo orderCheckInfo : orderCheckDetail.getOrderCheckInfo()) {
-            orderCheckInfoMap.putIfAbsent(orderCheckInfo.getGoodsId(), orderCheckInfo);
+            if(null == orderCheckInfoMap.get(orderCheckInfo.getGoodsId())){
+                orderCheckInfoMap.put(orderCheckInfo.getGoodsId(), orderCheckInfo);
+            }
+            
         }
 
         //检查单个商品
@@ -139,7 +142,6 @@ public class ProductValidateService {
                 return ;
             }
         }
-        //判断金额是否足够，外移
         return ;
     }
 }

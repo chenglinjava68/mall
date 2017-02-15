@@ -3,7 +3,10 @@ package com.plateno.booking.internal.goods.vo;
 import java.util.List;
 
 public class OrderCheckInfo {
-
+    
+    /**
+     * skuId
+     */
     private Long goodsId;
     private String title;
     private String imgPath;
@@ -21,10 +24,22 @@ public class OrderCheckInfo {
     private Integer quantity;
     private Integer costPrice;
     private Integer costExpress;
-    
+    /**
+     * 商品id
+     */
+    private Long spuId;
     
     private List<SkuProperty> skuProperties;
     
+    
+    
+ 
+    public Long getSpuId() {
+        return spuId;
+    }
+    public void setSpuId(Long spuId) {
+        this.spuId = spuId;
+    }
     public Integer getCostPrice() {
         return costPrice;
     }

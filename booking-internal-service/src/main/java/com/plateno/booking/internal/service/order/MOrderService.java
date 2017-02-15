@@ -458,7 +458,7 @@ public class MOrderService {
             }
             
             // 订单插入成功之后，后续动作
-            orderInsertActorService.insertAfter(book, order);
+            orderInsertActorService.insertAfter(book, order, orderCheckDetail);
             return order;
 
         } catch (Exception e) {
