@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.goods.vo;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +40,21 @@ public class OrderCheckDetail {
      */
     List<OrderCheckInfo> couponProductList;
     
+    /**
+     * 订单适用商品金额
+     */
+    private BigDecimal couponOrderAmount;
     
     
+    
+    public BigDecimal getCouponOrderAmount() {
+        return couponOrderAmount;
+    }
+
+    public void setCouponOrderAmount(BigDecimal couponOrderAmount) {
+        this.couponOrderAmount = couponOrderAmount;
+    }
+
     public List<OrderCheckInfo> getCouponProductList() {
         return couponProductList;
     }

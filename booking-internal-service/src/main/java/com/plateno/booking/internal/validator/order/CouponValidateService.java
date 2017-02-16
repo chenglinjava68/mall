@@ -76,7 +76,6 @@ public class CouponValidateService {
         //适用商品金额
         int productApplyAmout = 0;
         //适用商品集合,空则为全部商品
-        List<Long> productApplayList = Lists.newArrayList();
         List<OrderCheckInfo> couponProductList = Lists.newArrayList();
         OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
         orderCheckDetail.setCouponProductList(couponProductList);
@@ -93,7 +92,6 @@ public class CouponValidateService {
                     //优惠券的适用商品为spuId
                     if(orderCheckInfo.getSpuId() == Long.valueOf(temp)){
                         productApplyAmout += orderCheckInfo.getPrice() * orderCheckInfo.getQuantity();
-                        productApplayList.add(Long.valueOf(temp));
                         couponProductList.add(orderCheckInfo);
                         hasProduct = true;
                         break;
@@ -128,11 +126,10 @@ public class CouponValidateService {
                 return;
             }
         }
+        orderCheckDetail.setCouponOrderAmount(productApplyAmoutBig);
         addBookingParam.setCouponName(StringUtils.trimToEmpty(result.getData().getCouponInfo().get(0).getCouponName()));
         addBookingParam.setCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
         addBookingParam.setValidCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
-      //设置适用商品金额
-        addBookingParam.setCouponOrderAmount(productApplyAmoutBig);
         
     }
     

@@ -178,7 +178,7 @@ public class MOrderService {
 
     @Autowired
     private OrderStockService orderStockService;
-    
+
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -442,49 +442,48 @@ public class MOrderService {
 
 
     @Transactional(rollbackFor = OrderException.class)
-    public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income,ResultVo output)
-            throws OrderException {
+    public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income,
+            ResultVo output) throws OrderException {
         try {
 
-            //库存信息对象
+            // 库存信息对象
             OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
             MAddBookingParam book = income.getAddBookingParam();
-            //插入order
+            // 插入order
             Order order = insertMasterOrder(book, orderCheckDetail);
-            //插入order_product
+            // 插入order_product
             for (MOrderGoodsParam orderGoodsParam : book.getGoodsList()) {
-                    OrderCheckInfo orderCheckInfo = orderCheckDetail.getOrderCheckInfoMap().get(orderGoodsParam.getGoodsId());
-                    insertSingleOrderProduct(order, orderGoodsParam, orderCheckInfo);
+                insertSingleOrderProduct(order, orderGoodsParam, orderCheckDetail);
             }
-            
+
             // 订单插入成功之后，后续动作
             orderInsertActorService.insertAfter(book, order, orderCheckDetail);
             return order;
 
         } catch (Exception e) {
-            logger.error("订单创建失败,input:{}",income.toString(), e);
+            logger.error("订单创建失败,input:{}", income.toString(), e);
             throw new OrderException("订单创建失败:" + e.getMessage());
         }
     }
 
     /**
      * 
-    * @Title: insertMasterOrder 
-    * @Description: 插入主表
-    * @param @param book
-    * @param @param orderCheckDetail
-    * @param @return    
-    * @return Order    
-    * @throws
+     * @Title: insertMasterOrder
+     * @Description: 插入主表
+     * @param @param book
+     * @param @param orderCheckDetail
+     * @param @return
+     * @return Order
+     * @throws
      */
-    private Order insertMasterOrder(MAddBookingParam book,OrderCheckDetail orderCheckDetail){
+    private Order insertMasterOrder(MAddBookingParam book, OrderCheckDetail orderCheckDetail) {
         com.plateno.booking.internal.base.pojo.Order order =
                 new com.plateno.booking.internal.base.pojo.Order();
-        
-        //生成订单号
+
+        // 生成订单号
         String orderNo = StringUtil.getCurrentAndRamobe("O");
-        logger.info("插入orderNo:{}",orderNo);
-        //订单初始状态
+        logger.info("插入orderNo:{}", orderNo);
+        // 订单初始状态
         int orderStatus = BookingResultCodeContants.PAY_STATUS_1;
         int payType = 0;
         // 当优惠券的金额大于商品需要支付的金额的时候，如果包邮，需要支付的金额将会是0，这是直接把订单的状态变成代发货
@@ -508,7 +507,7 @@ public class MOrderService {
         order.setPoint(book.getPoint());
         // 实付金额
         order.setPayMoney(book.getTotalAmount());
-        //退款金额
+        // 退款金额
         order.setRefundAmount(0);
         order.setSid(0);
         order.setUpTime(new Date());
@@ -520,16 +519,21 @@ public class MOrderService {
         order.setTotalExpressCost(orderCheckDetail.getTotalExpressCost());
         order.setTotalProductCost(orderCheckDetail.getTotalProductCost());
         // 优惠券抵扣金额
-        order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book
-                .getValidCouponAmount().multiply(new BigDecimal("100")).intValue());
-        
+        order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount()
+                .multiply(new BigDecimal("100")).intValue());
+
         mallOrderMapper.insertSelective(order);
         return order;
     }
 
-    
-    private void insertSingleOrderProduct(Order order,MOrderGoodsParam orderGoodsParam,OrderCheckInfo orderCheckInfo){
-        logger.info("插入order_product，orderNo:{},skuId:{}",order.getOrderNo(),orderCheckInfo.getGoodsId());
+
+    private void insertSingleOrderProduct(Order order, MOrderGoodsParam orderGoodsParam,
+            OrderCheckDetail orderCheckDetail) {
+        OrderCheckInfo orderCheckInfo =
+                orderCheckDetail.getOrderCheckInfoMap().get(orderGoodsParam.getGoodsId());
+        logger.info("插入order_product，orderNo:{},skuId:{}", order.getOrderNo(),
+                orderCheckInfo.getGoodsId());
+
         OrderProduct op = new OrderProduct();
         op.setOrderNo(order.getOrderNo());
         op.setPrice(orderCheckInfo.getPrice());
@@ -538,7 +542,7 @@ public class MOrderService {
         try {
             op.setProductProperty(JsonUtils.toJsonString(orderCheckInfo.getSkuProperties()));
         } catch (IOException e) {
-            logger.warn("序列化失败",e);
+            logger.warn("序列化失败", e);
         }
         op.setSkuCount(orderGoodsParam.getQuantity());
         op.setSkuid(orderGoodsParam.getGoodsId().intValue());
@@ -550,10 +554,44 @@ public class MOrderService {
         op.setOrderSubNo(order.getOrderNo() + orderCheckInfo.getChannelId());
         op.setChannelId(orderCheckInfo.getChannelId());
         op.setProvidedId(orderCheckInfo.getProviderId());
+        if (order.getCouponAmount() > 0) {
+            op.setCoupouReduceAmount(countCouponAmout(order.getCouponAmount(), orderCheckInfo
+                    .getGoodsId().intValue(), orderCheckDetail, orderCheckInfo));
+        }
         orderProductMapper.insertSelective(op);
     }
-    
-    
+
+    /**
+     * 
+     * @Title: countCouponAmout
+     * @Description: 计算商品占用优惠券的金额，（商品金额/订单总金额）*couponAmout
+     * @param @param couponAmout
+     * @param @param orderCheckDetail
+     * @param @return
+     * @return int
+     * @throws
+     */
+    private int countCouponAmout(int couponAmout, int skuId, OrderCheckDetail orderCheckDetail,
+            OrderCheckInfo orderCheckInfo) {
+        // 查询是否在适用商品中
+        for (OrderCheckInfo temp : orderCheckDetail.getCouponProductList()) {
+            if (temp.getSpuId() == orderCheckInfo.getSpuId()) {
+                // 商品金额
+                BigDecimal couponAmoutBig =
+                        new BigDecimal(couponAmout).divide(new BigDecimal("100"));
+                BigDecimal productAmoutBig =
+                        new BigDecimal(orderCheckInfo.getPrice() * orderCheckInfo.getQuantity())
+                                .divide(new BigDecimal("100"));
+                // （商品金额/订单总金额）*couponAmout,统一转化为BigDecimal运算
+                BigDecimal productCouponAmoutBig =
+                        productAmoutBig.divide(orderCheckDetail.getCouponOrderAmount())
+                                .multiply(couponAmoutBig).setScale(2, BigDecimal.ROUND_HALF_UP);
+                return productCouponAmoutBig.multiply(new BigDecimal("100")).intValue();
+            }
+        }
+        return 0;
+    }
+
     /**
      * 更新订单状态(删除)
      * 
@@ -640,9 +678,9 @@ public class MOrderService {
             return result;
         }
 
-        //返还库存
+        // 返还库存
         orderStockService.returnStock(dbOrder.getOrderNo());
-        
+
 
         // 记录操作日志
         MOperateLogParam paramlog = new MOperateLogParam();
@@ -798,7 +836,7 @@ public class MOrderService {
         }
     }
 
-    
+
 
     /**
      * 扣减积分
@@ -820,10 +858,6 @@ public class MOrderService {
     }
 
 
-    
-
-
-   
 
     /**
      * 更新订单状态(发货通知)
@@ -1622,7 +1656,8 @@ public class MOrderService {
 
     /**
      * 查询订单已经购买的数量（只要有支付成功，就算是退款也算是已经购买的数量了）
-     * @param memberId  会员ID
+     * 
+     * @param memberId 会员ID
      * @param productId 产品ID
      * @return
      */
@@ -1632,6 +1667,7 @@ public class MOrderService {
 
     /**
      * 查询库存已售数量
+     * 
      * @param skuId
      * @return
      */

@@ -88,10 +88,6 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 */
 	private BigDecimal validCouponAmount;
 	
-	/**
-	 * 订单适用商品金额
-	 */
-	private BigDecimal couponOrderAmount;
 	
 	
 	/**
@@ -124,23 +120,6 @@ public class MAddBookingParam extends BaseParam implements Serializable {
                 + couponAmount + ", validCouponAmount=" + validCouponAmount + ", province="
                 + province + ", city=" + city + ", area=" + area + "]";
     }
-
-	
-	
-
-
-
-
-    public BigDecimal getCouponOrderAmount() {
-        return couponOrderAmount;
-    }
-
-
-
-    public void setCouponOrderAmount(BigDecimal couponOrderAmount) {
-        this.couponOrderAmount = couponOrderAmount;
-    }
-
 
 
     public List<MOrderGoodsParam> getGoodsList() {

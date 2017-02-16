@@ -110,7 +110,7 @@ public class OrderInsertActorService {
                     .getPlatformId());
             Conditions conditions = new Conditions();
             useCouponParam.setConditions(conditions);
-            conditions.setOrderAmount(book.getCouponOrderAmount());
+            conditions.setOrderAmount(orderCheckDetail.getCouponOrderAmount());
             if(CollectionUtils.isNotEmpty(orderCheckDetail.getCouponProductList())){
                 conditions.setProductId(orderCheckDetail.getCouponProductList().get(0).getSpuId().intValue());
                 conditions.setCategoryId(orderCheckDetail.getCouponProductList().get(0).getCategoryId().intValue());
