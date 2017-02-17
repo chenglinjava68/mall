@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -95,7 +94,6 @@ import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.state.OrderStatusContext;
-import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 
 
@@ -130,12 +128,6 @@ public class MOrderService {
 
     @Autowired
     private PointService pointService;
-
-    @Autowired
-    private SMSSendService sendService;
-
-    @Autowired
-    private TaskExecutor taskExecutor;
 
     @Autowired
     private OrderPayLogMapper orderPayLogMapper;
@@ -495,6 +487,10 @@ public class MOrderService {
         order.setResource(book.getResource());
         // 商品非积分的总的价格，不包含运费
         order.setAmount(orderCheckDetail.getTotalPrice());
+        // 总快递费
+        order.setTotalExpressAmount(orderCheckDetail.getTotalExpressFee());
+        // 实付金额
+        order.setPayMoney(book.getTotalAmount());
         order.setCreateTime(new Date());
         order.setItemId(0);
         order.setMemberId(book.getMemberId());
@@ -504,9 +500,6 @@ public class MOrderService {
         order.setPayTime(new Date());
         order.setPayType(payType);// 默认1微信支付、2支付宝支付 3无需支付
         order.setPayStatus(orderStatus);
-        order.setPoint(book.getPoint());
-        // 实付金额
-        order.setPayMoney(book.getTotalAmount());
         // 退款金额
         order.setRefundAmount(0);
         order.setSid(0);
@@ -521,7 +514,10 @@ public class MOrderService {
         // 优惠券抵扣金额
         order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount()
                 .multiply(new BigDecimal("100")).intValue());
-
+        if(null != orderCheckDetail.getPointDeductValue()){
+            order.setPoint(orderCheckDetail.getPointDeductValue().getCostPoints());
+            order.setPointMoney(orderCheckDetail.getPointDeductValue().getPointValue());
+        }
         mallOrderMapper.insertSelective(order);
         return order;
     }
@@ -554,13 +550,37 @@ public class MOrderService {
         op.setOrderSubNo(order.getOrderNo() + orderCheckInfo.getChannelId());
         op.setChannelId(orderCheckInfo.getChannelId());
         op.setProvidedId(orderCheckInfo.getProviderId());
+        op.setExpressAmount(orderCheckInfo.getExpressFee());
         if (order.getCouponAmount() > 0) {
-            op.setCoupouReduceAmount(countCouponAmout(order.getCouponAmount(), orderCheckInfo
-                    .getGoodsId().intValue(), orderCheckDetail, orderCheckInfo));
+            //单个商品占用的优惠券金额
+            op.setCoupouReduceAmount(countCouponAmout(order.getCouponAmount(), orderCheckDetail,
+                    orderCheckInfo));
         }
+        if (null != order.getPoint() && order.getPoint() > 0 && order.getPointMoney() > 0){
+            op.setDeductPrice(countPointMoney(orderCheckDetail, orderCheckInfo));
+        }
+        
         orderProductMapper.insertSelective(op);
     }
 
+    /**
+     * 
+    * @Title: countPointMoney 
+    * @Description: （商品金额/商品总价）*积分抵扣金额
+    * @param @param orderCheckDetail
+    * @param @param orderCheckInfo
+    * @param @return    
+    * @return int    
+    * @throws
+     */
+    private int countPointMoney(OrderCheckDetail orderCheckDetail,OrderCheckInfo orderCheckInfo){
+        BigDecimal productBig = new BigDecimal(orderCheckInfo.getPrice());
+        BigDecimal totalProductBig = new BigDecimal(orderCheckDetail.getTotalPrice());
+        BigDecimal pointMoneyBig = new BigDecimal(orderCheckDetail.getPointDeductValue().getPointValue());
+        int pointMoney = productBig.divide(totalProductBig).multiply(pointMoneyBig).setScale(2, BigDecimal.ROUND_HALF_UP).intValue();
+        return pointMoney;
+    }
+    
     /**
      * 
      * @Title: countCouponAmout
@@ -571,8 +591,9 @@ public class MOrderService {
      * @return int
      * @throws
      */
-    private int countCouponAmout(int couponAmout, int skuId, OrderCheckDetail orderCheckDetail,
+    private int countCouponAmout(int couponAmout, OrderCheckDetail orderCheckDetail,
             OrderCheckInfo orderCheckInfo) {
+        
         // 查询是否在适用商品中
         for (OrderCheckInfo temp : orderCheckDetail.getCouponProductList()) {
             if (temp.getSpuId() == orderCheckInfo.getSpuId()) {
@@ -580,8 +601,7 @@ public class MOrderService {
                 BigDecimal couponAmoutBig =
                         new BigDecimal(couponAmout).divide(new BigDecimal("100"));
                 BigDecimal productAmoutBig =
-                        new BigDecimal(orderCheckInfo.getPrice() * orderCheckInfo.getQuantity())
-                                .divide(new BigDecimal("100"));
+                        new BigDecimal(orderCheckInfo.getPrice()).divide(new BigDecimal("100"));
                 // （商品金额/订单总金额）*couponAmout,统一转化为BigDecimal运算
                 BigDecimal productCouponAmoutBig =
                         productAmoutBig.divide(orderCheckDetail.getCouponOrderAmount())
@@ -927,28 +947,6 @@ public class MOrderService {
         final ProductSkuBean bean =
                 mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid()
                         .toString());
-
-        // final String
-        // remark="尊敬的铂涛用户，您的订单【"+od.getOrderNo()+"】，商品【大白创意汽车摆件水晶车内香水可爱饰品小玩偶车载摇头公仔娃娃】【已发货】，快递公司为【申通公司】，单号为：【882454079083338721】，请留意电话查收快递。";
-        /*
-         * taskExecutor.execute(new Runnable() {
-         * 
-         * @Override public void run() {
-         * 
-         * SmsMessageReq messageReq = new SmsMessageReq(); messageReq.setPhone(od.getMobile());
-         * Map<String, String> params = new HashMap<String, String>(); params.put("code",
-         * od.getOrderNo()); params.put("name", bean.getTitle()); params.put("express",
-         * LogisticsEnum.getNameBytype(orderParam.getLogisticsType())); params.put("expressCode",
-         * orderParam.getLogisticsNo());//物流号
-         * 
-         * messageReq.setType(Integer.parseInt(Config.SMS_SERVICE_TEMPLATE_SEVEN));
-         * messageReq.setParams(params); boolean res=sendService.sendMessage(messageReq);
-         * 
-         * //记录短信日志 SmsLog smslog=new SmsLog(); smslog.setCreateTime(new Date());
-         * smslog.setIsSuccess(res==true?1:0); smslog.setContent(bean.getTitle());
-         * smslog.setObjectNo(od.getOrderNo()); smslog.setPhone(od.getMobile());
-         * smslog.setUpdateTime(new Date()); smsLogMapper.insertSelective(smslog); } });
-         */
 
         // 发送到短信
         DeliverGoodContent content = new DeliverGoodContent();

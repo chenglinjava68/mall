@@ -1,7 +1,5 @@
 package com.plateno.booking.internal.service.api;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +22,6 @@ import com.plateno.booking.internal.validator.order.ProductValidateService;
  */
 @Service
 public class MApiService {
-	
-	private final static Logger logger = LoggerFactory.getLogger(MApiService.class);
 	
 	@Autowired
 	private MOrderValidate morderValidate;
@@ -58,16 +54,26 @@ public class MApiService {
 	public ResultVo Validate(MAddBookingParam addBookingParam,ResultVo output){
 		productValidateService.checkProductAndCal(addBookingParam, output);
 		//校验不通过则直接返回
-		if(!output.getResultCode().equals(ResultCode.SUCCESS))
+		if(!output.getResultCode().equals(ResultCode.SUCCESS)){
+		    output.setData(null);
 		    return output;
-		
+		}
 		//判断优惠券规则
         if(addBookingParam.getCouponId() != null && addBookingParam.getCouponId() > 0) {
             couponValidateService.checkCoupon(addBookingParam, output);
             //校验不通过则直接返回
-            if(!output.getResultCode().equals(ResultCode.SUCCESS))
+            if(!output.getResultCode().equals(ResultCode.SUCCESS)){
+                output.setData(null);
                 return output;
+            }
         }
+        //判断实付金额是否准确
+        productValidateService.checkPayMoney(addBookingParam, output);
+        if(!output.getResultCode().equals(ResultCode.SUCCESS)){
+            output.setData(null);
+            return output;
+        }
+        
 		return output;
 	}
 	

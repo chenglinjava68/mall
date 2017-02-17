@@ -2204,6 +2204,66 @@ public class OrderExample {
             addCriterion("point_money not between", value1, value2, "pointMoney");
             return (Criteria) this;
         }
+
+        public Criteria andTotalExpressAmountIsNull() {
+            addCriterion("total_express_amount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountIsNotNull() {
+            addCriterion("total_express_amount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountEqualTo(Integer value) {
+            addCriterion("total_express_amount =", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotEqualTo(Integer value) {
+            addCriterion("total_express_amount <>", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountGreaterThan(Integer value) {
+            addCriterion("total_express_amount >", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("total_express_amount >=", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountLessThan(Integer value) {
+            addCriterion("total_express_amount <", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountLessThanOrEqualTo(Integer value) {
+            addCriterion("total_express_amount <=", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountIn(List<Integer> values) {
+            addCriterion("total_express_amount in", values, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotIn(List<Integer> values) {
+            addCriterion("total_express_amount not in", values, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_amount between", value1, value2, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_amount not between", value1, value2, "totalExpressAmount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

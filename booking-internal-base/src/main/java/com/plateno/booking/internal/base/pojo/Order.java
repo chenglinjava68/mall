@@ -95,8 +95,21 @@ public class Order implements Serializable {
     
     private Integer pointMoney;
     
+    /**
+     * 总快递费
+     */
+    private Integer totalExpressAmount;
     
     
+    
+    public Integer getTotalExpressAmount() {
+        return totalExpressAmount;
+    }
+
+    public void setTotalExpressAmount(Integer totalExpressAmount) {
+        this.totalExpressAmount = totalExpressAmount;
+    }
+
     public Integer getPointMoney() {
         return pointMoney;
     }

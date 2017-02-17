@@ -1,10 +1,13 @@
 --新增字段
 ALTER TABLE m_order ADD `point_money` INT(11)  COMMENT '积分抵扣的金额';
+ALTER TABLE m_order ADD `total_express_amount` INT(11)  COMMENT '总快递费';
 
 ALTER TABLE m_order_product ADD `order_sub_no` VARCHAR(30) NOT NULL DEFAULT '' COMMENT '子订单code';
 ALTER TABLE m_order_product ADD `channel_id` INT(11)  COMMENT '仓库id';
 ALTER TABLE m_order_product ADD `provided_id` INT(11)  COMMENT '供应商id';
+ALTER TABLE m_order_product ADD `express_amount` INT(11)  COMMENT '快递费';
 ALTER TABLE m_order_product ADD `coupou_reduce_amount` INT(11)  COMMENT '优惠券优惠金额，单位（分）';
+ALTER TABLE m_order_product ADD `point_reduce_amount` INT(11)  COMMENT '积分优惠金额，单位（分）';
 UPDATE m_order_product SET order_sub_no = order_no;
 
 CREATE TABLE m_order_sub
@@ -43,3 +46,25 @@ CREATE TABLE m_logistics_product
 );
 
 ALTER TABLE m_logistics_product COMMENT '包裹对应的商品';
+
+--主订单的仓库存储到子订单中
+SELECT 
+  CONCAT(
+    'update m_order_product set channel_id = ',o.`chanelid`,' where order_no = "',o.`order_no`,'";'
+  ) 
+FROM
+  m_order o 
+  LEFT JOIN m_order_product p 
+    ON o.order_no = p.order_no WHERE o.order_no IS NOT NULL;
+UPDATE m_order_product SET order_sub_no = order_no;
+--子订单的积分抵扣金额，存储到父订单中
+SELECT 
+  CONCAT(
+    'update m_order set point_money = ',
+    product.`deduct_price`
+  ) 
+FROM
+  m_order_product product,
+  m_order m 
+WHERE product.`order_no` = m.`order_no` 
+  AND product.`deduct_price` > 0 

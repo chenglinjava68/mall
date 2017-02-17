@@ -65,11 +65,11 @@ public class TestMallGoodsService {
         OrderCheckReq req = new OrderCheckReq();
         List<OrderCheckParamInfo> commitOrderInfos = Lists.newArrayList();
         OrderCheckParamInfo commitOrderInfo = new OrderCheckParamInfo();
-        commitOrderInfo.setGoodsId(1L);
+        commitOrderInfo.setGoodsId(5L);
         commitOrderInfo.setQuantity(1);
         commitOrderInfos.add(commitOrderInfo);
         OrderCheckParamInfo commitOrderInfo2 = new OrderCheckParamInfo();
-        commitOrderInfo2.setGoodsId(5L);
+        commitOrderInfo2.setGoodsId(14L);
         commitOrderInfo2.setQuantity(1);
         commitOrderInfos.add(commitOrderInfo2);
         req.setOrderCheckParamInfos(commitOrderInfos);

@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.validator.order;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -66,37 +67,31 @@ public class ProductValidateService {
         // list to map ，方便获取
         Map<Long, OrderCheckInfo> orderCheckInfoMap = Maps.newHashMap();
         for (OrderCheckInfo orderCheckInfo : orderCheckDetail.getOrderCheckInfo()) {
-            if(null == orderCheckInfoMap.get(orderCheckInfo.getGoodsId())){
+            if (null == orderCheckInfoMap.get(orderCheckInfo.getGoodsId())) {
                 orderCheckInfoMap.put(orderCheckInfo.getGoodsId(), orderCheckInfo);
             }
-            
+
         }
 
-        //检查单个商品
+        // 检查单个商品
         for (MOrderGoodsParam orderGoodsParam : addBookingParam.getGoodsList()) {
             checkSingleProduct(addBookingParam, orderGoodsParam, orderCheckInfoMap, output);
             if (!output.getResultCode().equals(ResultCode.SUCCESS)) {
                 return;
             }
         }
-
-        //比较订单总价
-        if(addBookingParam.getTotalAmount().intValue() != orderCheckDetail.getTotalPrice().intValue()){
-            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
-            output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
-            return;
-        }
-        //比较积分
-        if(null != orderCheckDetail.getPointDeductValue()){
-            if(addBookingParam.getPoint().intValue() != orderCheckDetail.getPointDeductValue().getCostPoints().intValue()){
-                output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
+        // 比较积分
+        if (null != orderCheckDetail.getPointDeductValue()) {
+            if (addBookingParam.getPoint().intValue() != orderCheckDetail.getPointDeductValue()
+                    .getCostPoints().intValue()) {
+                output.setResultCode(getClass(), MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
                 output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
                 return;
             }
         }
         orderCheckDetail.setOrderCheckInfoMap(orderCheckInfoMap);
         output.setData(orderCheckDetail);
-        
+
     }
 
     /**
@@ -109,39 +104,77 @@ public class ProductValidateService {
      * @return ResultVo
      * @throws
      */
-    public void checkSingleProduct(MAddBookingParam addBookingParam,MOrderGoodsParam orderGoodsParam,Map<Long,OrderCheckInfo> orderCheckInfoMap,ResultVo output){
-        
+    public void checkSingleProduct(MAddBookingParam addBookingParam,
+            MOrderGoodsParam orderGoodsParam, Map<Long, OrderCheckInfo> orderCheckInfoMap,
+            ResultVo output) {
+
         OrderCheckInfo orderCheckInfo = orderCheckInfoMap.get(orderGoodsParam.getGoodsId());
-        
-        //是否已经下架或未到开售时间
-        if(!Integer.valueOf(1).equals(orderCheckInfo.getStatus())){
-            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
-            output.setResultMsg("商品未到开售时间或者已经下架！skuId:"+orderCheckInfo.getGoodsId());
+
+        // 是否已经下架或未到开售时间
+        if (!Integer.valueOf(1).equals(orderCheckInfo.getStatus())) {
+            output.setResultCode(getClass(), MsgCode.VALIDATE_ORDER_STATUS_ERROR.getMsgCode());
+            output.setResultMsg("商品未到开售时间或者已经下架！skuId:" + orderCheckInfo.getGoodsId());
             return;
         }
 
-        //库存
-        if(null == orderCheckInfo.getStock() || orderGoodsParam.getQuantity() > orderCheckInfo.getStock()){
-            output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
-            output.setResultMsg(String.format("msg:%s,skuId:%s,quantity:%s", MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMessage(),
-                    orderCheckInfo.getGoodsId(),orderGoodsParam.getQuantity()));
+        // 库存
+        if (null == orderCheckInfo.getStock()
+                || orderGoodsParam.getQuantity() > orderCheckInfo.getStock()) {
+            output.setResultCode(getClass(), MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
+            output.setResultMsg(String.format("msg:%s,skuId:%s,quantity:%s",
+                    MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMessage(), orderCheckInfo.getGoodsId(),
+                    orderGoodsParam.getQuantity()));
             return;
         }
-        
-        //限购
-        if(orderCheckInfo.getMaxSaleQty() != null && orderCheckInfo.getMaxSaleQty() > 0) {
-            //查询用户已经购买的数量 
-            int queryUserProductSum = mOrderService.queryUserProductSum(addBookingParam.getMemberId(), orderCheckInfo.getGoodsId().intValue());
-            
-            logger.warn("限购：{}， 已购：{}， 准备购：{}", orderCheckInfo.getMaxSaleQty(), queryUserProductSum, orderGoodsParam.getQuantity());
-            
+
+        // 限购
+        if (orderCheckInfo.getMaxSaleQty() != null && orderCheckInfo.getMaxSaleQty() > 0) {
+            // 查询用户已经购买的数量
+            int queryUserProductSum =
+                    mOrderService.queryUserProductSum(addBookingParam.getMemberId(), orderCheckInfo
+                            .getGoodsId().intValue());
+
+            logger.warn("限购：{}， 已购：{}， 准备购：{}", orderCheckInfo.getMaxSaleQty(),
+                    queryUserProductSum, orderGoodsParam.getQuantity());
+
             int num = orderCheckInfo.getMaxSaleQty() - queryUserProductSum;
-            if(num < orderGoodsParam.getQuantity()) {
-                output.setResultCode(getClass(),MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
-                output.setResultMsg("您购买的总数量已经超过限制的数量，目前您最多只能购买：" + (num >=0 ? num : 0) + "件");
-                return ;
+            if (num < orderGoodsParam.getQuantity()) {
+                output.setResultCode(getClass(), MsgCode.VALIDATE_ORDER_STOCK_ERROR.getMsgCode());
+                output.setResultMsg("您购买的总数量已经超过限制的数量，目前您最多只能购买：" + (num >= 0 ? num : 0) + "件");
+                return;
             }
         }
-        return ;
+        return;
     }
+
+    /**
+     * 
+     * @Title: checkPayMoney
+     * @Description: 比较实付金额是否一致
+     * @param @param addBookingParam
+     * @param @param output
+     * @return void
+     * @throws
+     */
+    public void checkPayMoney(MAddBookingParam addBookingParam, ResultVo output) {
+        OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
+        int payMoney = orderCheckDetail.getTotalPrice() + orderCheckDetail.getTotalExpressFee();
+
+        if (null != orderCheckDetail.getPointDeductValue()) {
+            payMoney = payMoney - orderCheckDetail.getPointDeductValue().getPointValue();
+        }
+        if (null != addBookingParam.getCouponId() && addBookingParam.getCouponId() > 0) {
+            payMoney =
+                    payMoney
+                            - addBookingParam.getCouponAmount().multiply(new BigDecimal(100))
+                                    .intValue();
+        }
+        if (addBookingParam.getTotalAmount() != payMoney) {
+            output.setResultCode(getClass(), MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
+            output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());
+            return;
+        }
+
+    }
+
 }

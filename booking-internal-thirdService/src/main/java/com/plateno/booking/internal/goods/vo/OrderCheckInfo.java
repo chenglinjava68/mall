@@ -31,9 +31,16 @@ public class OrderCheckInfo {
     
     private List<SkuProperty> skuProperties;
     
-    
+    private Integer expressFee;
     
  
+    
+    public Integer getExpressFee() {
+        return expressFee;
+    }
+    public void setExpressFee(Integer expressFee) {
+        this.expressFee = expressFee;
+    }
     public Long getSpuId() {
         return spuId;
     }

@@ -69,7 +69,21 @@ public class OrderProduct implements Serializable {
     
     private int coupouReduceAmount;//优惠券优惠金额
     
+    private Integer expressAmount;
+    
     private static final long serialVersionUID = 1L;
+
+    
+    
+
+
+    public Integer getExpressAmount() {
+        return expressAmount;
+    }
+
+    public void setExpressAmount(Integer expressAmount) {
+        this.expressAmount = expressAmount;
+    }
 
     public Integer getProductCost() {
 		return productCost;

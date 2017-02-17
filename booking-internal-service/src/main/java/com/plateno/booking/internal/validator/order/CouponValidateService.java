@@ -80,6 +80,7 @@ public class CouponValidateService {
         OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
         orderCheckDetail.setCouponProductList(couponProductList);
         List<OrderCheckInfo> orderCheckInfos = orderCheckDetail.getOrderCheckInfo();
+        
         //判断是否有商品符合，查询出使用商品以及适用商品的金额
         if(null != extAttrs.get("productId")){
             List<AttrValInfo> productAttrValInfoList = extAttrs.get("productId");
@@ -90,7 +91,7 @@ public class CouponValidateService {
             for(String temp : productIdArr){
                 for(OrderCheckInfo orderCheckInfo : orderCheckInfos){
                     //优惠券的适用商品为spuId
-                    if(orderCheckInfo.getSpuId() == Long.valueOf(temp)){
+                    if(orderCheckInfo.getSpuId().equals(Long.valueOf(temp))){
                         productApplyAmout += orderCheckInfo.getPrice() * orderCheckInfo.getQuantity();
                         couponProductList.add(orderCheckInfo);
                         hasProduct = true;
@@ -118,7 +119,6 @@ public class CouponValidateService {
             String[]  couponAmoutStrArr = couponAmoutStr.split("-");
             BigDecimal couponOrderAmout = new BigDecimal(couponAmoutStrArr[0]);
             //商品金额是分，优惠券金额为元，需同步,将适用商品订单金额除以100
-            
             if(productApplyAmoutBig.compareTo(couponOrderAmout) < 0){
                 logger.error("memberId:{}, couponId:{}, 适用商品金额:{}小于优惠券限制金额:{}", addBookingParam.getMemberId(), addBookingParam.getCouponId(),productApplyAmoutBig,couponOrderAmout);
                 output.setResultCode(getClass(), ResultCode.FAILURE);
@@ -132,5 +132,8 @@ public class CouponValidateService {
         addBookingParam.setValidCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
         
     }
+    
+    
+    
     
 }
