@@ -10,3 +10,7 @@
 *.mvn
 *.settings
 *.classpath
+booking-internal-dao/bin/pom.xml
+booking-internal-email/bin/pom.xml
+booking-internal-hotel/bin/pom.xml
+booking-internal-interceptor/bin/pom.xml
