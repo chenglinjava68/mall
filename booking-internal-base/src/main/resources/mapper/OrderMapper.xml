@@ -772,6 +772,9 @@
      <if test="record.receiverMobile != null and record.receiverMobile != ''" >
    	  AND exists (select order_no from m_logistics where consignee_mobile = #{record.receiverMobile})
      </if>
+     <if test="record.productName != null and record.productName != ''" >
+   	  AND exists (select order_no from m_order_product where product_name like CONCAT('%',#{record.productName},'%'))
+     </if>     
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
         LIMIT #{record.pageNo,jdbcType=INTEGER} ,#{record.pageNumber,jdbcType=INTEGER}
@@ -793,6 +796,9 @@
       <if test="record.mobile != null &amp;&amp; record.mobile != ''" >
         AND mobile = #{record.mobile,jdbcType=VARCHAR}
       </if>
+	<if test="record.sid != null and record.sid > 0" >
+   	  AND sid = #{record.sid}
+     </if>
       
       <if test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0" >
         	<![CDATA[ 
@@ -806,18 +812,17 @@
         		]]>
       </if>
       
-        <if test="record.resource != null" >
-   	  AND resource = #{record.resource,jdbcType=INTEGER}
-     </if>
-      
        <if test="record.payStatus != null &amp;&amp; record.payStatus != ''" >
       AND pay_status = #{record.payStatus,jdbcType=VARCHAR}
       </if>
       
-      <if test="record.channelId != null" >
-   	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
+       <if test="record.resource != null" >
+   	  AND resource = #{record.resource,jdbcType=INTEGER}
      </if>
      
+     <if test="record.channelId != null" >
+   	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
+     </if>
      <if test="record.statusList != null and record.statusList.size() > 0">
 		<![CDATA[ and pay_status in  ]]>
 		<foreach item="item" index="index" collection="record.statusList"
@@ -829,7 +834,6 @@
 	<if test="record.name != null and record.name != ''" >
    	  AND name LIKE CONCAT('%',#{record.name},'%')
      </if>
-     
      <if test="record.queryDel == null or record.queryDel == false" >
      	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
      </if>
@@ -837,6 +841,20 @@
      <if test="record.memberId != null and record.memberId != ''" >
      	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
      </if>
+     
+     <if test="record.receiver != null and record.receiver != ''" >
+   	  AND exists (select order_no from m_logistics where consignee_name like CONCAT('%',#{record.receiver},'%'))
+     </if>
+     <if test="record.receiverMobile != null and record.receiverMobile != ''" >
+   	  AND exists (select order_no from m_logistics where consignee_mobile = #{record.receiverMobile})
+     </if>
+     <if test="record.productName != null and record.productName != ''" >
+   	  AND exists (select order_no from m_order_product where product_name like CONCAT('%',#{record.productName},'%'))
+     </if>     
+	  ORDER BY create_time desc
+	<if test="record.showLimit" >
+        LIMIT #{record.pageNo,jdbcType=INTEGER} ,#{record.pageNumber,jdbcType=INTEGER}
+    </if>
 				
   </select>
   
