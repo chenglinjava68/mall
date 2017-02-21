@@ -244,6 +244,7 @@ public class OrderQueryService {
         sc.setCreateTime(order.getCreateTime().getTime());
 
         sc.setPayMoney(order.getPayMoney());
+        sc.setCurrencyDepositAmount(order.getCurrencyDepositAmount());
         sc.setSubResource(order.getSubResource());
 
         // 退款金额（如果已经生成退款金额，就是实际退款的金额，否则是可以退款的金额）
@@ -288,6 +289,7 @@ public class OrderQueryService {
             }
         }
 
+        //查询商品信息
         OrderProductExample example = new OrderProductExample();
         example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
         List<OrderProduct> listProduct = orderProductMapper.selectByExample(example);

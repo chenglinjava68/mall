@@ -1,6 +1,5 @@
 package com.plateno.booking.internal.bean.response.custom;
 
-import java.util.Date;
 import java.util.List;
 
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
@@ -71,12 +70,24 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer subResource; 
 	
+	/**
+	 * 储值金额
+	 */
+	private Integer currencyDepositAmount;
 	
 	private List<ProductInfo> productInfos;
 	
 	
 	
-	public List<ProductInfo> getProductInfos() {
+	public Integer getCurrencyDepositAmount() {
+        return currencyDepositAmount;
+    }
+
+    public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+        this.currencyDepositAmount = currencyDepositAmount;
+    }
+
+    public List<ProductInfo> getProductInfos() {
         return productInfos;
     }
 
