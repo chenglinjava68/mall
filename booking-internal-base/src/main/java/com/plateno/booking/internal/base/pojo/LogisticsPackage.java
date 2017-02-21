@@ -5,6 +5,8 @@ public class LogisticsPackage {
 
     private String orderNo;
 
+    private String orderSubNo;
+
     private Integer logisticsType;
 
     private String logisticsNo;
@@ -27,6 +29,14 @@ public class LogisticsPackage {
 
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo == null ? null : orderNo.trim();
+    }
+
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo == null ? null : orderSubNo.trim();
     }
 
     public Integer getLogisticsType() {

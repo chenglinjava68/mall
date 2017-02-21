@@ -13,9 +13,11 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
+import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
@@ -39,6 +41,10 @@ public class OrderBuildService {
     private MLogisticsMapper mLogisticsMapper;
     
     @Autowired
+    private LogisticsPackageMapper packageMapper;
+    
+    
+    @Autowired
     private OrderProductMapper orderProductMapper;
     
     /**
@@ -51,7 +57,7 @@ public class OrderBuildService {
     * @return OrderInfo    
     * @throws
      */
-    public OrderInfo buildOrderInfo(Order order,Integer plateForm){
+    public OrderInfo buildOrderInfo(Order order,Integer plateForm ,Integer count){
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setCreateDate(order.getCreateTime().getTime());
         orderInfo.setOrderNo(order.getOrderNo());
@@ -74,7 +80,8 @@ public class OrderBuildService {
         orderInfo.setPayTime(order.getPayTime().getTime());
         orderInfo.setName(order.getName());
         orderInfo.setMobile(order.getMobile());
-        orderInfo.setFee(order.getTotalExpressCost());
+        //设置前端订单状态
+        orderInfo.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         if (order.getPayStatus().equals(1)) {
             orderInfo.setOrderDetailRemark("待付款，请你在30分钟内支付，否则订单取消");
         } else if (order.getPayStatus().equals(2)) {
@@ -82,7 +89,17 @@ public class OrderBuildService {
         } else if (order.getPayStatus().equals(3)) {
             orderInfo.setOrderDetailRemark("待发货，快递公司将会在三个工作日内进行发货");
         } else if (order.getPayStatus().equals(4)) {
-            orderInfo.setOrderDetailRemark("待收货，请留意电话进行快递查收");
+            //已发货状态，需要检查是否所有包裹都已经有快递单,如有未发货子订单，则为部分发货
+            LogisticsPackageExample example = new LogisticsPackageExample();
+            example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+            List list = packageMapper.selectByExample(example);
+            if(count != list.size()){
+                //部分发货状态
+                orderInfo.setViewStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
+                orderInfo.setOrderDetailRemark("您的订单已发出部分商品，其他商品将陆续发出，请您耐心等候。");
+            }else{
+                orderInfo.setOrderDetailRemark("待收货，请留意电话进行快递查收");
+            }
         } else if (order.getPayStatus().equals(5)) {
             orderInfo.setOrderDetailRemark("已完成，已确认收货，欢迎下次购买");
         } else if (order.getPayStatus().equals(6)) {
@@ -103,7 +120,6 @@ public class OrderBuildService {
                 .getRefundSuccesstime().getTime());
         orderInfo.setRefundAmount(order.getRefundAmount());
         orderInfo.setRefundReason(order.getRefundReason());
-        orderInfo.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         orderInfo.setPoint(order.getPoint());
         orderInfo.setOrderAmount(order.getAmount());//订单总金额
         orderInfo.setPayAmount(order.getPayMoney());//实付金额
@@ -194,10 +210,9 @@ public class OrderBuildService {
             SubOrderDetail subOrderDetail = new SubOrderDetail();
             subOrderDetail.setChannelId(orderProducts.get(0).getChannelId());
             subOrderDetail.setSubOrderNo(orderProducts.get(0).getOrderSubNo());
-            //订单状态暂时取父订单状态
+            //子订单状态取父订单状态，父订单的部分发货状态，需要查询包裹数量
             subOrderDetail.setSubOrderStatus(order.getPayStatus());
             subOrderDetail.setSubViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-            
             List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
             for (OrderProduct orderProduct : orderProducts) {
                 ProductInfo productInfo = new ProductInfo();

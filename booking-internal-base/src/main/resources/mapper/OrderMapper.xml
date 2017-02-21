@@ -720,6 +720,9 @@
       <if test="record.mobile != null &amp;&amp; record.mobile != ''" >
         AND mobile = #{record.mobile,jdbcType=VARCHAR}
       </if>
+	<if test="record.sid != null and record.sid > 0" >
+   	  AND sid = #{record.sid}
+     </if>
       
       <if test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0" >
         	<![CDATA[ 
@@ -763,6 +766,12 @@
      	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
      </if>
      
+     <if test="record.receiver != null and record.receiver != ''" >
+   	  AND exists (select order_no from m_logistics where consignee_name like CONCAT('%',#{record.receiver},'%'))
+     </if>
+     <if test="record.receiverMobile != null and record.receiverMobile != ''" >
+   	  AND exists (select order_no from m_logistics where consignee_mobile = #{record.receiverMobile})
+     </if>
 	  ORDER BY create_time desc
 	<if test="record.showLimit" >
         LIMIT #{record.pageNo,jdbcType=INTEGER} ,#{record.pageNumber,jdbcType=INTEGER}

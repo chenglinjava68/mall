@@ -27,7 +27,8 @@ ALTER TABLE m_order_sub COMMENT '子订单表';
 create table m_logistics_package
 (
    id                   int not null auto_increment,
-   order_no             varchar(45) comment '订单号',
+   order_no             varchar(45) comment '父订单号',
+   order_sub_no         varchar(45) comment '子订单号',
    logistics_type       int comment '快递类型',
    logistics_no         varchar(45) comment '快递单号',
    express_fee          int comment '快递费用',
@@ -37,15 +38,6 @@ create table m_logistics_package
 
 alter table m_logistics_package comment '订单包裹表';
 
-CREATE TABLE m_logistics_product
-(
-   id                   INT NOT NULL AUTO_INCREMENT,
-   package_id           INT,
-   order_product_id     INT COMMENT '订单商品表主键',
-   PRIMARY KEY (id)
-);
-
-ALTER TABLE m_logistics_product COMMENT '包裹对应的商品';
 
 --主订单的仓库存储到子订单中
 SELECT 

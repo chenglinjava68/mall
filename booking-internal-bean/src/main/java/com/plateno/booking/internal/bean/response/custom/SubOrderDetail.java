@@ -11,10 +11,18 @@ public class SubOrderDetail {
     private Integer subViewStatus;//子订单显示状态
     private Integer subOrderStatus;//子订单状态
     
+    private Integer packageStatus;//包裹状态
+    
     private List<ProductInfo> productInfo;
     
     
     
+    public Integer getPackageStatus() {
+        return packageStatus;
+    }
+    public void setPackageStatus(Integer packageStatus) {
+        this.packageStatus = packageStatus;
+    }
     public List<ProductInfo> getProductInfo() {
         return productInfo;
     }

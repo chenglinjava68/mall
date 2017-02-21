@@ -14,16 +14,12 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 
 	private static final long serialVersionUID = -5028619260613976314L;
 	
-//	@NotNull(message = "商品ID,不能为空")
-//	private Long goodsId;
 	
 	private List<MOrderGoodsParam> goodsList;
 	
 	@NotNull(message = "订单总价,不能为空")
 	private Integer totalAmount;
 	
-//	@NotNull(message = "选购数量,不能为空")
-//	private Integer quantity;
 
 	@NotNull(message = "收货人,不能为空")
 	@NotEmpty(message = "收货人,不能为空")
@@ -60,8 +56,6 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	private Integer sellStrategy;//销售策略 1:金额(积分不足会员） 2：积分+金额 （够积分的会员使用)
 	
 	private Integer point;//积分
-	
-//	private String skuProperties;//商品属性,按:分开;
 	
 	/**
 	 * 订单子来源
@@ -104,8 +98,11 @@ public class MAddBookingParam extends BaseParam implements Serializable {
      * 县
      */
     private String area;
-
     
+    /**
+     * 销售人员id
+     */
+    private int sid;
     
     
 	@Override
@@ -120,6 +117,25 @@ public class MAddBookingParam extends BaseParam implements Serializable {
                 + couponAmount + ", validCouponAmount=" + validCouponAmount + ", province="
                 + province + ", city=" + city + ", area=" + area + "]";
     }
+
+
+
+
+
+    public int getSid() {
+        return sid;
+    }
+
+
+
+
+
+    public void setSid(int sid) {
+        this.sid = sid;
+    }
+
+
+
 
 
     public List<MOrderGoodsParam> getGoodsList() {

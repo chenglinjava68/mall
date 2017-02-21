@@ -234,6 +234,76 @@ public class LogisticsPackageExample {
             return (Criteria) this;
         }
 
+        public Criteria andOrderSubNoIsNull() {
+            addCriterion("order_sub_no is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoIsNotNull() {
+            addCriterion("order_sub_no is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoEqualTo(String value) {
+            addCriterion("order_sub_no =", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotEqualTo(String value) {
+            addCriterion("order_sub_no <>", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoGreaterThan(String value) {
+            addCriterion("order_sub_no >", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoGreaterThanOrEqualTo(String value) {
+            addCriterion("order_sub_no >=", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLessThan(String value) {
+            addCriterion("order_sub_no <", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLessThanOrEqualTo(String value) {
+            addCriterion("order_sub_no <=", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLike(String value) {
+            addCriterion("order_sub_no like", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotLike(String value) {
+            addCriterion("order_sub_no not like", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoIn(List<String> values) {
+            addCriterion("order_sub_no in", values, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotIn(List<String> values) {
+            addCriterion("order_sub_no not in", values, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoBetween(String value1, String value2) {
+            addCriterion("order_sub_no between", value1, value2, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotBetween(String value1, String value2) {
+            addCriterion("order_sub_no not between", value1, value2, "orderSubNo");
+            return (Criteria) this;
+        }
+
         public Criteria andLogisticsTypeIsNull() {
             addCriterion("logistics_type is null");
             return (Criteria) this;

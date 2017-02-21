@@ -502,7 +502,7 @@ public class MOrderService {
         order.setPayStatus(orderStatus);
         // 退款金额
         order.setRefundAmount(0);
-        order.setSid(0);
+        order.setSid(book.getSid());
         order.setUpTime(new Date());
         long currentTime = System.currentTimeMillis() + 30 * 60 * 1000;
         order.setWaitPayTime(new Date(currentTime));// 加上30分钟

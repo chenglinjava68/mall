@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
+import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.model.bill.OrderProductInfo;
+import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
@@ -52,6 +54,9 @@ public class OrderQueryService {
     private OrderPayLogMapper orderPayLogMapper;
     @Autowired
     private OrderBuildService orderBuildService;
+    @Autowired
+    private LogisticsPackageMapper packageMapper;
+    
     
     /**
      * 查询订单信息,并支持分页处理
@@ -93,9 +98,6 @@ public class OrderQueryService {
 
         List<Order> orderReturns = mallOrderMapper.getPageOrders(param);
         vo = new ResultVo<LstOrder<SelectOrderResponse>>();
-        /*
-         * if (CollectionUtils.isEmpty(orderReturns)){ return vo; }
-         */
 
         for (Order order : orderReturns) {
             paramsDeal(order, list);
@@ -220,9 +222,11 @@ public class OrderQueryService {
     private OrderDetail beansDeal(List<Order> listOrder, Integer plateForm) {
         Order order = listOrder.get(0);
         OrderDetail orderDetail = new OrderDetail();
-        orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm));
-        orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order, plateForm));
         orderDetail.setSubOrderDetails(orderBuildService.buildSubOrderDetail(order));
+        //子订单数量
+        int count = orderBuildService.buildSubOrderDetail(order).size();
+        orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm , count));
+        orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order, plateForm));
         return orderDetail;
     }
 
@@ -252,8 +256,18 @@ public class OrderQueryService {
 
         sc.setRefundAmount(refundAmount);
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
+        //已发货，查询是否所有子订单都有订单号
+        if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getPayStatus()){
+            int count = orderProductMapper.queryOrderSubNoCount(order.getOrderNo());
+            LogisticsPackageExample example = new LogisticsPackageExample();
+            example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+            List packageList = packageMapper.selectByExample(example);
+            //部分订单未发货
+            if(count != packageList.size()){
+                sc.setViewStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
+            }
+        }
         sc.setLogicDel(order.getLogicDel());
-
 
         // 查询物流信息
         MLogisticsExample mLogisticsExample = new MLogisticsExample();

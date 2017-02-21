@@ -43,5 +43,8 @@ public interface OrderProductMapper extends BaseMapper<OrderProduct,OrderProduct
 	* @throws
 	 */
 	List<OrderProduct> queryProductByPackageId(@Param("packageId")Integer packageId);
+	
+	int queryOrderSubNoCount(@Param("orderNo")String orderNo);
+	
    
 }

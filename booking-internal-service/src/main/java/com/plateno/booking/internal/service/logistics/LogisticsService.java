@@ -48,7 +48,7 @@ public class LogisticsService {
             return packageProductList;
         
         MLogistics mLogistics = mLogisticsList.get(0);
-        //假如存在订单号，则为旧的数据
+        //假如存在快递单号，则为旧的数据
         if(StringUtils.isNotBlank(mLogistics.getLogisticsNo())){
             PackageProduct packageProduct = new PackageProduct();
             packageProduct.setLogisticsNo(mLogistics.getLogisticsNo());
@@ -84,8 +84,11 @@ public class LogisticsService {
                 packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(logisticsPackage.getLogisticsType()));
                 packageProduct.setExpressFee(logisticsPackage.getExpressFee());
                 
+                //根据子订单号查询订单商品数据
                 List<ProductInfo> productInfos = Lists.newArrayList();
-                List<OrderProduct> orderProducts = orderProductMapper.queryProductByPackageId(logisticsPackage.getId());
+                OrderProductExample orderproductExample = new OrderProductExample();
+                orderproductExample.createCriteria().andOrderSubNoEqualTo(logisticsPackage.getOrderSubNo());
+                List<OrderProduct> orderProducts = orderProductMapper.selectByExample(orderproductExample);
                 for(OrderProduct temp : orderProducts){
                     ProductInfo productInfo = new ProductInfo();
                     productInfo.setProductId(temp.getProductId());
