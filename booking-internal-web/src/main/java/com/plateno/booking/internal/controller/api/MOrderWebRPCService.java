@@ -271,7 +271,8 @@ public class MOrderWebRPCService extends BaseController{
 			param.setPayType(1);
 		}
 		
-		if(param.getPayType() != 1 && param.getPayType() != 2) {
+		//todo，后续再用枚举
+		if(param.getPayType() != 1 && param.getPayType() != 2 && param.getPayType() != 3 && param.getPayType() != 4 && param.getPayType() != 5) {
 			ResultVo<Object> out = new ResultVo<Object>();
 			out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
 			out.setResultMsg("请输入正确的支付方式:" + param.getPayType());
