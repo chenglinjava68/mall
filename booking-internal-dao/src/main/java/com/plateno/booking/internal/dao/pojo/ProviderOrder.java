@@ -1,10 +1,11 @@
 package com.plateno.booking.internal.dao.pojo;
 
+import java.util.Date;
 import java.util.List;
 
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 
-public class ProviderOrderResponse {
+public class ProviderOrder {
 
     /**
      * 子订单号
@@ -49,8 +50,7 @@ public class ProviderOrderResponse {
 
     private List<ProductInfo> productInfos;
     
-    
-    
+
     
     public List<ProductInfo> getProductInfos() {
         return productInfos;

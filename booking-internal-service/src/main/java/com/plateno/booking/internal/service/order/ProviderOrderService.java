@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.order;
 
+import java.nio.file.ProviderMismatchException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.model.ProviderOrderDetailParam;
 import com.plateno.booking.internal.base.model.ProviderOrderParam;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
@@ -19,7 +21,8 @@ import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.dao.mapper.ProviderOrderMapper;
-import com.plateno.booking.internal.dao.pojo.ProviderOrderResponse;
+import com.plateno.booking.internal.dao.pojo.ProviderOrder;
+import com.plateno.booking.internal.dao.pojo.ProviderOrderDetail;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 
 @Service
@@ -37,10 +40,10 @@ public class ProviderOrderService {
     @Autowired
     private LogisticsPackageMapper packageMapper;
     
-    public ResultVo<LstOrder<ProviderOrderResponse>> queryOrderByPage(ProviderOrderParam param){
-        ResultVo<LstOrder<ProviderOrderResponse>> vo = new ResultVo<LstOrder<ProviderOrderResponse>>();
-        LstOrder<ProviderOrderResponse> lst = new LstOrder<ProviderOrderResponse>();
-        List<ProviderOrderResponse> list = new ArrayList<ProviderOrderResponse>();
+    public ResultVo<LstOrder<ProviderOrder>> queryOrderByPage(ProviderOrderParam param){
+        ResultVo<LstOrder<ProviderOrder>> vo = new ResultVo<LstOrder<ProviderOrder>>();
+        LstOrder<ProviderOrder> lst = new LstOrder<ProviderOrder>();
+        List<ProviderOrder> list = new ArrayList<ProviderOrder>();
         // 显示状态转变成数据库记录的状态
         if (param.getViewStatus() != null) {
             List<Integer> payStatus = PayStatusEnum.toPayStatus(param.getViewStatus());
@@ -54,17 +57,19 @@ public class ProviderOrderService {
         list = providerOrderMapper.queryProviderOrder(param);
         buildProviderOrder(list);
         
-        Double num = (Double.valueOf(5) / Double.valueOf(param.getPageNumber()));
+        int count = providerOrderMapper.countProviderOrder(param);
+        
+        Double num = (Double.valueOf(count) / Double.valueOf(param.getPageNumber()));
         lst.setPageSize(param.getPageNumber());
-        lst.setTotal(5);
+        lst.setTotal(count);
         lst.setOrderList(list);
         lst.setTotalPage(new Double(Math.ceil(num)).intValue());
         vo.setData(lst);
         return vo;
     }
     
-    private void buildProviderOrder(List<ProviderOrderResponse> list){
-        for(ProviderOrderResponse provider : list){
+    private void buildProviderOrder(List<ProviderOrder> list){
+        for(ProviderOrder provider : list){
             
             provider.setViewStatus(PayStatusEnum.toViewStatus(provider.getSubPayStatus()));
             //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
@@ -75,7 +80,6 @@ public class ProviderOrderService {
                 if(CollectionUtils.isNotEmpty(packageList))
                     provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
-            
             
             //查询商品信息
             OrderProductExample example = new OrderProductExample();
@@ -111,13 +115,22 @@ public class ProviderOrderService {
                 if(null != productInfo.getExpressAmount())
                     productPay += productInfo.getExpressAmount();
                 
+                sumAmount += productPay;
+                
             }
+            provider.setSubPayMoney(sumAmount);
             provider.setProductInfos(productInfoList);
             
         }
-        
-        
     }
     
+    
+    public ResultVo<ProviderOrderDetail> queryOrderDetail(ProviderOrderDetailParam  param){
+        ResultVo<ProviderOrderDetail> result = new ResultVo<ProviderOrderDetail>();
+        ProviderOrderDetail detail = providerOrderMapper.queryProviderOrderDetail(param.getOrderSubNo());
+        
+        result.setData(detail);
+        return result;
+    }
     
 }

@@ -77,6 +77,14 @@ public class OrderProduct implements Serializable {
     
 
 
+    public Integer getCoupouReduceAmount() {
+        return coupouReduceAmount;
+    }
+
+    public void setCoupouReduceAmount(Integer coupouReduceAmount) {
+        this.coupouReduceAmount = coupouReduceAmount;
+    }
+
     public Integer getExpressAmount() {
         return expressAmount;
     }
@@ -261,13 +269,7 @@ public class OrderProduct implements Serializable {
         this.providedId = providedId;
     }
 
-    public int getCoupouReduceAmount() {
-        return coupouReduceAmount;
-    }
 
-    public void setCoupouReduceAmount(int coupouReduceAmount) {
-        this.coupouReduceAmount = coupouReduceAmount;
-    }
 	
 	
 }
