@@ -258,7 +258,7 @@ public class OrderQueryService {
         sc.setRefundAmount(refundAmount);
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         //已发货，查询是否所有子订单都有订单号
-        if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getPayStatus()){
+        if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
             int count = orderProductMapper.queryOrderSubNoCount(order.getOrderNo());
             LogisticsPackageExample example = new LogisticsPackageExample();
             example.createCriteria().andOrderNoEqualTo(order.getOrderNo());

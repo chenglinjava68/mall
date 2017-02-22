@@ -392,10 +392,48 @@ public class OrderDetail implements java.io.Serializable{
 		
 		private String goodsUrl;//商品详情地址
 		
+		/**
+		 * 优惠券优惠金额
+		 */
+		private Integer coupouReduceAmount;
 		
+	    /**
+	     * 积分抵扣价格
+	     */
+	    private Integer deductPrice;
 		
+	    /**
+	     * 快递费
+	     */
+	    private Integer expressAmount;
 
-		public String getGoodsUrl() {
+	    
+
+        public Integer getExpressAmount() {
+            return expressAmount;
+        }
+
+        public void setExpressAmount(Integer expressAmount) {
+            this.expressAmount = expressAmount;
+        }
+
+        public Integer getCoupouReduceAmount() {
+            return coupouReduceAmount;
+        }
+
+        public void setCoupouReduceAmount(Integer coupouReduceAmount) {
+            this.coupouReduceAmount = coupouReduceAmount;
+        }
+
+        public Integer getDeductPrice() {
+            return deductPrice;
+        }
+
+        public void setDeductPrice(Integer deductPrice) {
+            this.deductPrice = deductPrice;
+        }
+
+        public String getGoodsUrl() {
             return goodsUrl;
         }
 

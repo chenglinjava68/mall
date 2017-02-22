@@ -67,7 +67,7 @@ public class OrderProduct implements Serializable {
     
     private int providedId;//供应商id
     
-    private int coupouReduceAmount;//优惠券优惠金额
+    private Integer coupouReduceAmount;//优惠券优惠金额
     
     private Integer expressAmount;
     
