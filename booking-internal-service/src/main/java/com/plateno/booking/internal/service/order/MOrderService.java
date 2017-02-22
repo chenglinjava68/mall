@@ -1516,7 +1516,11 @@ public class MOrderService {
                     return;
                 }
                 if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-                    logger.info(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                    logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                    orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                    orderPayLog.setUpTime(new Date());
+                    orderPayLog.setRemark(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                    orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
                     return;
                 }
             }else{
@@ -1530,7 +1534,14 @@ public class MOrderService {
 
                 if (cashierRefundQueryResponse == null
                         || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
-                    logger.warn("查询支付网关订单失败,tranNo:", orderPayLog.getTrandNo());
+                    logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
+                    String remark = "查询支付网关订单失败,";
+                    if(null != cashierRefundQueryResponse && null != cashierRefundQueryResponse.getResult())
+                        remark += cashierRefundQueryResponse.getResult().toString();
+                    orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                    orderPayLog.setUpTime(new Date());
+                    orderPayLog.setRemark(remark);
+                    orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
                     return;
                 }
             }

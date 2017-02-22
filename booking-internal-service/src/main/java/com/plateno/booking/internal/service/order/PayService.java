@@ -280,40 +280,51 @@ public class PayService {
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void handlePayingLog(OrderPayLog orderPayLog) throws Exception {
-        logger.info("支付中订单处理，orderId:{}, trandNo:{}", orderPayLog.getOrderId(), orderPayLog.getTrandNo());
+        logger.info("支付中订单处理，orderId:{}, trandNo:{}", orderPayLog.getOrderId(),
+                orderPayLog.getTrandNo());
         // 获取网关的订单状态
         PayQueryReq req = new PayQueryReq();
         req.setTradeNo(orderPayLog.getTrandNo());
         req.setUpdatePayStatusFlag(1);
         CashierPayQueryResponse cashierPayQueryResponse = cashierDeskService.payQuery(req);
-        logger.info("trandNo:{}, 查询支付网关支付状态:{}", orderPayLog.getTrandNo(), JsonUtils.toJsonString(cashierPayQueryResponse));
+        logger.info("trandNo:{}, 查询支付网关支付状态:{}", orderPayLog.getTrandNo(),
+                JsonUtils.toJsonString(cashierPayQueryResponse));
 
         // 失败状态则直接返回
-        if (cashierPayQueryResponse == null || cashierPayQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
+        if (cashierPayQueryResponse == null
+                || cashierPayQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
             logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
+            orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+            orderPayLog.setUpTime(new Date());
+            String remark = "";
+            if(null != cashierPayQueryResponse.getResult())
+                remark = cashierPayQueryResponse.getResult().toString();
+            orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage()+ "," + remark);
+            orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
             return;
         }
-        
+
         PayQueryVo payQueryVo = cashierPayQueryResponse.getResult();
         BookingPayQueryVo bookingPayQueryVo = new BookingPayQueryVo();
         BeanUtils.copyProperties(bookingPayQueryVo, payQueryVo);
-        
+
         orderPayLog.setRemark("支付成功：主动查询更新");
         doWithOrderPayLogAndOrder(orderPayLog, bookingPayQueryVo);
-        
+
     }
-    
+
     /**
      * 
-    * @Title: doWithOrderPayLogAndOrder 
-    * @Description: 处理order_pay_log以及order
-    * @param @param orderPayLog
-    * @param @param bookingPayQueryVo
-    * @param @throws Exception    
-    * @return void    
-    * @throws
+     * @Title: doWithOrderPayLogAndOrder
+     * @Description: 处理order_pay_log以及order
+     * @param @param orderPayLog
+     * @param @param bookingPayQueryVo
+     * @param @throws Exception
+     * @return void
+     * @throws
      */
-    public void doWithOrderPayLogAndOrder(OrderPayLog orderPayLog,BookingPayQueryVo bookingPayQueryVo) throws Exception{
+    public void doWithOrderPayLogAndOrder(OrderPayLog orderPayLog,
+            BookingPayQueryVo bookingPayQueryVo) throws Exception {
         checkOrderPayLog(bookingPayQueryVo, orderPayLog);
         doSuccessOrderPayLog(bookingPayQueryVo, orderPayLog);
         Order order = orderMapper.selectByPrimaryKey(orderPayLog.getOrderId());
@@ -322,22 +333,25 @@ public class PayService {
         // 更新订单状态
         doUpdateOrderStatus(order, bookingPayQueryVo);
     }
-    
-    
-    private void checkOrderPayLog(BookingPayQueryVo bookingPayQueryVo, OrderPayLog orderPayLog){
+
+
+    private void checkOrderPayLog(BookingPayQueryVo bookingPayQueryVo, OrderPayLog orderPayLog) {
         // 判断是否已经处理
         if (orderPayLog.getStatus() != BookingConstants.BILL_LOG_NORMAL) {
-            logger.warn("流水已经处理, trand_no：{}，status：{}", bookingPayQueryVo.getTradeNo(), orderPayLog.getStatus());
-            throw new RuntimeException("流水已经处理"+bookingPayQueryVo.getTradeNo());
+            logger.warn("流水已经处理, trand_no：{}，status：{}", bookingPayQueryVo.getTradeNo(),
+                    orderPayLog.getStatus());
+            throw new RuntimeException("流水已经处理" + bookingPayQueryVo.getTradeNo());
         }
 
-        if (bookingPayQueryVo.getAmount() == null || !bookingPayQueryVo.getAmount().equals(orderPayLog.getAmount())) {
+        if (bookingPayQueryVo.getAmount() == null
+                || !bookingPayQueryVo.getAmount().equals(orderPayLog.getAmount())) {
             logger.warn("trand_no:{}, 流水金额和支付金额不对应，支付金额被篡改, orderMoney:{}, payMoney:{}",
-                    orderPayLog.getTrandNo(), orderPayLog.getAmount(), bookingPayQueryVo.getAmount());
+                    orderPayLog.getTrandNo(), orderPayLog.getAmount(),
+                    bookingPayQueryVo.getAmount());
             throw new RuntimeException("实付金额与网关金额对应不上");
         }
     }
-    
+
     private void doSuccessOrderPayLog(BookingPayQueryVo bookingPayQueryVo, OrderPayLog log) {
 
         OrderPayLogExample example = new OrderPayLogExample();
@@ -348,14 +362,14 @@ public class PayService {
         record.setGatewayAmount(bookingPayQueryVo.getGatewayAmount());
         // 更新支付流水
         record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-        record.setRemark(StringUtils.isNotBlank(log.getRemark()) ? log.getRemark() :"支付成功");
+        record.setRemark(StringUtils.isNotBlank(log.getRemark()) ? log.getRemark() : "支付成功");
         int row = orderPayLogMapper.updateByExampleSelective(record, example);
         if (row < 1) {
             logger.warn("流水已经处理, trand_no：" + bookingPayQueryVo.getTradeNo());
-            throw new RuntimeException("流水已经处理"+bookingPayQueryVo.getTradeNo());
+            throw new RuntimeException("流水已经处理" + bookingPayQueryVo.getTradeNo());
         }
     }
-    
+
     private void checkOrderStatus(Order order, OrderPayLog log) {
         if (order == null) {
             logger.warn("找不到对应的订单, orderId:{}", log.getOrderId());
@@ -368,8 +382,9 @@ public class PayService {
             throw new RuntimeException("订单状态非支付中");
         }
     }
-    
-    private void doUpdateOrderStatus(Order order, BookingPayQueryVo bookingPayQueryVo) throws Exception {
+
+    private void doUpdateOrderStatus(Order order, BookingPayQueryVo bookingPayQueryVo)
+            throws Exception {
         Order updateOrder = new Order();
         updateOrder.setUpTime(new Date());
         updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
@@ -390,5 +405,5 @@ public class PayService {
         }
         logger.info("更新订单状态, orderNo：{}, row:{}", order.getOrderNo(), row);
     }
-    
+
 }
