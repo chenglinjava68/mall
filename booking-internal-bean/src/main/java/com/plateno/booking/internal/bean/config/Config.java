@@ -54,6 +54,7 @@ public class Config {
    public static String	MERCHANT_NO;
    public static String MERCHANT_PAY_URL;
    public static String MERCHANT_CASHIER_PAY_URL;
+   public static String MERCHANT_CASHIER_KEY;
    
    public static String PAYGATE_REFUND_CALLBACK;
    
@@ -158,6 +159,7 @@ public class Config {
   	    MERCHANT_NO= PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MERCHANT_NO");
   	    MERCHANT_PAY_URL = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MERCHANT_PAY_URL");
   	    MERCHANT_CASHIER_PAY_URL = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MERCHANT_CASHIER_PAY_URL");
+  	    MERCHANT_CASHIER_KEY= PropertiesUtil.readPropertiesTools(PROFILE_CXF, "MERCHANT_CASHIER_KEY");
   	    PAYGATE_REFUND_CALLBACK = PropertiesUtil.readPropertiesTools(PROFILE_CXF, "PAYGATE_REFUND_CALLBACK");
   	    
   	    TEMPLATEID = PropertiesUtil.readPropertiesTools(PROFILE_CXF,"WEIXIN_TEMPLATEID");

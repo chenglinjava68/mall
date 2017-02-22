@@ -116,7 +116,7 @@ public class CashierDeskService {
      */
     public String sign(CashierBaseParam req) throws IOException {
         req.setAppId("mall");// 商城为mall
-        req.setSignData(Config.MERCHANT_PAY_KEY);
+        req.setSignData(Config.MERCHANT_CASHIER_KEY);
         CashierJaxrsJacksonJsonObjectMapper jacksonMapper = new CashierJaxrsJacksonJsonObjectMapper();
         String signString = jacksonMapper.writeValueAsString(req);
         req.setSignData(MD5Maker.getMD5(signString));
