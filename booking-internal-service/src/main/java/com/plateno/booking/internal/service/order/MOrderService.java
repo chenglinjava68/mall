@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
+import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
@@ -29,6 +30,8 @@ import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
+import com.plateno.booking.internal.base.pojo.LogisticsPackage;
+import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
@@ -171,6 +174,9 @@ public class MOrderService {
     @Autowired
     private OrderStockService orderStockService;
 
+    @Autowired
+    private LogisticsPackageMapper packageMapper;
+    
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -352,7 +358,6 @@ public class MOrderService {
         List<Operatelog> listlogs = operatelogMapper.selectByExample(operatelogExample);
         for (Operatelog log : listlogs) {
             MOperateLogResponse response = new MOperateLogResponse();
-            // BeanUtils.copyProperties(log, response);
             response.setOperateTime(log.getOperateTime().getTime());
             response.setOperateType(log.getOperateType());
             response.setOperateUserid(log.getOperateUserid());
@@ -367,69 +372,7 @@ public class MOrderService {
     }
 
 
-    public ResultVo<Object> modifyReceiptInfo(ReceiptParam receiptParam) throws OrderException,
-            Exception {
-        ResultVo<Object> output = new ResultVo<Object>();
-
-        receiptParam.setReceiptAddress(StringUtils.trimToEmpty(receiptParam.getReceiptAddress()));
-        receiptParam.setReceiptMobile(StringUtils.trimToEmpty(receiptParam.getReceiptMobile()));
-        receiptParam.setReceiptName(StringUtils.trimToEmpty(receiptParam.getReceiptName()));
-        receiptParam.setProvince(StringUtils.trimToEmpty(receiptParam.getProvince()));
-        receiptParam.setCity(StringUtils.trimToEmpty(receiptParam.getCity()));
-        receiptParam.setArea(StringUtils.trimToEmpty(receiptParam.getArea()));
-
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(receiptParam.getOrderNo(),
-                        receiptParam.getMemberId(), receiptParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-
-        MLogisticsExample mLogisticsExample = new MLogisticsExample();
-        mLogisticsExample.createCriteria().andOrderNoEqualTo(receiptParam.getOrderNo());
-        List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
-        if (CollectionUtils.isEmpty(listLogistic)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("查询不到对应的收货信息");
-            return output;
-        }
-        MLogistics logc = listLogistic.get(0);
-        /*
-         * logc.setConsigneeName(receiptParam.getReceiptName());
-         * logc.setConsigneeAddress(receiptParam.getReceiptAddress());
-         * logc.setConsigneeMobile(receiptParam.getReceiptMobile());
-         */
-
-        // 原始的地址不修改，只是修改最新的地址
-        logc.setConsigneeNewaddress(receiptParam.getReceiptAddress());
-        logc.setConsigneeNewMobile(receiptParam.getReceiptMobile());
-        logc.setConsigneeNewName(receiptParam.getReceiptName());
-        logc.setNewProvince(receiptParam.getProvince());
-        logc.setNewCity(receiptParam.getCity());
-        logc.setNewArea(receiptParam.getArea());
-        mLogisticsMapper.updateByPrimaryKeySelective(logc);
-
-
-        MOperateLogParam paramlog = new MOperateLogParam();
-        paramlog.setOperateType(OperateLogEnum.MODIFY_DELIVER_OP.getOperateType());
-        paramlog.setOperateUserid(receiptParam.getOperateUserid());
-        paramlog.setOperateUsername(receiptParam.getOperateUsername());
-        paramlog.setOrderCode(receiptParam.getOrderNo());
-        paramlog.setPlateForm(receiptParam.getPlateForm());
-        String remark =
-                OperateLogEnum.MODIFY_DELIVER_OP.getOperateName()
-                        + String.format(":%s|%s|%s|%s|%s|%s", receiptParam.getReceiptName(),
-                                receiptParam.getReceiptMobile(), receiptParam.getProvince(),
-                                receiptParam.getCity(), receiptParam.getArea(),
-                                receiptParam.getReceiptAddress());
-        remark = remark.length() > 99 ? remark.substring(0, 99) : remark;
-        paramlog.setRemark(remark);
-        operateLogService.saveOperateLog(paramlog);
-
-        return output;
-    }
+    
 
 
 
@@ -514,7 +457,7 @@ public class MOrderService {
         // 优惠券抵扣金额
         order.setCouponAmount(book.getValidCouponAmount() == null ? 0 : book.getValidCouponAmount()
                 .multiply(new BigDecimal("100")).intValue());
-        if(null != orderCheckDetail.getPointDeductValue()){
+        if (null != orderCheckDetail.getPointDeductValue()) {
             order.setPoint(orderCheckDetail.getPointDeductValue().getCostPoints());
             order.setPointMoney(orderCheckDetail.getPointDeductValue().getPointValue());
         }
@@ -552,35 +495,38 @@ public class MOrderService {
         op.setProvidedId(orderCheckInfo.getProviderId());
         op.setExpressAmount(orderCheckInfo.getExpressFee());
         if (order.getCouponAmount() > 0) {
-            //单个商品占用的优惠券金额
+            // 单个商品占用的优惠券金额
             op.setCoupouReduceAmount(countCouponAmout(order.getCouponAmount(), orderCheckDetail,
                     orderCheckInfo));
         }
-        if (null != order.getPoint() && order.getPoint() > 0 && order.getPointMoney() > 0){
+        if (null != order.getPoint() && order.getPoint() > 0 && order.getPointMoney() > 0) {
             op.setDeductPrice(countPointMoney(orderCheckDetail, orderCheckInfo));
         }
-        
+
         orderProductMapper.insertSelective(op);
     }
 
     /**
      * 
-    * @Title: countPointMoney 
-    * @Description: （商品金额/商品总价）*积分抵扣金额
-    * @param @param orderCheckDetail
-    * @param @param orderCheckInfo
-    * @param @return    
-    * @return int    
-    * @throws
+     * @Title: countPointMoney
+     * @Description: （商品金额/商品总价）*积分抵扣金额
+     * @param @param orderCheckDetail
+     * @param @param orderCheckInfo
+     * @param @return
+     * @return int
+     * @throws
      */
-    private int countPointMoney(OrderCheckDetail orderCheckDetail,OrderCheckInfo orderCheckInfo){
+    private int countPointMoney(OrderCheckDetail orderCheckDetail, OrderCheckInfo orderCheckInfo) {
         BigDecimal productBig = new BigDecimal(orderCheckInfo.getPrice());
         BigDecimal totalProductBig = new BigDecimal(orderCheckDetail.getTotalPrice());
-        BigDecimal pointMoneyBig = new BigDecimal(orderCheckDetail.getPointDeductValue().getPointValue());
-        int pointMoney = productBig.divide(totalProductBig).multiply(pointMoneyBig).setScale(2, BigDecimal.ROUND_HALF_UP).intValue();
+        BigDecimal pointMoneyBig =
+                new BigDecimal(orderCheckDetail.getPointDeductValue().getPointValue());
+        int pointMoney =
+                productBig.divide(totalProductBig).multiply(pointMoneyBig)
+                        .setScale(2, BigDecimal.ROUND_HALF_UP).intValue();
         return pointMoney;
     }
-    
+
     /**
      * 
      * @Title: countCouponAmout
@@ -593,7 +539,7 @@ public class MOrderService {
      */
     private int countCouponAmout(int couponAmout, OrderCheckDetail orderCheckDetail,
             OrderCheckInfo orderCheckInfo) {
-        
+
         // 查询是否在适用商品中
         for (OrderCheckInfo temp : orderCheckDetail.getCouponProductList()) {
             if (temp.getSpuId() == orderCheckInfo.getSpuId()) {
@@ -877,199 +823,6 @@ public class MOrderService {
         }
     }
 
-
-
-    /**
-     * 更新订单状态(发货通知)
-     * 
-     * @param orderParam
-     * @return
-     * @throws Exception
-     */
-    @Transactional
-    public ResultVo<Object> deliverOrder(final MOrderParam orderParam) throws Exception {
-        ResultVo<Object> output = new ResultVo<Object>();
-        // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-        orderValidate.checkDeliverOrder(listOrder.get(0), output);
-        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-            return output;
-        }
-
-        // 构造sql的过滤语句
-        CallMethod<Order> call = new CallMethod<Order>() {
-            @Override
-            void call(Criteria criteria, Order order) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-        CallLogisticMethod<MLogistics> callLogistic = new CallLogisticMethod<MLogistics>() {
-            @Override
-            void call(com.plateno.booking.internal.base.pojo.MLogisticsExample.Criteria criteria,
-                    MLogistics logistics) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-
-        Order order = new Order();
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);// 待发货==>待收货
-        order.setDeliverTime(new Date());
-        updateOrderStatusByNo(order, call);
-        orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
-                BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
-                ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode());
-
-
-        MLogistics logistics = new MLogistics();
-        logistics.setLogisticsNo(StringUtils.trimToEmpty(orderParam.getLogisticsNo()));
-        logistics.setLogisticsType(orderParam.getLogisticsType());
-        updatLogisticsNoByNo(logistics, callLogistic);
-
-
-        // 短信通知发货
-        final Order od = listOrder.get(0);
-        OrderProductExample orderProductExample = new OrderProductExample();
-        orderProductExample.createCriteria().andOrderNoEqualTo(orderParam.getOrderNo());
-        List<OrderProduct> productOrderList =
-                orderProductMapper.selectByExample(orderProductExample);
-        if (CollectionUtils.isEmpty(productOrderList)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单获取不到对应的产品信息");
-            return output;
-        }
-        final ProductSkuBean bean =
-                mallGoodsService.getProductAndskuStock(productOrderList.get(0).getSkuid()
-                        .toString());
-
-        // 发送到短信
-        DeliverGoodContent content = new DeliverGoodContent();
-        content.setObjectNo(od.getOrderNo());
-        content.setOrderCode(od.getOrderNo());
-        content.setName(bean.getTitle());
-        content.setExpress(LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
-        content.setExpressCode(StringUtils.isBlank(orderParam.getLogisticsNo()) ? "无" : orderParam
-                .getLogisticsNo());
-        phoneMsgService.sendPhoneMessageAsync(od.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
-                content);
-
-        MOperateLogParam paramlog = new MOperateLogParam();
-        paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
-        paramlog.setOperateUserid(orderParam.getOperateUserid());
-        paramlog.setOperateUsername(orderParam.getOperateUsername());
-        paramlog.setOrderCode(orderParam.getOrderNo());
-        paramlog.setPlateForm(orderParam.getPlateForm());
-        paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
-        operateLogService.saveOperateLog(paramlog);
-
-
-        return output;
-    }
-
-
-    public ResultVo<Object> modifydeliverOrder(final MOrderParam orderParam) throws Exception {
-        ResultVo<Object> output = new ResultVo<Object>();
-        // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-
-        // 构造sql的过滤语句
-        CallLogisticMethod<MLogistics> callLogistic = new CallLogisticMethod<MLogistics>() {
-            @Override
-            void call(com.plateno.booking.internal.base.pojo.MLogisticsExample.Criteria criteria,
-                    MLogistics logistics) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-
-
-        MLogistics logistics = new MLogistics();
-        // 物流改成自提，需要把原来的快递单号设置成空
-        logistics.setLogisticsNo(StringUtils.trimToEmpty(orderParam.getLogisticsNo()));
-        logistics.setLogisticsType(orderParam.getLogisticsType());
-        updatLogisticsNoByNo(logistics, callLogistic);
-
-
-        MOperateLogParam paramlog = new MOperateLogParam();
-        paramlog.setOperateType(OperateLogEnum.MODIFY_DELIVER_OP.getOperateType());
-        paramlog.setOperateUserid(orderParam.getOperateUserid());
-        paramlog.setOperateUsername(orderParam.getOperateUsername());
-        paramlog.setOrderCode(orderParam.getOrderNo());
-        paramlog.setPlateForm(orderParam.getPlateForm());
-        String remark =
-                OperateLogEnum.MODIFY_DELIVER_OP.getOperateName()
-                        + String.format(":%s|%s|%s", orderParam.getLogisticsNo(),
-                                orderParam.getLogisticsType(),
-                                LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
-        remark = remark.length() > 99 ? remark.substring(0, 99) : remark;
-        paramlog.setRemark(remark);
-        operateLogService.saveOperateLog(paramlog);
-
-
-        return output;
-    }
-
-
-    @Transactional(rollbackFor = Exception.class)
-    public ResultVo<Object> enterReceipt(final MOrderParam orderParam) throws Exception {
-        ResultVo<Object> output = new ResultVo<Object>();
-        // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-        orderValidate.checkEnterReceiptStatus(listOrder.get(0), output);
-        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-            return output;
-        }
-
-        // 构造sql的过滤语句
-        CallMethod<Order> call = new CallMethod<Order>() {
-            @Override
-            void call(Criteria criteria, Order order) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-        Order order = new Order();
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);// 确定收货操作==>已完成
-        order.setUpTime(new Date());
-        updateOrderStatusByNo(order, call);
-        orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
-                BookingResultCodeContants.PAY_STATUS_5, "确认收货", "手动确定收货", 0,
-                ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode());
-        // 如果是后台操作，取消记录操作日志
-        if (orderParam.getPlateForm() != null
-                && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam
-                        .getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
-
-            MOperateLogParam paramlog = new MOperateLogParam();
-            paramlog.setOperateType(OperateLogEnum.ENTER_RECEIPT.getOperateType());
-            paramlog.setOperateUserid(orderParam.getOperateUserid());
-            paramlog.setOperateUsername(orderParam.getOperateUsername());
-            paramlog.setOrderCode(orderParam.getOrderNo());
-            paramlog.setPlateForm(orderParam.getPlateForm());
-            paramlog.setRemark(OperateLogEnum.ENTER_RECEIPT.getOperateName());
-            operateLogService.saveOperateLog(paramlog);
-        }
-
-        return output;
-    }
 
 
     @Transactional(rollbackFor = Exception.class)

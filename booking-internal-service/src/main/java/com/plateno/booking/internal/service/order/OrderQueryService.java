@@ -226,7 +226,7 @@ public class OrderQueryService {
         //子订单数量
         int count = orderBuildService.buildSubOrderDetail(order).size();
         orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm , count));
-        orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order, plateForm));
+        orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order.getOrderNo(), plateForm));
         return orderDetail;
     }
 
@@ -256,6 +256,9 @@ public class OrderQueryService {
         }
 
         sc.setRefundAmount(refundAmount);
+        sc.setCouponAmount(order.getCouponAmount());
+        sc.setPointMoney(order.getPointMoney());
+        sc.setTotalExpressAmount(order.getTotalExpressAmount());
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         //已发货，查询是否所有子订单都有订单号
         if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){

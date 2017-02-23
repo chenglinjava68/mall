@@ -77,9 +77,47 @@ public class SelectOrderResponse implements java.io.Serializable{
 	
 	private List<ProductInfo> productInfos;
 	
+    /**
+     * 优惠券抵扣金额
+     */
+    private Integer couponAmount;
+    /**
+     * 积分抵扣金额
+     */
+    private Integer pointMoney;
 	
-	
-	public Integer getCurrencyDepositAmount() {
+    /**
+     * 总快递费
+     */
+    private Integer totalExpressAmount;
+    
+    
+    
+	public Integer getCouponAmount() {
+        return couponAmount;
+    }
+
+    public void setCouponAmount(Integer couponAmount) {
+        this.couponAmount = couponAmount;
+    }
+
+    public Integer getPointMoney() {
+        return pointMoney;
+    }
+
+    public void setPointMoney(Integer pointMoney) {
+        this.pointMoney = pointMoney;
+    }
+
+    public Integer getTotalExpressAmount() {
+        return totalExpressAmount;
+    }
+
+    public void setTotalExpressAmount(Integer totalExpressAmount) {
+        this.totalExpressAmount = totalExpressAmount;
+    }
+
+    public Integer getCurrencyDepositAmount() {
         return currencyDepositAmount;
     }
 

@@ -140,10 +140,10 @@ public class OrderBuildService {
     * @return ConsigneeInfo    
     * @throws
      */
-    public ConsigneeInfo buildConsigneeInfo(Order order,Integer plateForm){
+    public ConsigneeInfo buildConsigneeInfo(String orderNo,Integer plateForm){
         ConsigneeInfo consigneeInfo = new ConsigneeInfo();
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
-        mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
+        mLogisticsExample.createCriteria().andOrderNoEqualTo(orderNo);
         List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
         if (CollectionUtils.isNotEmpty(listLogistic)) {
             MLogistics logc = listLogistic.get(0);

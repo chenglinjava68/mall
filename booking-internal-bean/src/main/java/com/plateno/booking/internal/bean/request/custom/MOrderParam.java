@@ -14,9 +14,9 @@ public class MOrderParam extends BaseParam implements Serializable {
 	
 	private static final long serialVersionUID = 1205169223416028536L;
 	
-	@NotNull(message = "订单编号不能为空")
-	@NotEmpty(message = "订单编号不能为空")
-	private String orderNo; // 订单编码
+	private String orderSubNo; // 订单编码
+	
+	private String orderNo;
 	
 	private String logisticsNo; // 物流编号
 	
@@ -37,7 +37,17 @@ public class MOrderParam extends BaseParam implements Serializable {
 	 */
 	private Integer payType;
 	
-	public Integer getPayType() {
+	
+	
+	public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public Integer getPayType() {
 		return payType;
 	}
 
@@ -53,15 +63,17 @@ public class MOrderParam extends BaseParam implements Serializable {
 		this.type = type;
 	}
 
-	public String getOrderNo() {
-		return orderNo;
-	}
 
-	public void setOrderNo(String orderNo) {
-		this.orderNo = orderNo;
-	}
 
-	public String getLogisticsNo() {
+	public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
+    }
+
+    public String getLogisticsNo() {
 		return logisticsNo;
 	}
 

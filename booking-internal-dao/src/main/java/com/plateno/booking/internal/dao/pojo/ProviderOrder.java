@@ -8,6 +8,11 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo
 public class ProviderOrder {
 
     /**
+     * 父订单号
+     */
+    private String orderNo;
+    
+    /**
      * 子订单号
      */
     private String orderSubNo;
@@ -52,6 +57,14 @@ public class ProviderOrder {
     
 
     
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
     public List<ProductInfo> getProductInfos() {
         return productInfos;
     }

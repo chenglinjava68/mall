@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.base.pojo;
 
+import java.util.Date;
+
 public class LogisticsPackage {
     private Integer id;
 
@@ -14,6 +16,10 @@ public class LogisticsPackage {
     private Integer expressFee;
 
     private Integer packageFlag;
+
+    private Date createTime;
+
+    private Date upTime;
 
     public Integer getId() {
         return id;
@@ -69,5 +75,21 @@ public class LogisticsPackage {
 
     public void setPackageFlag(Integer packageFlag) {
         this.packageFlag = packageFlag;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpTime() {
+        return upTime;
+    }
+
+    public void setUpTime(Date upTime) {
+        this.upTime = upTime;
     }
 }

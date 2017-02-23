@@ -33,6 +33,8 @@ create table m_logistics_package
    logistics_no         varchar(45) comment '快递单号',
    express_fee          int comment '快递费用',
    package_flag         int comment '包裹状态',
+   create_time datetime DEFAULT NULL COMMENT '创建时间',
+   up_time datetime DEFAULT NULL COMMENT '最近修改时间',
    primary key (id)
 );
 

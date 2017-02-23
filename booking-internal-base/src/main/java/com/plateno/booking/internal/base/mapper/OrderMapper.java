@@ -82,6 +82,15 @@ public interface OrderMapper extends BaseMapper<Order,OrderExample> {
      */
     Order getByOrderIdForUpdate(@Param("orderId")Integer orderId);
     
-    
+    /**
+     * 
+    * @Title: queryOrderByOrderSubNo 
+    * @Description: 根据子订单查询父订单
+    * @param @param orderSubNo
+    * @param @return    
+    * @return List<Order>    
+    * @throws
+     */
+    List<Order> queryOrderByOrderSubNo(@Param("orderSubNo")String orderSubNo, @Param("memberId")Integer memberId, @Param("channelId")Integer channelId);
 	
 }
