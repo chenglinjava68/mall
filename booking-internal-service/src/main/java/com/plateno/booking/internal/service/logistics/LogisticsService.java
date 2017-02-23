@@ -18,15 +18,11 @@ import com.plateno.booking.internal.base.mapper.LogisticsProductMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
-import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
-import com.plateno.booking.internal.base.pojo.OrderExample.Criteria;
-import com.plateno.booking.internal.base.pojo.OrderProduct;
-import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
@@ -45,6 +41,7 @@ import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
+import com.plateno.booking.internal.service.order.OrderProductService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 
 @Service
@@ -59,8 +56,6 @@ public class LogisticsService {
     @Autowired
     private LogisticsProductMapper logisticsProductMapper;
     @Autowired
-    private OrderProductMapper orderProductMapper;
-    @Autowired
     private OrderMapper mallOrderMapper;
     @Autowired
     private MOrderValidate orderValidate;
@@ -72,7 +67,9 @@ public class LogisticsService {
     private OperatelogMapper operatelogMapper;
     @Autowired
     private OperateLogService operateLogService;
-
+    @Autowired
+    private OrderProductService orderProductService;
+    
     public List<PackageProduct> queryOrderLogistics(OrderLogisticsQueryReq param) {
         List<PackageProduct> packageProductList = Lists.newArrayList();
         // 兼容旧的数据，旧的数据只有一个包裹
@@ -92,21 +89,8 @@ public class LogisticsService {
                     mLogistics.getLogisticsType()));
             packageProduct.setExpressFee(mLogistics.getExpressFee());
             List<ProductInfo> productInfos = Lists.newArrayList();
-            ProductInfo productInfo = new ProductInfo();
-
-            OrderProductExample orderProductExample = new OrderProductExample();
-            orderProductExample.createCriteria().andOrderNoEqualTo(param.getOrderNo());
-            List<OrderProduct> list = orderProductMapper.selectByExample(orderProductExample);
-            OrderProduct orderProduct = list.get(0);
-            productInfo.setProductId(orderProduct.getProductId());
-            productInfo.setCount(orderProduct.getSkuCount());
-            productInfo.setPrice(orderProduct.getPrice());
-            productInfo.setProductName(orderProduct.getProductName());
-            productInfo.setProductPropertis(orderProduct.getProductProperty());
-            productInfo.setPoint(orderProduct.getPoint());
-            productInfo.setDisImages(orderProduct.getDisImages());
+            ProductInfo productInfo = orderProductService.queryProductInfoByOrderNo(param.getOrderNo());
             productInfos.add(productInfo);
-
             packageProduct.setProducts(productInfos);
             packageProductList.add(packageProduct);
         } else {
@@ -121,26 +105,7 @@ public class LogisticsService {
                 packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(
                         logisticsPackage.getLogisticsType()));
                 packageProduct.setExpressFee(logisticsPackage.getExpressFee());
-
-                // 根据子订单号查询订单商品数据
-                List<ProductInfo> productInfos = Lists.newArrayList();
-                OrderProductExample orderproductExample = new OrderProductExample();
-                orderproductExample.createCriteria().andOrderSubNoEqualTo(
-                        logisticsPackage.getOrderSubNo());
-                List<OrderProduct> orderProducts =
-                        orderProductMapper.selectByExample(orderproductExample);
-                for (OrderProduct temp : orderProducts) {
-                    ProductInfo productInfo = new ProductInfo();
-                    productInfo.setProductId(temp.getProductId());
-                    productInfo.setCount(temp.getSkuCount());
-                    productInfo.setPrice(temp.getPrice());
-                    productInfo.setProductName(temp.getProductName());
-                    productInfo.setProductPropertis(temp.getProductProperty());
-                    productInfo.setPoint(temp.getPoint());
-                    productInfo.setDisImages(temp.getDisImages());
-                    productInfos.add(productInfo);
-                }
-                packageProduct.setProducts(productInfos);
+                packageProduct.setProducts(orderProductService.queryProductInfosByOrderNo(param.getOrderNo()));
                 packageProductList.add(packageProduct);
             }
         }
@@ -191,25 +156,11 @@ public class LogisticsService {
         logisticsPackage.setOrderNo(order.getOrderNo());
         logisticsPackageMapper.insertSelective(logisticsPackage);
 
-
-        OrderProductExample orderProductExample = new OrderProductExample();
-        orderProductExample.createCriteria().andOrderSubNoEqualTo(orderParam.getOrderSubNo());
-        List<OrderProduct> orderProductList =
-                orderProductMapper.selectByExample(orderProductExample);
-        if (CollectionUtils.isEmpty(orderProductList)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单获取不到对应的产品信息");
-            return output;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (OrderProduct orderProduct : orderProductList) {
-            sb.append(orderProduct.getProductName()).append(";");
-        }
         // 发送到短信
         DeliverGoodContent content = new DeliverGoodContent();
         content.setObjectNo(order.getOrderNo());
         content.setOrderCode(order.getOrderNo());
-        content.setName(sb.toString());
+        content.setName(orderProductService.getProductNameByOrderSubNo(orderParam.getOrderSubNo()));
         content.setExpress(LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
         content.setExpressCode(StringUtils.isBlank(orderParam.getLogisticsNo()) ? "无" : orderParam
                 .getLogisticsNo());
@@ -224,7 +175,6 @@ public class LogisticsService {
         paramlog.setPlateForm(orderParam.getPlateForm());
         paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
         operateLogService.saveOperateLog(paramlog);
-
 
         return output;
     }
