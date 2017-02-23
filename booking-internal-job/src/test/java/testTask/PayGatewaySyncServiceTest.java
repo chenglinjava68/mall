@@ -25,7 +25,7 @@ public class PayGatewaySyncServiceTest {
 		
 		Order order = new Order();
 		order.setOrderNo("O1478830070265633486");
-		service2.handlePaying(order);
+//		service2.handlePaying(order);
 
 	}
 }

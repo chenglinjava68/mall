@@ -17,6 +17,7 @@ import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
@@ -92,7 +93,7 @@ public class OrderBuildService {
             //已发货状态，需要检查是否所有包裹都已经有快递单,如有未发货子订单，则为部分发货
             LogisticsPackageExample example = new LogisticsPackageExample();
             example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-            List list = packageMapper.selectByExample(example);
+            List<LogisticsPackage> list = packageMapper.selectByExample(example);
             if(count != list.size()){
                 //部分发货状态
                 orderInfo.setViewStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());

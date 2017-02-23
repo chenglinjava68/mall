@@ -56,8 +56,8 @@ public class OrderQueryService {
     private OrderBuildService orderBuildService;
     @Autowired
     private LogisticsPackageMapper packageMapper;
-    
-    
+    @Autowired
+    private OrderProductService orderProductService;
     /**
      * 查询订单信息,并支持分页处理
      * 
@@ -260,7 +260,7 @@ public class OrderQueryService {
         sc.setPointMoney(order.getPointMoney());
         sc.setTotalExpressAmount(order.getTotalExpressAmount());
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-        //已发货，查询是否所有子订单都有订单号
+        //已发货，查询是否所有子订单都有包裹
         if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
             int count = orderProductMapper.queryOrderSubNoCount(order.getOrderNo());
             LogisticsPackageExample example = new LogisticsPackageExample();
@@ -273,7 +273,7 @@ public class OrderQueryService {
         }
         sc.setLogicDel(order.getLogicDel());
 
-        // 查询物流信息
+        // todo查询物流信息，需优化
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
         mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
         List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
@@ -293,22 +293,7 @@ public class OrderQueryService {
         }
 
         //查询商品信息
-        OrderProductExample example = new OrderProductExample();
-        example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-        List<OrderProduct> listProduct = orderProductMapper.selectByExample(example);
-        List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
-        for (OrderProduct orderProduct : listProduct) {
-            ProductInfo productInfo = new ProductInfo();
-            productInfo.setProductId(orderProduct.getProductId());
-            productInfo.setCount(orderProduct.getSkuCount());
-            productInfo.setPrice(orderProduct.getPrice());
-            productInfo.setProductName(orderProduct.getProductName());
-            productInfo.setProductPropertis(orderProduct.getProductProperty());
-            productInfo.setDisImages(orderProduct.getDisImages());
-            productInfo.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId="
-                    + orderProduct.getProductId());
-            productInfoList.add(productInfo);
-        }
+        List<ProductInfo> productInfoList = orderProductService.queryProductInfosByOrderNo(order.getOrderNo());
         sc.setProductInfos(productInfoList);
         list.add(sc);
     }

@@ -14,9 +14,7 @@ import com.google.common.collect.Lists;
 import com.plateno.booking.internal.base.constant.PackageStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
-import com.plateno.booking.internal.base.mapper.LogisticsProductMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
-import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
@@ -54,8 +52,6 @@ public class LogisticsService {
     @Autowired
     private LogisticsPackageMapper logisticsPackageMapper;
     @Autowired
-    private LogisticsProductMapper logisticsProductMapper;
-    @Autowired
     private OrderMapper mallOrderMapper;
     @Autowired
     private MOrderValidate orderValidate;
@@ -63,8 +59,6 @@ public class LogisticsService {
     private OrderLogService orderLogService;
     @Autowired
     private PhoneMsgService phoneMsgService;
-    @Autowired
-    private OperatelogMapper operatelogMapper;
     @Autowired
     private OperateLogService operateLogService;
     @Autowired
@@ -132,13 +126,13 @@ public class LogisticsService {
             output.setResultMsg("订单查询失败,获取不到订单");
             return output;
         }
-        orderValidate.checkDeliverOrder(listOrder.get(0), output);
+        // 修改父订单为发货状态
+        Order order = listOrder.get(0);
+        orderValidate.checkDeliverOrder(order, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-
-        // 修改父订单为发货状态
-        Order order = listOrder.get(0);
+        //修改订单状态
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);// 待发货==>待收货
         order.setDeliverTime(new Date());
         mallOrderMapper.updateByPrimaryKeySelective(order);
@@ -146,7 +140,7 @@ public class LogisticsService {
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
                 ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode());
 
-        // 计算子订单的快递费
+        // todo:计算子订单的快递费
         LogisticsPackage logisticsPackage = new LogisticsPackage();
         logisticsPackage.setLogisticsNo(orderParam.getLogisticsNo());
         logisticsPackage.setLogisticsType(orderParam.getLogisticsType());
@@ -167,6 +161,7 @@ public class LogisticsService {
         phoneMsgService.sendPhoneMessageAsync(order.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
                 content);
 
+        //记录操作日志
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
         paramlog.setOperateUserid(orderParam.getOperateUserid());
@@ -179,15 +174,16 @@ public class LogisticsService {
         return output;
     }
 
+
     /**
      * 
-     * @Title: modifydeliverOrder
-     * @Description: 确认发货
-     * @param @param orderParam
-     * @param @return
-     * @param @throws Exception
-     * @return ResultVo<Object>
-     * @throws
+    * @Title: modifydeliverOrder 
+    * @Description: 修改发货信息
+    * @param @param orderParam
+    * @param @return
+    * @param @throws Exception    
+    * @return ResultVo<Object>    
+    * @throws
      */
     public ResultVo<Object> modifydeliverOrder(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -245,7 +241,8 @@ public class LogisticsService {
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-
+        
+        //修改订单状态
         Order order = listOrder.get(0);
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);// 确定收货操作==>已完成
         order.setUpTime(new Date());
@@ -253,7 +250,7 @@ public class LogisticsService {
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_5, "确认收货", "手动确定收货", 0,
                 ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode());
-        // 如果是后台操作，取消记录操作日志
+        // 如果是后台操作，记录操作日志
         if (orderParam.getPlateForm() != null
                 && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam
                         .getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {

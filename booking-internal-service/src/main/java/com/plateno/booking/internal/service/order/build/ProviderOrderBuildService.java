@@ -7,10 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
+import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
+import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDetail;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
+import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.dao.pojo.ProviderOrder;
+import com.plateno.booking.internal.dao.pojo.ProviderOrderDetail;
 import com.plateno.booking.internal.service.order.OrderProductService;
 import com.plateno.booking.internal.service.util.ProductPriceUtil;
 
@@ -40,6 +44,15 @@ public class ProviderOrderBuildService {
         provider.setSubPayMoney(sumAmount);
         //子订单
         provider.setProductInfos(productInfoList);
+    }
+    
+    public void buildDeliverDetail(LogisticsPackage logisticsPackage,ProviderOrderDetail detail){
+        DeliverDetail deliverDetail = new DeliverDetail();
+        deliverDetail.setLogisticsType(logisticsPackage.getLogisticsType());
+        deliverDetail.setDeliverNo(logisticsPackage.getLogisticsNo());
+        deliverDetail.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(logisticsPackage.getLogisticsType()));
+        deliverDetail.setDeliverDate(logisticsPackage.getCreateTime().getTime());
+        detail.setDeliverDetail(deliverDetail);
     }
     
 }

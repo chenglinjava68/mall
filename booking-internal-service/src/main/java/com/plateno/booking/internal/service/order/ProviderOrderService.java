@@ -7,7 +7,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.google.common.collect.Lists;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
@@ -16,13 +15,7 @@ import com.plateno.booking.internal.base.model.ProviderOrderDetailParam;
 import com.plateno.booking.internal.base.model.ProviderOrderParam;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
-import com.plateno.booking.internal.base.pojo.OrderProduct;
-import com.plateno.booking.internal.base.pojo.OrderProductExample;
-import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDetail;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
-import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.dao.mapper.ProviderOrderMapper;
 import com.plateno.booking.internal.dao.pojo.ProviderOrder;
 import com.plateno.booking.internal.dao.pojo.ProviderOrderDetail;
@@ -86,7 +79,7 @@ public class ProviderOrderService {
             if(provider.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
                 LogisticsPackageExample example = new LogisticsPackageExample();
                 example.createCriteria().andOrderSubNoEqualTo(provider.getOrderSubNo());
-                List packageList = packageMapper.selectByExample(example);
+                List<LogisticsPackage> packageList = packageMapper.selectByExample(example);
                 if(CollectionUtils.isNotEmpty(packageList))
                     provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
@@ -101,6 +94,7 @@ public class ProviderOrderService {
         ProviderOrderDetail detail = providerOrderMapper.queryProviderOrderDetail(param.getOrderSubNo());
         //查询收件人信息
         detail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(detail.getOrderNo(), param.getPlateForm()));
+        
         //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
         detail.setViewStatus(PayStatusEnum.toViewStatus(detail.getSubPayStatus()));
         //查询包裹
@@ -112,14 +106,9 @@ public class ProviderOrderService {
                 detail.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
         }
+        //查询快递单信息
         if(CollectionUtils.isNotEmpty(packageList)){
-            DeliverDetail deliverDetail = new DeliverDetail();
-            LogisticsPackage logisticsPackage = packageList.get(0);
-            deliverDetail.setLogisticsType(logisticsPackage.getLogisticsType());
-            deliverDetail.setDeliverNo(logisticsPackage.getLogisticsNo());
-            deliverDetail.setLogisticsTypeDesc(LogisticsTypeData.getDataMap().get(logisticsPackage.getLogisticsType()));
-            deliverDetail.setDeliverDate(logisticsPackage.getCreateTime().getTime());
-            detail.setDeliverDetail(deliverDetail);
+            providerOrderBuildService.buildDeliverDetail(packageList.get(0), detail);
         }
         providerOrderBuildService.buildProductInfos(detail);
         result.setData(detail);
