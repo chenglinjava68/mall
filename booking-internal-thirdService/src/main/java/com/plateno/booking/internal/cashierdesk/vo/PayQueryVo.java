@@ -78,6 +78,14 @@ public class PayQueryVo {
     public void setGatewayAmount(Integer gatewayAmount) {
         this.gatewayAmount = gatewayAmount;
     }
+    @Override
+    public String toString() {
+        return "PayQueryVo [code=" + code + ", message=" + message + ", subject=" + subject
+                + ", amount=" + amount + ", paymentType=" + paymentType + ", mebid=" + mebid
+                + ", merchantNo=" + merchantNo + ", tradeNo=" + tradeNo + ", gateId=" + gateId
+                + ", currencyDepositAmount=" + currencyDepositAmount + ", gatewayAmount="
+                + gatewayAmount + "]";
+    }
     
     
     

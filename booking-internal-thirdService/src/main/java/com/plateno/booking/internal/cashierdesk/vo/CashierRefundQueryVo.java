@@ -58,6 +58,14 @@ public class CashierRefundQueryVo {
     public void setRefundGatewayAmount(Integer refundGatewayAmount) {
         this.refundGatewayAmount = refundGatewayAmount;
     }
+    @Override
+    public String toString() {
+        return "CashierRefundQueryVo [code=" + code + ", message=" + message + ", refundAmount="
+                + refundAmount + ", merchantNo=" + merchantNo + ", tradeNo=" + tradeNo
+                + ", gateId=" + gateId + ", refundCurrencyDepositAmount="
+                + refundCurrencyDepositAmount + ", refundGatewayAmount=" + refundGatewayAmount
+                + "]";
+    }
     
     
     
