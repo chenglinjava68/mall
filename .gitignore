@@ -10,3 +10,9 @@
 *.mvn
 *.settings
 *.classpath
+booking-internal-email/bin/pom.xml
+booking-internal-email/bin/target/booking-internal-email-0.0.1.jar
+booking-internal-email/bin/target/maven-archiver/pom.properties
+booking-internal-hotel/bin/pom.xml
+booking-internal-hotel/bin/target/booking-internal-hotel-0.0.1.jar
+booking-internal-hotel/bin/target/maven-archiver/pom.properties
