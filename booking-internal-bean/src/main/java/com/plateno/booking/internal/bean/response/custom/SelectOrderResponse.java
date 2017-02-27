@@ -100,7 +100,49 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer subResource; 
 	
-	public String getConsigneeAddress() {
+	/**
+	 * 优惠券金额
+	 */
+	private Integer couponAmount;
+	
+	/**
+	 * 积分抵扣金额
+	 */
+	private Integer pointMoney;
+	
+	/**
+	 * 总快递费
+	 */
+	private Integer totalExpressAmount;
+	
+	
+	
+	
+	public Integer getCouponAmount() {
+        return couponAmount;
+    }
+
+    public void setCouponAmount(Integer couponAmount) {
+        this.couponAmount = couponAmount;
+    }
+
+    public Integer getPointMoney() {
+        return pointMoney;
+    }
+
+    public void setPointMoney(Integer pointMoney) {
+        this.pointMoney = pointMoney;
+    }
+
+    public Integer getTotalExpressAmount() {
+        return totalExpressAmount;
+    }
+
+    public void setTotalExpressAmount(Integer totalExpressAmount) {
+        this.totalExpressAmount = totalExpressAmount;
+    }
+
+    public String getConsigneeAddress() {
 		return consigneeAddress;
 	}
 

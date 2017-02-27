@@ -377,6 +377,8 @@ public class OrderQueryService {
             sc.setQuatity(listProduct.get(0).getSkuCount());
             sc.setDisImage(listProduct.get(0).getDisImages());
             sc.setGoodsUrl(Config.MALL_H5_URL + "/goods.html#/goodsDetail?productId=" + listProduct.get(0).getProductId());
+            //积分抵扣金额
+            sc.setPointMoney(listProduct.get(0).getDeductPrice());
         }
         sc.setPoint(order.getPoint());
         sc.setAmount(order.getAmount());
@@ -427,8 +429,11 @@ public class OrderQueryService {
                 sc.setConsigneeMobile(mLogistics.getConsigneeMobile());
                 sc.setConsigneeAddress(mLogistics.getProvince() + mLogistics.getCity() + mLogistics.getArea() + mLogistics.getConsigneeAddress());
             }
+            //总的快递费
+            sc.setTotalExpressAmount(mLogistics.getExpressFee());
         }
-        
+        //优惠券金额
+        sc.setCouponAmount(order.getCouponAmount());
         list.add(sc);
     }
     
