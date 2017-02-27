@@ -52,7 +52,7 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 	/**
 	 * 销售人员id
 	 */
-	private Integer sid;
+	private Integer subResource;
 
 	/**
 	 * 收件人
@@ -96,12 +96,14 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
         this.productName = productName;
     }
 
-    public Integer getSid() {
-        return sid;
+
+
+    public Integer getSubResource() {
+        return subResource;
     }
 
-    public void setSid(Integer sid) {
-        this.sid = sid;
+    public void setSubResource(Integer subResource) {
+        this.subResource = subResource;
     }
 
     public String getName() {

@@ -23,6 +23,7 @@ import com.plateno.booking.internal.goods.vo.OrderCheckReq;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
+import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.order.MOrderService;
 
 @Service
@@ -37,6 +38,9 @@ public class ProductValidateService {
     @Autowired
     private MOrderService mOrderService;
 
+    @Autowired
+    private PointService pointService;
+    
     /**
      * 
      * @Title: checkProduct
@@ -88,6 +92,20 @@ public class ProductValidateService {
                 output.setResultMsg(MsgCode.VALIDATE_POINT_ERROR.getMessage());
                 return;
             }
+          //判断积分是够足够
+            if(addBookingParam.getPoint() > 0) {
+                int userPoint = pointService.getPointSum(addBookingParam.getMemberId());
+                if(userPoint < addBookingParam.getPoint()){
+                    logger.info(String.format("需要积分：%s, 账户积分:%s, memberId:%s", addBookingParam.getPoint(), userPoint, addBookingParam.getMemberId()));
+                    output.setResultCode(getClass(),MsgCode.VALIDATE_POINT_ERROR.getMsgCode());
+                    output.setResultMsg("您的积分余额不足以购买商品，可以修改商品数量再进行支付。");
+                    return;
+                }
+                
+            } else {
+                addBookingParam.setPoint(0);
+            }
+            
         }
         orderCheckDetail.setOrderCheckInfoMap(orderCheckInfoMap);
         output.setData(orderCheckDetail);
