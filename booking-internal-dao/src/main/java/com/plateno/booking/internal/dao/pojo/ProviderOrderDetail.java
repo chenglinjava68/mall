@@ -1,9 +1,11 @@
 package com.plateno.booking.internal.dao.pojo;
 
 import java.util.Date;
+import java.util.List;
 
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDetail;
+import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
 
 public class ProviderOrderDetail extends ProviderOrder{
 
@@ -25,7 +27,19 @@ public class ProviderOrderDetail extends ProviderOrder{
     /**
      * 发货信息
      */
-    private DeliverDetail deliverDetail;
+    private List<DeliverDetail> deliverDetails;
+
+    private List<PackageProduct> packageProducts;
+    
+    
+    
+    public List<PackageProduct> getPackageProducts() {
+        return packageProducts;
+    }
+
+    public void setPackageProducts(List<PackageProduct> packageProducts) {
+        this.packageProducts = packageProducts;
+    }
 
     public Date getCreateTime() {
         return createTime;
@@ -51,14 +65,13 @@ public class ProviderOrderDetail extends ProviderOrder{
         this.consigneeInfo = consigneeInfo;
     }
 
-    public DeliverDetail getDeliverDetail() {
-        return deliverDetail;
+    public List<DeliverDetail> getDeliverDetails() {
+        return deliverDetails;
     }
 
-    public void setDeliverDetail(DeliverDetail deliverDetail) {
-        this.deliverDetail = deliverDetail;
+    public void setDeliverDetails(List<DeliverDetail> deliverDetails) {
+        this.deliverDetails = deliverDetails;
     }
-    
-    
+
     
 }

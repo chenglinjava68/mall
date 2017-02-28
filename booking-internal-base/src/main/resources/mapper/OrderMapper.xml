@@ -928,8 +928,8 @@
 		<if test="record.mobile != null &amp;&amp; record.mobile != ''">
 			AND mobile = #{record.mobile,jdbcType=VARCHAR}
 		</if>
-		<if test="record.sid != null and record.sid > 0">
-			AND sid = #{record.sid}
+		<if test="record.subResource != null and record.subResource > 0">
+			AND sub_resource = #{record.subResource}
 		</if>
 
 		<if

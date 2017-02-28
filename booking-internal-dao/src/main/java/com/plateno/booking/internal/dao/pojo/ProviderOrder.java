@@ -1,6 +1,5 @@
 package com.plateno.booking.internal.dao.pojo;
 
-import java.util.Date;
 import java.util.List;
 
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
@@ -57,6 +56,61 @@ public class ProviderOrder {
     
 
     
+    
+    /**
+     * 订单的积分抵扣金额
+     */
+    private Integer deductPrice;
+    
+    /**
+     * 使用优惠券的抵扣金额
+     */
+    private Integer couponAmount;
+
+    /**
+     * 运费
+     */
+    private Integer fee;
+
+    /**
+     * 商品总额
+     */
+    private Integer productAmout;
+    
+    
+    
+    public Integer getDeductPrice() {
+        return deductPrice;
+    }
+
+    public void setDeductPrice(Integer deductPrice) {
+        this.deductPrice = deductPrice;
+    }
+
+    public Integer getCouponAmount() {
+        return couponAmount;
+    }
+
+    public void setCouponAmount(Integer couponAmount) {
+        this.couponAmount = couponAmount;
+    }
+
+    public Integer getFee() {
+        return fee;
+    }
+
+    public void setFee(Integer fee) {
+        this.fee = fee;
+    }
+
+    public Integer getProductAmout() {
+        return productAmout;
+    }
+
+    public void setProductAmout(Integer productAmout) {
+        this.productAmout = productAmout;
+    }
+
     public String getOrderNo() {
         return orderNo;
     }

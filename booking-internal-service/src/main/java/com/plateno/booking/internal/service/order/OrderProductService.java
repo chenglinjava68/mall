@@ -120,4 +120,25 @@ public class OrderProductService {
         productInfo.setExpressAmount(orderProduct.getExpressAmount());
     }
     
+    /**
+     * 
+    * @Title: queryProductInfosByPackageId 
+    * @Description: 根据包裹id查询商品信息集合
+    * @param @param packageId
+    * @param @return    
+    * @return List<ProductInfo>    
+    * @throws
+     */
+    public List<ProductInfo> queryProductInfosByPackageId(Integer packageId) {
+        // 根据包裹号
+        List<ProductInfo> productInfos = Lists.newArrayList();
+        List<OrderProduct> orderProducts = orderProductMapper.queryProductByPackageId(packageId);
+        for (OrderProduct temp : orderProducts) {
+            ProductInfo productInfo = new ProductInfo();
+            copyOrderProduct(productInfo, temp);
+            productInfos.add(productInfo);
+        }
+        return productInfos;
+    }
+    
 }

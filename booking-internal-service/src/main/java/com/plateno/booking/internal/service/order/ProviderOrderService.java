@@ -83,7 +83,7 @@ public class ProviderOrderService {
                 if(CollectionUtils.isNotEmpty(packageList))
                     provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
-            providerOrderBuildService.buildProductInfos(provider);
+            providerOrderBuildService.buildProductInfosAndCal(provider);
             
         }
     }
@@ -100,17 +100,17 @@ public class ProviderOrderService {
         //查询包裹
         LogisticsPackageExample example = new LogisticsPackageExample();
         example.createCriteria().andOrderSubNoEqualTo(detail.getOrderSubNo());
-        List<LogisticsPackage> packageList = packageMapper.selectByExample(example);
+        List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
         if(detail.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-            if(CollectionUtils.isNotEmpty(packageList)){
+            if(CollectionUtils.isNotEmpty(logisticsPackageList)){
                 detail.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
         }
         //查询快递单信息
-        if(CollectionUtils.isNotEmpty(packageList)){
-            providerOrderBuildService.buildDeliverDetail(packageList.get(0), detail);
+        if(CollectionUtils.isNotEmpty(logisticsPackageList)){
+            providerOrderBuildService.buildPackage(logisticsPackageList, detail);
         }
-        providerOrderBuildService.buildProductInfos(detail);
+        providerOrderBuildService.buildProductInfosAndCal(detail);
         result.setData(detail);
         return result;
     }

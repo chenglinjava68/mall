@@ -30,10 +30,6 @@ import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
-import com.plateno.booking.internal.base.pojo.LogisticsPackage;
-import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
-import com.plateno.booking.internal.base.pojo.MLogistics;
-import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
 import com.plateno.booking.internal.base.pojo.Operatelog;
 import com.plateno.booking.internal.base.pojo.OperatelogExample;
@@ -43,9 +39,7 @@ import com.plateno.booking.internal.base.pojo.OrderExample.Criteria;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
-import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
-import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
@@ -59,11 +53,8 @@ import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderGoodsParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
-import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.request.gateway.RefundOrderParam;
-import com.plateno.booking.internal.bean.request.point.ValueBean;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
-import com.plateno.booking.internal.bean.response.gateway.pay.PayQueryResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundOrderResponse;
 import com.plateno.booking.internal.bean.response.gateway.refund.RefundQueryResponse;
 import com.plateno.booking.internal.cashierdesk.CashierDeskService;
@@ -78,17 +69,14 @@ import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
-import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
-import com.plateno.booking.internal.email.model.DeliverGoodContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
 import com.plateno.booking.internal.goods.vo.OrderCheckInfo;
-import com.plateno.booking.internal.goods.vo.ProductSkuBean;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
@@ -176,7 +164,7 @@ public class MOrderService {
 
     @Autowired
     private LogisticsPackageMapper packageMapper;
-    
+
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -372,9 +360,6 @@ public class MOrderService {
     }
 
 
-    
-
-
 
     @Transactional(rollbackFor = OrderException.class)
     public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income,
@@ -492,7 +477,7 @@ public class MOrderService {
         op.setExpressCost(orderCheckInfo.getCostExpress());
         op.setOrderSubNo(order.getOrderNo() + orderCheckInfo.getChannelId());
         op.setChannelId(orderCheckInfo.getChannelId());
-        op.setProvidedId(orderCheckInfo.getProviderId());
+        op.setProvidedId( null != orderCheckInfo.getProviderId() ? orderCheckInfo.getProviderId() : null);
         op.setExpressAmount(orderCheckInfo.getExpressFee());
         if (order.getCouponAmount() > 0) {
             // 单个商品占用的优惠券金额
@@ -974,7 +959,6 @@ public class MOrderService {
 
 
 
-
     // 通过反射获取方法
     private void invoke(Object criteria, String methodName, Object obj) throws Exception {
         if (obj == null || "".equals(obj)) {
@@ -1140,11 +1124,14 @@ public class MOrderService {
                     logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
                     return;
                 }
-                if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-                    logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                if (response.getCode().equals(PayGateCode.HADNLING)
+                        || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
+                    logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s",
+                            orderPayLog.getTrandNo(), response.getCode()));
                     orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
                     orderPayLog.setUpTime(new Date());
-                    orderPayLog.setRemark(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                    orderPayLog.setRemark(String.format("退款支付网关订单支付中, trandNo:%s, code:%s",
+                            orderPayLog.getTrandNo(), response.getCode()));
                     orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
                     return;
                 }
@@ -1162,7 +1149,8 @@ public class MOrderService {
                         || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
                     logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
                     String remark = "查询支付网关订单失败,";
-                    if(null != cashierRefundQueryResponse && null != cashierRefundQueryResponse.getResult())
+                    if (null != cashierRefundQueryResponse
+                            && null != cashierRefundQueryResponse.getResult())
                         remark += cashierRefundQueryResponse.getResult().toString();
                     orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
                     orderPayLog.setUpTime(new Date());
