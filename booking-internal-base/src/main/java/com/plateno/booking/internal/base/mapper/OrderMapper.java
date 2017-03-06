@@ -8,12 +8,13 @@ import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.model.bill.BillOrderDetail;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
 import com.plateno.booking.internal.base.pojo.Order;
+import com.plateno.booking.internal.base.pojo.OrderExample;
 import com.plateno.booking.internal.base.vo.MOrderSearchVO;
 
 
 
 
-public interface OrderMapper extends BaseMapper {
+public interface OrderMapper extends BaseMapper<Order,OrderExample> {
   
 	List<Order> getOrderByNo(@Param("orderNo")String orderNo);
 	
@@ -73,5 +74,12 @@ public interface OrderMapper extends BaseMapper {
 	 * @return
 	 */
 	int count(MOrderSearchVO svo);
+	
+	/**
+     * 获取并加写锁
+     * @param orderId
+     * @return
+     */
+    Order getByOrderIdForUpdate(@Param("orderId")Integer orderId);
 	
 }
