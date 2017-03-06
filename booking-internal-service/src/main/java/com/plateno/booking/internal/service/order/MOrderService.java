@@ -1148,14 +1148,18 @@ public class MOrderService {
                 if (cashierRefundQueryResponse == null
                         || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
                     logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
-                    String remark = "查询支付网关订单失败,";
-                    if (null != cashierRefundQueryResponse
-                            && null != cashierRefundQueryResponse.getResult())
-                        remark += cashierRefundQueryResponse.getResult().toString();
-                    orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
-                    orderPayLog.setUpTime(new Date());
-                    orderPayLog.setRemark(remark);
-                    orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+                    //明确退款失败则记录失败，其他情况继续轮询,0200退款失败
+                    if(null != cashierRefundQueryResponse.getResult() && cashierRefundQueryResponse.getResult().getCode().equals("0020")){
+                        String remark = "查询支付网关订单失败,";
+                        if (null != cashierRefundQueryResponse
+                                && null != cashierRefundQueryResponse.getResult())
+                            remark += cashierRefundQueryResponse.getResult().toString();
+                        orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                        orderPayLog.setUpTime(new Date());
+                        orderPayLog.setRemark(remark);
+                        orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+                        
+                    }
                     return;
                 }
             }

@@ -293,13 +293,16 @@ public class PayService {
         if (cashierPayQueryResponse == null
                 || cashierPayQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
             logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
-            orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
-            orderPayLog.setUpTime(new Date());
-            String remark = "";
-            if(null != cashierPayQueryResponse.getResult())
-                remark = cashierPayQueryResponse.getResult().toString();
-            orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage()+ "," + remark);
-            orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+            //明确查询支付中失败才记录，0100，其他情况返回继续轮询
+            if(null != cashierPayQueryResponse.getResult() && "0100".equals(cashierPayQueryResponse.getResult().getCode())){
+                orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                orderPayLog.setUpTime(new Date());
+                String remark = "";
+                if(null != cashierPayQueryResponse.getResult())
+                    remark = cashierPayQueryResponse.getResult().toString();
+                orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage()+ "," + remark);
+                orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+            }
             return;
         }
 
