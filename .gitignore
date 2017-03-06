@@ -23,3 +23,6 @@ booking-internal-interceptor/bin/.gitignore
 booking-internal-interceptor/bin/pom.xml
 mall-booking-util/bin/.gitignore
 mall-booking-util/bin/pom.xml
+booking-internal-hotel/bin/.gitignore
+mall-booking-conf/bin/.gitignore
+mall-booking-conf/bin/pom.xml
