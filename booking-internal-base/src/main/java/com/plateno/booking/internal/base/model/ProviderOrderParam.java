@@ -29,9 +29,40 @@ public class ProviderOrderParam extends BaseParam{
     
     private boolean showLimit = true;
     
+    /**
+     * 下单人
+     */
+    private String name;
+    
+    /**
+     * 收货人
+     */
+    private String receiver;
+    /**
+     * 收件人手机
+     */
+    private String receiverMobile;
     
     
     
+    public String getReceiver() {
+        return receiver;
+    }
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+    public String getReceiverMobile() {
+        return receiverMobile;
+    }
+    public void setReceiverMobile(String receiverMobile) {
+        this.receiverMobile = receiverMobile;
+    }
+    public String getName() {
+        return name;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
     public boolean isShowLimit() {
         return showLimit;
     }

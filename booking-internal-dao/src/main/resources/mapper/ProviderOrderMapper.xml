@@ -47,7 +47,25 @@
 				open="(" separator="," close=")">
 				#{item}
 			</foreach>
-		</if>											
+		</if>
+		
+		<if test="record.name != null and record.name != ''">
+			AND product.order_no in (select order_no from m_order where
+			name like
+			CONCAT('%',#{record.name},'%'))
+		</if>
+		
+		<if test="record.receiver != null and record.receiver != ''">
+			AND product.order_no in (select order_no from m_logistics where
+			consignee_name like
+			CONCAT('%',#{record.receiver},'%'))
+		</if>
+		<if test="record.receiverMobile != null and record.receiverMobile != ''">
+			AND product.order_no in (select order_no from m_logistics where
+			consignee_mobile =
+			#{record.receiverMobile})
+		</if>		
+													
 		ORDER BY create_time desc
 		<if test="record.showLimit">
 			LIMIT #{record.pageNo,jdbcType=INTEGER}
@@ -91,7 +109,24 @@
 				open="(" separator="," close=")">
 				#{item}
 			</foreach>
-		</if>											
+		</if>
+		
+		<if test="record.name != null and record.name != ''">
+			AND product.order_no in (select order_no from m_order where
+			name like
+			CONCAT('%',#{record.name},'%'))
+		</if>
+		
+		<if test="record.receiver != null and record.receiver != ''">
+			AND product.order_no in (select order_no from m_logistics where
+			consignee_name like
+			CONCAT('%',#{record.receiver},'%'))
+		</if>
+		<if test="record.receiverMobile != null and record.receiverMobile != ''">
+			AND product.order_no in (select order_no from m_logistics where
+			consignee_mobile =
+			#{record.receiverMobile})
+		</if>												
 	</select>
 
 

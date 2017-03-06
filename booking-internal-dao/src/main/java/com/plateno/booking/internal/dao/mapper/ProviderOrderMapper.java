@@ -21,7 +21,7 @@ public interface ProviderOrderMapper {
      */
     List<ProviderOrder> queryProviderOrder(@Param("record")ProviderOrderParam param);
     
-    int countProviderOrder(@Param("record")ProviderOrderParam param);
+    Integer countProviderOrder(@Param("record")ProviderOrderParam param);
     
     /**
      * 

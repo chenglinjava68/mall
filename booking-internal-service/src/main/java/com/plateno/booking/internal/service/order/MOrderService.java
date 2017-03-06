@@ -461,7 +461,7 @@ public class MOrderService {
         OrderProduct op = new OrderProduct();
         op.setOrderNo(order.getOrderNo());
         op.setPrice(orderCheckInfo.getPrice());
-        op.setProductId(orderCheckInfo.getGoodsId().intValue());
+        op.setProductId(orderCheckInfo.getSpuId().intValue());
         op.setProductName(orderCheckInfo.getTitle());
         try {
             op.setProductProperty(JsonUtils.toJsonString(orderCheckInfo.getSkuProperties()));
@@ -507,8 +507,8 @@ public class MOrderService {
         BigDecimal pointMoneyBig =
                 new BigDecimal(orderCheckDetail.getPointDeductValue().getPointValue());
         int pointMoney =
-                productBig.divide(totalProductBig).multiply(pointMoneyBig)
-                        .setScale(2, BigDecimal.ROUND_HALF_UP).intValue();
+                productBig.divide(totalProductBig,2, BigDecimal.ROUND_DOWN).multiply(pointMoneyBig)
+                        .setScale(2, BigDecimal.ROUND_DOWN).intValue();
         return pointMoney;
     }
 
@@ -530,13 +530,13 @@ public class MOrderService {
             if (temp.getSpuId() == orderCheckInfo.getSpuId()) {
                 // 商品金额
                 BigDecimal couponAmoutBig =
-                        new BigDecimal(couponAmout).divide(new BigDecimal("100"));
+                        new BigDecimal(couponAmout).divide(new BigDecimal("100"),2, BigDecimal.ROUND_DOWN);
                 BigDecimal productAmoutBig =
-                        new BigDecimal(orderCheckInfo.getPrice()).divide(new BigDecimal("100"));
+                        new BigDecimal(orderCheckInfo.getPrice()).divide(new BigDecimal("100"),2, BigDecimal.ROUND_DOWN);
                 // （商品金额/订单总金额）*couponAmout,统一转化为BigDecimal运算
                 BigDecimal productCouponAmoutBig =
-                        productAmoutBig.divide(orderCheckDetail.getCouponOrderAmount())
-                                .multiply(couponAmoutBig).setScale(2, BigDecimal.ROUND_HALF_UP);
+                        productAmoutBig.divide(orderCheckDetail.getCouponOrderAmount(),2, BigDecimal.ROUND_DOWN)
+                                .multiply(couponAmoutBig).setScale(2, BigDecimal.ROUND_DOWN);
                 return productCouponAmoutBig.multiply(new BigDecimal("100")).intValue();
             }
         }

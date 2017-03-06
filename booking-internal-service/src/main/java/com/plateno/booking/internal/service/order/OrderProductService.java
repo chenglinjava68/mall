@@ -118,6 +118,7 @@ public class OrderProductService {
         productInfo.setCoupouReduceAmount(orderProduct.getCoupouReduceAmount());
         productInfo.setDeductPrice(orderProduct.getDeductPrice());
         productInfo.setExpressAmount(orderProduct.getExpressAmount());
+        productInfo.setOrderProductId(orderProduct.getId());
     }
     
     /**

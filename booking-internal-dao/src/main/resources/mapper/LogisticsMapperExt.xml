@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.plateno.booking.internal.dao.mapper.LogisticsMapperExt">
+	
+<insert id="insertBatch">  
+    insert into m_logistics_product (package_id,order_product_id)   
+    values  
+    <foreach collection="orderProductIds" item="item" index="index" separator="," >  
+        (#{packageId},#{item})  
+    </foreach>  
+</insert>  
+
+
+  <delete id="delPackageByOrderSubNo">
+    delete from m_logistics_package
+    where order_sub_no = #{orderSubNo}
+  </delete>
+
+</mapper>

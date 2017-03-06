@@ -892,17 +892,17 @@
 		</if>
 
 		<if test="record.receiver != null and record.receiver != ''">
-			AND exists (select order_no from m_logistics where
+			AND order_no in (select order_no from m_logistics where
 			consignee_name like
 			CONCAT('%',#{record.receiver},'%'))
 		</if>
 		<if test="record.receiverMobile != null and record.receiverMobile != ''">
-			AND exists (select order_no from m_logistics where
+			AND order_no in (select order_no from m_logistics where
 			consignee_mobile =
 			#{record.receiverMobile})
 		</if>
 		<if test="record.productName != null and record.productName != ''">
-			AND exists (select order_no from m_order_product where
+			AND order_no in (select order_no from m_order_product where
 			product_name
 			like CONCAT('%',#{record.productName},'%'))
 		</if>
@@ -977,17 +977,17 @@
 		</if>
 
 		<if test="record.receiver != null and record.receiver != ''">
-			AND exists (select order_no from m_logistics where
+			AND order_no in (select order_no from m_logistics where
 			consignee_name like
 			CONCAT('%',#{record.receiver},'%'))
 		</if>
 		<if test="record.receiverMobile != null and record.receiverMobile != ''">
-			AND exists (select order_no from m_logistics where
+			AND order_no in (select order_no from m_logistics where
 			consignee_mobile =
 			#{record.receiverMobile})
 		</if>
 		<if test="record.productName != null and record.productName != ''">
-			AND exists (select order_no from m_order_product where
+			AND order_no in (select order_no from m_order_product where
 			product_name
 			like CONCAT('%',#{record.productName},'%'))
 		</if>

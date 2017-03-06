@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.logistics;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgC
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
+import com.plateno.booking.internal.bean.request.custom.DeliverGoodParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
@@ -34,6 +36,7 @@ import com.plateno.booking.internal.bean.request.logistics.OrderLogisticsQueryRe
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
+import com.plateno.booking.internal.dao.mapper.LogisticsMapperExt;
 import com.plateno.booking.internal.email.model.DeliverGoodContent;
 import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
@@ -63,18 +66,61 @@ public class LogisticsService {
     private OperateLogService operateLogService;
     @Autowired
     private OrderProductService orderProductService;
-    
+    @Autowired
+    private LogisticsMapperExt logisticsMapperExt;
+
+    /**
+     * 
+    * @Title: queryOrderLogistics 
+    * @Description: 查询物流信息
+    * @param @param param
+    * @param @return    
+    * @return List<PackageProduct>    
+    * @throws
+     */
     public List<PackageProduct> queryOrderLogistics(OrderLogisticsQueryReq param) {
+        //根据父订单号查询
+        if(StringUtils.isNotBlank(param.getOrderNo()))
+            return findByOrderNo(param.getOrderNo());
+        //根据子订单查询
+        if(StringUtils.isNotBlank(param.getOrderSubNo()))
+            return findByOrderSubNo(param.getOrderSubNo());
+        return new ArrayList<PackageProduct>();
+    }
+
+    private List<PackageProduct> findByOrderSubNo(String orderSubNo){
+        List<PackageProduct> packageProductList = Lists.newArrayList();
+        LogisticsPackageExample logisticsPackageExample = new LogisticsPackageExample();
+        logisticsPackageExample.createCriteria().andOrderSubNoEqualTo(orderSubNo);
+        List<LogisticsPackage> logisticsPackageList =
+                logisticsPackageMapper.selectByExample(logisticsPackageExample);
+        for (LogisticsPackage logisticsPackage : logisticsPackageList) {
+            PackageProduct packageProduct = new PackageProduct();
+            packageProduct.setLogisticsNo(logisticsPackage.getLogisticsNo());
+            packageProduct.setLogisticsType(logisticsPackage.getLogisticsType());
+            packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(
+                    logisticsPackage.getLogisticsType()));
+            packageProduct.setExpressFee(logisticsPackage.getExpressFee());
+            packageProduct.setCreateTime(logisticsPackage.getCreateTime());
+            packageProduct.setPackageFlagName(PackageStatusEnum.from(logisticsPackage
+                    .getPackageFlag()));
+            packageProduct.setProducts(orderProductService.queryProductInfosByOrderSubNo(orderSubNo));
+            packageProductList.add(packageProduct);
+        }
+        return packageProductList;
+    }
+
+    private List<PackageProduct> findByOrderNo(String orderNo) {
         List<PackageProduct> packageProductList = Lists.newArrayList();
         // 兼容旧的数据，旧的数据只有一个包裹
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
-        mLogisticsExample.createCriteria().andOrderNoEqualTo(param.getOrderNo());
+        mLogisticsExample.createCriteria().andOrderNoEqualTo(orderNo);
         List<MLogistics> mLogisticsList = mLogisticsMapper.selectByExample(mLogisticsExample);
         if (CollectionUtils.isEmpty(mLogisticsList))
             return packageProductList;
 
         MLogistics mLogistics = mLogisticsList.get(0);
-        // 假如存在快递单号，则为旧的数据
+        // 假如存在快递单号，则为旧的数据，则直接从m_logistics取数据
         if (StringUtils.isNotBlank(mLogistics.getLogisticsNo())) {
             PackageProduct packageProduct = new PackageProduct();
             packageProduct.setLogisticsNo(mLogistics.getLogisticsNo());
@@ -82,14 +128,17 @@ public class LogisticsService {
             packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(
                     mLogistics.getLogisticsType()));
             packageProduct.setExpressFee(mLogistics.getExpressFee());
+            //oder
+            Order order = mallOrderMapper.getOrderByNo(orderNo).get(0);
+            packageProduct.setCreateTime(order.getDeliverTime());
             List<ProductInfo> productInfos = Lists.newArrayList();
-            ProductInfo productInfo = orderProductService.queryProductInfoByOrderNo(param.getOrderNo());
+            ProductInfo productInfo = orderProductService.queryProductInfoByOrderNo(orderNo);
             productInfos.add(productInfo);
             packageProduct.setProducts(productInfos);
             packageProductList.add(packageProduct);
         } else {
             LogisticsPackageExample logisticsPackageExample = new LogisticsPackageExample();
-            logisticsPackageExample.createCriteria().andOrderNoEqualTo(param.getOrderNo());
+            logisticsPackageExample.createCriteria().andOrderNoEqualTo(orderNo);
             List<LogisticsPackage> logisticsPackageList =
                     logisticsPackageMapper.selectByExample(logisticsPackageExample);
             for (LogisticsPackage logisticsPackage : logisticsPackageList) {
@@ -99,11 +148,13 @@ public class LogisticsService {
                 packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(
                         logisticsPackage.getLogisticsType()));
                 packageProduct.setExpressFee(logisticsPackage.getExpressFee());
-                packageProduct.setProducts(orderProductService.queryProductInfosByOrderNo(param.getOrderNo()));
+                packageProduct.setCreateTime(logisticsPackage.getCreateTime());
+                packageProduct.setPackageFlagName(PackageStatusEnum.from(logisticsPackage
+                        .getPackageFlag()));
+                packageProduct.setProducts(orderProductService.queryProductInfosByOrderNo(orderNo));
                 packageProductList.add(packageProduct);
             }
         }
-
         return packageProductList;
     }
 
@@ -132,23 +183,31 @@ public class LogisticsService {
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-        //修改订单状态
+        // 修改订单状态
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);// 待发货==>待收货
         order.setDeliverTime(new Date());
         mallOrderMapper.updateByPrimaryKeySelective(order);
         orderLogService.saveGSOrderLog(order.getOrderNo() + ":子订单号:" + orderParam.getOrderSubNo(),
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
                 ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode());
+        
+        
+        //删除子订单下旧的包裹数据
+        logisticsMapperExt.delPackageByOrderSubNo(orderParam.getOrderSubNo());
+        for (DeliverGoodParam deliverGoodParam : orderParam.getDeliverGoodParams()) {
+            LogisticsPackage logisticsPackage = new LogisticsPackage();
+            logisticsPackage.setLogisticsNo(deliverGoodParam.getLogisticsNo());
+            logisticsPackage.setLogisticsType(deliverGoodParam.getLogisticsType());
+            logisticsPackage.setCreateTime(new Date());
+            logisticsPackage.setPackageFlag(PackageStatusEnum.START.getType());// 发货状态
+            logisticsPackage.setOrderSubNo(orderParam.getOrderSubNo());
+            logisticsPackage.setOrderNo(order.getOrderNo());
+            logisticsPackageMapper.insertSelective(logisticsPackage);
+            // 批量新增到logistics_product表中
+            logisticsMapperExt.insertBatch(logisticsPackage.getId(),
+                    deliverGoodParam.getOrderProductIds());
+        }
 
-        // todo:计算子订单的快递费
-        LogisticsPackage logisticsPackage = new LogisticsPackage();
-        logisticsPackage.setLogisticsNo(orderParam.getLogisticsNo());
-        logisticsPackage.setLogisticsType(orderParam.getLogisticsType());
-        logisticsPackage.setCreateTime(new Date());
-        logisticsPackage.setPackageFlag(PackageStatusEnum.START.getType());// 发货状态
-        logisticsPackage.setOrderSubNo(orderParam.getOrderSubNo());
-        logisticsPackage.setOrderNo(order.getOrderNo());
-        logisticsPackageMapper.insertSelective(logisticsPackage);
 
         // 发送到短信
         DeliverGoodContent content = new DeliverGoodContent();
@@ -161,7 +220,7 @@ public class LogisticsService {
         phoneMsgService.sendPhoneMessageAsync(order.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
                 content);
 
-        //记录操作日志
+        // 记录操作日志
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
         paramlog.setOperateUserid(orderParam.getOperateUserid());
@@ -175,15 +234,16 @@ public class LogisticsService {
     }
 
 
+    
     /**
      * 
-    * @Title: modifydeliverOrder 
-    * @Description: 修改发货信息
-    * @param @param orderParam
-    * @param @return
-    * @param @throws Exception    
-    * @return ResultVo<Object>    
-    * @throws
+     * @Title: modifydeliverOrder
+     * @Description: 修改发货信息
+     * @param @param orderParam
+     * @param @return
+     * @param @throws Exception
+     * @return ResultVo<Object>
+     * @throws
      */
     public ResultVo<Object> modifydeliverOrder(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -241,8 +301,8 @@ public class LogisticsService {
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-        
-        //修改订单状态
+
+        // 修改订单状态
         Order order = listOrder.get(0);
         order.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);// 确定收货操作==>已完成
         order.setUpTime(new Date());

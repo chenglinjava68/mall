@@ -16,10 +16,25 @@ public class LogisticsPackage {
     private Integer expressFee;
 
     private Integer packageFlag;
-
+    
+    /**
+     * 包裹状态名称
+     */
+    private String packageFlagName;
+    
     private Date createTime;
 
     private Date upTime;
+
+    
+    
+    public String getPackageFlagName() {
+        return packageFlagName;
+    }
+
+    public void setPackageFlagName(String packageFlagName) {
+        this.packageFlagName = packageFlagName;
+    }
 
     public Integer getId() {
         return id;

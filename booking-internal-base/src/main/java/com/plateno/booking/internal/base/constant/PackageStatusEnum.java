@@ -52,6 +52,13 @@ public enum PackageStatusEnum {
         this.desc = desc;
     }
     
-    
+    public static String from(int type)throws IllegalArgumentException {
+        for (PackageStatusEnum one : values()) {
+            if (one.getType() == type) {
+                return one.getDesc();
+            }
+        }
+        return "";
+    }
     
 }

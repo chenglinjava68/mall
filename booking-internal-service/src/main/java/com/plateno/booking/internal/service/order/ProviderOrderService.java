@@ -47,6 +47,7 @@ public class ProviderOrderService {
     public ResultVo<LstOrder<ProviderOrder>> queryOrderByPage(ProviderOrderParam param){
         ResultVo<LstOrder<ProviderOrder>> vo = new ResultVo<LstOrder<ProviderOrder>>();
         LstOrder<ProviderOrder> lst = new LstOrder<ProviderOrder>();
+        vo.setData(lst);
         List<ProviderOrder> list = new ArrayList<ProviderOrder>();
         // 显示状态转变成数据库记录的状态
         if (param.getViewStatus() != null) {
@@ -61,14 +62,12 @@ public class ProviderOrderService {
         list = providerOrderMapper.queryProviderOrder(param);
         buildProviderOrder(list);
         
-        int count = providerOrderMapper.countProviderOrder(param);
-        
+        Integer count = providerOrderMapper.countProviderOrder(param);
         Double num = (Double.valueOf(count) / Double.valueOf(param.getPageNumber()));
         lst.setPageSize(param.getPageNumber());
         lst.setTotal(count);
         lst.setOrderList(list);
         lst.setTotalPage(new Double(Math.ceil(num)).intValue());
-        vo.setData(lst);
         return vo;
     }
     

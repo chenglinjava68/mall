@@ -125,9 +125,10 @@ public class OrderBuildService {
         orderInfo.setOrderAmount(order.getAmount());//订单总金额
         orderInfo.setPayAmount(order.getPayMoney());//实付金额
         orderInfo.setCouponAmount(order.getCouponAmount());//优惠券金额
-        orderInfo.setFee(order.getTotalExpressCost());//运费
+        orderInfo.setFee(order.getTotalExpressAmount());//运费
         orderInfo.setCurrencyDepositAmount(order.getCurrencyDepositAmount());//储值金额
         orderInfo.setGatewayAmount(order.getGatewayAmount());//网关支付金额
+        orderInfo.setDeductPrice(order.getPointMoney());
         return orderInfo;
     }
     

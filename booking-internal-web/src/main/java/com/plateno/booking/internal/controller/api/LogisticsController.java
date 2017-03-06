@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,9 +41,16 @@ public class LogisticsController extends BaseController{
     @RequestMapping(value="/queryOrderLogistics",method = RequestMethod.POST)
     public ResultVo<List<PackageProduct>> queryOrderLogistics(@RequestBody @Valid OrderLogisticsQueryReq  param,BindingResult result) throws Exception{
         log.info("查询订单物流信息,请求参数:"+ JsonUtils.toJsonString(param));
+        ResultVo<List<PackageProduct>> resultVo = new ResultVo<List<PackageProduct>>();
         bindingResultHandler(result);
         checkBaseParam(param);
-        ResultVo<List<PackageProduct>> resultVo = new ResultVo<List<PackageProduct>>();
+        if(StringUtils.isBlank(param.getOrderNo()) && StringUtils.isBlank(param.getOrderSubNo())){
+            resultVo.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
+            resultVo.setResultMsg("父订单号或者子订单号不能为空");
+            return resultVo;
+        }
+        
+        
         resultVo.setData(logisticsService.queryOrderLogistics(param));
         return resultVo;
     }
@@ -68,21 +76,11 @@ public class LogisticsController extends BaseController{
             return response;
         }
         
-        if(param.getLogisticsType() == null || !LogisticsTypeData.hasType(param.getLogisticsType())) {
+        if(CollectionUtils.isEmpty(param.getDeliverGoodParams())){
             ResultVo<Object> response = new ResultVo<Object>();
             response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-            response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
+            response.setResultMsg("包裹数据为空");
             return response;
-        }
-        
-        //自提不去要物流编号
-        if(LogisticsEnum.from(param.getLogisticsType()) != LogisticsEnum.ZT) {
-            if(StringUtils.isBlank(param.getLogisticsNo())) {
-                ResultVo<Object> response = new ResultVo<Object>();
-                response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-                response.setResultMsg("请输入物流编号");
-                return response;
-            }
         }
         
         return logisticsService.deliverOrder(param);

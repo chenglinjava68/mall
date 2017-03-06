@@ -115,7 +115,8 @@
       #{packageFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" >
+  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" keyProperty="id"
+     keyColumn="ID" useGeneratedKeys="true">
     insert into m_logistics_package
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >

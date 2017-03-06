@@ -2,6 +2,8 @@ package com.plateno.booking.internal.bean.response.custom;
 
 import java.util.List;
 
+import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
+
 public class OrderDetail implements java.io.Serializable{
 
 
@@ -16,9 +18,22 @@ public class OrderDetail implements java.io.Serializable{
 	
 	private List<SubOrderDetail> subOrderDetails;
 	
+	/**
+	 * 包裹数据
+	 */
+	private List<PackageProduct> packageProducts;
 	
 	
-	public List<SubOrderDetail> getSubOrderDetails() {
+	
+	public List<PackageProduct> getPackageProducts() {
+        return packageProducts;
+    }
+
+    public void setPackageProducts(List<PackageProduct> packageProducts) {
+        this.packageProducts = packageProducts;
+    }
+
+    public List<SubOrderDetail> getSubOrderDetails() {
         return subOrderDetails;
     }
 
@@ -372,6 +387,11 @@ public class OrderDetail implements java.io.Serializable{
 		private static final long serialVersionUID = 7221564211594276296L;
 		
 		/**
+		 * order_product表的id
+		 */
+		private Integer orderProductId;
+		
+		/**
 		 * 商品ID
 		 */
 		private Integer productId;
@@ -504,6 +524,14 @@ public class OrderDetail implements java.io.Serializable{
 		public void setProductPropertis(String productPropertis) {
 			this.productPropertis = productPropertis;
 		}
+
+        public Integer getOrderProductId() {
+            return orderProductId;
+        }
+
+        public void setOrderProductId(Integer orderProductId) {
+            this.orderProductId = orderProductId;
+        }
 
 	}
 }

@@ -24,19 +24,17 @@ import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
-import com.plateno.booking.internal.base.vo.MOrderSearchVO;
-import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
+import com.plateno.booking.internal.bean.request.logistics.OrderLogisticsQueryReq;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail;
-import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
-import com.plateno.booking.internal.conf.data.LogisticsTypeData;
+import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
+import com.plateno.booking.internal.service.logistics.LogisticsService;
 import com.plateno.booking.internal.service.order.build.OrderBuildService;
-import com.plateno.booking.internal.util.vo.PageInfo;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 
 @Service
@@ -58,6 +56,11 @@ public class OrderQueryService {
     private LogisticsPackageMapper packageMapper;
     @Autowired
     private OrderProductService orderProductService;
+    
+    @Autowired
+    private LogisticsService logisticsService;
+    
+    
     /**
      * 查询订单信息,并支持分页处理
      * 
@@ -227,6 +230,10 @@ public class OrderQueryService {
         int count = orderBuildService.buildSubOrderDetail(order).size();
         orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm , count));
         orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order.getOrderNo(), plateForm));
+        //订单状态符合再查询物流信息
+        OrderLogisticsQueryReq req = new OrderLogisticsQueryReq();
+        req.setOrderNo(order.getOrderNo());
+        orderDetail.setPackageProducts(logisticsService.queryOrderLogistics(req));
         return orderDetail;
     }
 

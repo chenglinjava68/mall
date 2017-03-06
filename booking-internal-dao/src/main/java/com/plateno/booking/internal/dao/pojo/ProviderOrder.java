@@ -6,6 +6,7 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo
 
 public class ProviderOrder {
 
+    
     /**
      * 父订单号
      */
@@ -78,7 +79,7 @@ public class ProviderOrder {
     private Integer productAmout;
     
     
-    
+
     public Integer getDeductPrice() {
         return deductPrice;
     }

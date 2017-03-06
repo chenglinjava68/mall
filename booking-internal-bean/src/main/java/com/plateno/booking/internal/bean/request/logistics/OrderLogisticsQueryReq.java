@@ -1,9 +1,5 @@
 package com.plateno.booking.internal.bean.request.logistics;
 
-import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotEmpty;
-
 import com.plateno.booking.internal.base.model.BaseParam;
 
 public class OrderLogisticsQueryReq extends BaseParam{
@@ -12,16 +8,30 @@ public class OrderLogisticsQueryReq extends BaseParam{
     */ 
     private static final long serialVersionUID = 1L;
     
-    @NotNull(message = "订单编号不能为空")
-    @NotEmpty(message = "订单编号不能为空")
+    /**
+     * 父订单号
+     */
     private String orderNo;
 
+    /**
+     * 子订单号
+     */
+    private String orderSubNo;
+    
     public String getOrderNo() {
         return orderNo;
     }
 
     public void setOrderNo(String orderNo) {
         this.orderNo = orderNo;
+    }
+
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
     }
     
     
