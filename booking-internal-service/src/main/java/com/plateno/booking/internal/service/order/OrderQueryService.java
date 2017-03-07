@@ -434,6 +434,7 @@ public class OrderQueryService {
         }
         //优惠券金额
         sc.setCouponAmount(order.getCouponAmount());
+        sc.setChanelid(order.getChanelid());
         list.add(sc);
     }
     

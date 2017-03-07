@@ -115,10 +115,23 @@ public class SelectOrderResponse implements java.io.Serializable{
 	 */
 	private Integer totalExpressAmount;
 	
+	/**
+	 * 仓库id
+	 */
+    private Integer chanelid;
 	
-	
-	
-	public Integer getCouponAmount() {
+    
+    
+    
+	public Integer getChanelid() {
+        return chanelid;
+    }
+
+    public void setChanelid(Integer chanelid) {
+        this.chanelid = chanelid;
+    }
+
+    public Integer getCouponAmount() {
         return couponAmount;
     }
 

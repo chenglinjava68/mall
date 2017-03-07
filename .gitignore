@@ -26,3 +26,7 @@ mall-booking-util/bin/pom.xml
 booking-internal-hotel/bin/.gitignore
 mall-booking-conf/bin/.gitignore
 mall-booking-conf/bin/pom.xml
+booking-internal-dao/bin/target/booking-internal-dao-0.0.1.jar
+booking-internal-dao/bin/target/maven-archiver/pom.properties
+booking-internal-interceptor/bin/target/booking-internal-interceptor-0.0.1.jar
+booking-internal-interceptor/bin/target/maven-archiver/pom.properties
