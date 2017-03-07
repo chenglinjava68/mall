@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.dao.pojo;
 
+import java.util.Date;
 import java.util.List;
 
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
@@ -78,7 +79,59 @@ public class ProviderOrder {
      */
     private Integer productAmout;
     
+    /**
+     * 收货人姓名
+     */
+    private String consigneeName;
     
+    /**
+     * 收货人手机
+     */
+    private String consigneeMobile;
+    
+    /**
+     * 收货人地址
+     */
+    private String consigneeAddress;
+    
+    /**
+     * 订单创建时间
+     */
+    private Date createTime;
+    
+    
+    
+    public String getConsigneeAddress() {
+        return consigneeAddress;
+    }
+
+    public void setConsigneeAddress(String consigneeAddress) {
+        this.consigneeAddress = consigneeAddress;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getConsigneeName() {
+        return consigneeName;
+    }
+
+    public void setConsigneeName(String consigneeName) {
+        this.consigneeName = consigneeName;
+    }
+
+    public String getConsigneeMobile() {
+        return consigneeMobile;
+    }
+
+    public void setConsigneeMobile(String consigneeMobile) {
+        this.consigneeMobile = consigneeMobile;
+    }
 
     public Integer getDeductPrice() {
         return deductPrice;
@@ -192,7 +245,7 @@ public class ProviderOrder {
         this.viewStatus = viewStatus;
     }
     
-    
+
     
     
 }

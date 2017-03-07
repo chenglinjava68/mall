@@ -8,8 +8,6 @@
 		mo.`pay_status` AS subPayStatus,
 		mo.`resource` AS resource,
 		mo.`create_time`,
-		logistics.`consignee_name`,
-		logistics.`consignee_mobile`,
 		mo.order_no as orderNo,
 		mo.`name`,
 		mo.`mobile`,

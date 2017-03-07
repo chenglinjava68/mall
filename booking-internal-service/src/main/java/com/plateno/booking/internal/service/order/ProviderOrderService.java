@@ -16,6 +16,7 @@ import com.plateno.booking.internal.base.model.ProviderOrderParam;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
+import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeInfo;
 import com.plateno.booking.internal.dao.mapper.ProviderOrderMapper;
 import com.plateno.booking.internal.dao.pojo.ProviderOrder;
 import com.plateno.booking.internal.dao.pojo.ProviderOrderDetail;
@@ -60,7 +61,7 @@ public class ProviderOrderService {
         }
         
         list = providerOrderMapper.queryProviderOrder(param);
-        buildProviderOrder(list);
+        buildProviderOrder(list,param);
         
         Integer count = providerOrderMapper.countProviderOrder(param);
         Double num = (Double.valueOf(count) / Double.valueOf(param.getPageNumber()));
@@ -71,7 +72,7 @@ public class ProviderOrderService {
         return vo;
     }
     
-    private void buildProviderOrder(List<ProviderOrder> list){
+    private void buildProviderOrder(List<ProviderOrder> list,ProviderOrderParam param){
         for(ProviderOrder provider : list){
             provider.setViewStatus(PayStatusEnum.toViewStatus(provider.getSubPayStatus()));
             //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
@@ -83,7 +84,11 @@ public class ProviderOrderService {
                     provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
             }
             providerOrderBuildService.buildProductInfosAndCal(provider);
-            
+            //查询收货人地址，采用前端查询，返回替换后的最新收件人姓名，地址，电话
+            ConsigneeInfo consigneeInfo = orderBuildService.buildConsigneeInfo(provider.getOrderNo(), 3);
+            provider.setConsigneeMobile(consigneeInfo.getMobile());
+            provider.setConsigneeName(consigneeInfo.getConsigneeName());
+            provider.setConsigneeAddress(consigneeInfo.getConsigneeAddress());
         }
     }
     

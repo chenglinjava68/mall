@@ -9,20 +9,14 @@ import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
 
 public class ProviderOrderDetail extends ProviderOrder{
 
-    /**
-     * 创建时间
-     */
-    private Date createTime;
+
     
     /**
      * 支付时间
      */
     private Date payTime;
     
-    /**
-     * 收货人信息
-     */
-    private ConsigneeInfo consigneeInfo;
+
     
     /**
      * 发货信息
@@ -31,8 +25,22 @@ public class ProviderOrderDetail extends ProviderOrder{
 
     private List<PackageProduct> packageProducts;
     
+    /**
+     * 收货人信息
+     */
+    private ConsigneeInfo consigneeInfo;
     
     
+    
+    
+    public ConsigneeInfo getConsigneeInfo() {
+        return consigneeInfo;
+    }
+
+    public void setConsigneeInfo(ConsigneeInfo consigneeInfo) {
+        this.consigneeInfo = consigneeInfo;
+    }
+
     public List<PackageProduct> getPackageProducts() {
         return packageProducts;
     }
@@ -41,13 +49,7 @@ public class ProviderOrderDetail extends ProviderOrder{
         this.packageProducts = packageProducts;
     }
 
-    public Date getCreateTime() {
-        return createTime;
-    }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     public Date getPayTime() {
         return payTime;
@@ -57,13 +59,7 @@ public class ProviderOrderDetail extends ProviderOrder{
         this.payTime = payTime;
     }
 
-    public ConsigneeInfo getConsigneeInfo() {
-        return consigneeInfo;
-    }
 
-    public void setConsigneeInfo(ConsigneeInfo consigneeInfo) {
-        this.consigneeInfo = consigneeInfo;
-    }
 
     public List<DeliverDetail> getDeliverDetails() {
         return deliverDetails;
