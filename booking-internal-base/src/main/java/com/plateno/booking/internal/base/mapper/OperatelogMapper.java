@@ -4,9 +4,8 @@ import com.plateno.booking.internal.base.pojo.Operatelog;
 import com.plateno.booking.internal.base.pojo.OperatelogExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
 
-public interface OperatelogMapper extends BaseMapper {
+public interface OperatelogMapper {
     int countByExample(OperatelogExample example);
 
     int deleteByExample(OperatelogExample example);
@@ -16,8 +15,6 @@ public interface OperatelogMapper extends BaseMapper {
     int insert(Operatelog record);
 
     int insertSelective(Operatelog record);
-
-    List<Operatelog> selectByExampleWithRowbounds(OperatelogExample example, RowBounds rowBounds);
 
     List<Operatelog> selectByExample(OperatelogExample example);
 

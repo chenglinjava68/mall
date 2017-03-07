@@ -177,6 +177,7 @@ public class MOrderService {
             return output;
         }
         Operatelog logs = new Operatelog();
+        logs.setOperateTime(new Date());
         BeanUtils.copyProperties(orderParam, logs);
         operatelogMapper.insertSelective(logs);
         return output;
@@ -333,16 +334,29 @@ public class MOrderService {
             throws Exception {
         ResultVo<List<MOperateLogResponse>> output = new ResultVo<List<MOperateLogResponse>>();
         List<MOperateLogResponse> lisLogs = new ArrayList<MOperateLogResponse>();
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(params.getOrderCode(),
-                        params.getMemberId(), params.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
+        if(StringUtils.isNotBlank(params.getOrderCode())){
+            List<Order> listOrder =
+                    mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(params.getOrderCode(),
+                            params.getMemberId(), params.getChannelId());
+            if (CollectionUtils.isEmpty(listOrder)) {
+                output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+                output.setResultMsg("订单查询失败,获取不到订单");
+                return output;
+            }
+        }
+        if(StringUtils.isNotBlank(params.getOrderSubNo())){
+            List<Order> listOrder = mallOrderMapper.queryOrderByOrderSubNo(params.getOrderSubNo(), params.getMemberId(), params.getChannelId());
+            if (CollectionUtils.isEmpty(listOrder)) {
+                output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+                output.setResultMsg("订单查询失败,获取不到订单");
+                return output;
+            }
         }
         OperatelogExample operatelogExample = new OperatelogExample();
-        operatelogExample.createCriteria().andOrderCodeEqualTo(params.getOrderCode());
+        if(StringUtils.isNotBlank(params.getOrderCode()))
+            operatelogExample.createCriteria().andOrderCodeEqualTo(params.getOrderCode());
+        if(StringUtils.isNotBlank(params.getOrderSubNo()))
+            operatelogExample.createCriteria().andOrderSubNoEqualTo(params.getOrderSubNo());
         List<Operatelog> listlogs = operatelogMapper.selectByExample(operatelogExample);
         for (Operatelog log : listlogs) {
             MOperateLogResponse response = new MOperateLogResponse();
@@ -350,7 +364,8 @@ public class MOrderService {
             response.setOperateType(log.getOperateType());
             response.setOperateUserid(log.getOperateUserid());
             response.setOperateUserName(log.getOperateUsername());
-            response.setOrderCode(log.getOrderCode());
+            //将子订单赋值到父订单号中
+            response.setOrderCode(StringUtils.isNotBlank(params.getOrderSubNo()) ? log.getOrderSubNo() : log.getOrderCode());
             response.setPlateForm(log.getPlateForm());
             response.setRemark(log.getRemark());
             lisLogs.add(response);

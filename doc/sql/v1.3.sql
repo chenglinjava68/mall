@@ -10,6 +10,8 @@ ALTER TABLE m_order_product ADD `coupou_reduce_amount` INT(11)  COMMENT '优惠�
 ALTER TABLE m_order_product ADD `point_reduce_amount` INT(11)  COMMENT '积分优惠金额，单位（分）';
 UPDATE m_order_product SET order_sub_no = order_no;
 
+ALTER TABLE operate_log ADD `order_sub_no` VARCHAR(30)   DEFAULT '' COMMENT '子订单code';
+
 CREATE TABLE m_order_sub
 (
    id                   INT NOT NULL AUTO_INCREMENT,

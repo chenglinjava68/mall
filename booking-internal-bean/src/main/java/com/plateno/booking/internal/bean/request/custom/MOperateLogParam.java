@@ -13,8 +13,23 @@ public class MOperateLogParam extends BaseParam implements Serializable{
 	private String remark;
 	
 	private String orderCode;
+	
+	/**
+	 * 子订单号
+	 */
+	private String orderSubNo;
+	
+	
 
-	public Integer getOperateType() {
+	public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
+    }
+
+    public Integer getOperateType() {
 		return operateType;
 	}
 
