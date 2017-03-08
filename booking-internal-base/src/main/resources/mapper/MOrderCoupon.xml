@@ -19,6 +19,9 @@
 			<if test="subCouponType != null and subCouponType != ''" >
 				<![CDATA[ AND sub_coupon_type = #{subCouponType} ]]>
 			</if>
+			<if test="configId != null and configId != ''" >
+				<![CDATA[ AND config_id = #{configId} ]]>
+			</if>
 		</where>
 		ORDER BY id DESC 
 		<![CDATA[ LIMIT #{start} , #{size}  ]]>
@@ -39,6 +42,9 @@
 			<if test="subCouponType != null and subCouponType != ''" >
 				<![CDATA[ AND sub_coupon_type = #{subCouponType} ]]>
 			</if>
+			<if test="configId != null and configId != ''" >
+				<![CDATA[ AND config_id = #{configId} ]]>
+			</if>
 		</where>
 	</select>
 	
@@ -58,7 +64,8 @@
 									coupon_name=#{couponName},
 									amount=#{amount},
 									order_coupon_amount=#{orderCouponAmount},
-									create_time=#{createTime}
+									create_time=#{createTime},
+									config_id = #{configId}
 					]]>
 	</insert>
     
@@ -72,7 +79,8 @@
 									coupon_name=#{couponName},
 									amount=#{amount},
 									order_coupon_amount=#{orderCouponAmount},
-									create_time=#{createTime}
+									create_time=#{createTime},
+									config_id = #{configId}
 				where id = #{id}
 		]]>
 	</update>

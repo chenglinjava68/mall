@@ -77,6 +77,12 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 */
 	private BigDecimal couponAmount;
 	
+	
+	/**
+	 * 优惠券配置id
+	 */
+	private Integer configId;
+	
 	/**
 	 * 有效的优惠券金额（当商品需要支付的金额小于优惠券金额时，就是商品需要支付的金额）
 	 */
@@ -105,6 +111,8 @@ public class MAddBookingParam extends BaseParam implements Serializable {
     private int sid;
     
     
+    
+    
 	@Override
     public String toString() {
         return "MAddBookingParam [goodsList=" + goodsList + ", totalAmount=" + totalAmount
@@ -116,6 +124,22 @@ public class MAddBookingParam extends BaseParam implements Serializable {
                 + ", couponId=" + couponId + ", couponName=" + couponName + ", couponAmount="
                 + couponAmount + ", validCouponAmount=" + validCouponAmount + ", province="
                 + province + ", city=" + city + ", area=" + area + "]";
+    }
+
+
+
+
+
+    public Integer getConfigId() {
+        return configId;
+    }
+
+
+
+
+
+    public void setConfigId(Integer configId) {
+        this.configId = configId;
     }
 
 

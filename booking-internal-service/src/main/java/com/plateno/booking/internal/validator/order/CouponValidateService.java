@@ -126,11 +126,12 @@ public class CouponValidateService {
                 return;
             }
         }
+        //设置优惠券信息
         orderCheckDetail.setCouponOrderAmount(productApplyAmoutBig);
         addBookingParam.setCouponName(StringUtils.trimToEmpty(result.getData().getCouponInfo().get(0).getCouponName()));
         addBookingParam.setCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
         addBookingParam.setValidCouponAmount(result.getData().getCouponInfo().get(0).getAmount());
-        
+        addBookingParam.setConfigId(result.getData().getCouponInfo().get(0).getConfigId());
     }
     
     

@@ -71,6 +71,7 @@ public class OrderInsertActorService {
             mOrderCouponPO.setAmount(book.getCouponAmount());
             mOrderCouponPO.setOrderCouponAmount(book.getValidCouponAmount());
             mOrderCouponPO.setCreateTime(new Date());
+            mOrderCouponPO.setConfigId(book.getConfigId());
             mOrderCouponMapper.insert(mOrderCouponPO);
         }
 
