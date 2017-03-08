@@ -903,25 +903,27 @@ public class MOrderService {
         OrderPayLog refundOrderPayLog = refundLogList.get(0);
         OrderPayLog successOrderPayLog = listPayLog.get(0);
 
-        //旧的网关退款数据，走旧的退款平台，收银台referenceid是空的
-        if(StringUtils.isNotBlank(refundOrderPayLog.getReferenceid())){
-          //封装退款参数
-            RefundOrderParam refundOrderParam=new  RefundOrderParam();
+        // 旧的网关退款数据，走旧的退款平台，收银台referenceid是空的
+        if (StringUtils.isNotBlank(refundOrderPayLog.getReferenceid())) {
+            // 封装退款参数
+            RefundOrderParam refundOrderParam = new RefundOrderParam();
             refundOrderParam.setRefundAmount(-refundOrderPayLog.getAmount());
-            refundOrderParam.setRefundOrderNo(refundOrderPayLog.getTrandNo());  //退款申请的订单号
+            refundOrderParam.setRefundOrderNo(refundOrderPayLog.getTrandNo()); // 退款申请的订单号
             refundOrderParam.setRemark(refundOrderPayLog.getRemark());
-            refundOrderParam.setOrderNo(successOrderPayLog.getTrandNo()); //原交易订单号
-            
-            //调用支付网关退款
+            refundOrderParam.setOrderNo(successOrderPayLog.getTrandNo()); // 原交易订单号
+
+            // 调用支付网关退款
             RefundOrderResponse response = null;
             try {
                 response = paymentService.refundOrder(refundOrderParam);
             } catch (Exception e) {
                 logger.error("支付网关申请退款异常:" + successOrderPayLog.getTrandNo(), e);
             }
-            logger.info(String.format("refundOrderNo:%s, 网关申请退款, 返回:%s", refundOrderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
-            return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
-        }else{
+            logger.info(String.format("refundOrderNo:%s, 网关申请退款, 返回:%s",
+                    refundOrderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
+            return new ResultVo<Object>(ResultCode.SUCCESS, null,
+                    MsgCode.REFUND_HANDLING.getMessage());
+        } else {
             RefundOrderReq refundOrderReq = new RefundOrderReq();
             refundOrderReq.setTradeNo(successOrderPayLog.getTrandNo());// 支付流水号
             refundOrderReq.setRefundTradeNo(refundOrderPayLog.getTrandNo());
@@ -940,7 +942,8 @@ public class MOrderService {
                 logger.info("orderNo:{}, 网关申请退款成功, 返回:{}", refundOrderPayLog.getTrandNo(),
                         JsonUtils.toJsonString(refundOrderResponse));
             }
-            return new ResultVo<Object>(ResultCode.SUCCESS, null, MsgCode.REFUND_HANDLING.getMessage());
+            return new ResultVo<Object>(ResultCode.SUCCESS, null,
+                    MsgCode.REFUND_HANDLING.getMessage());
         }
     }
 
@@ -1506,46 +1509,59 @@ public class MOrderService {
             return;
 
         for (OrderPayLog orderPayLog : listpayLog) {
-            
-            if(StringUtils.isNotBlank(orderPayLog.getReferenceid())){
-                //获取网关的订单状态
-                RefundQueryResponse response = paymentService.refundOrderQuery(orderPayLog.getTrandNo());
-                logger.info(String.format("orderNo:%s, 查询退款状态，返回：%s", order.getOrderNo(), JsonUtils.toJsonString(response)));
+
+            if (StringUtils.isNotBlank(orderPayLog.getReferenceid())) {
+                // 获取网关的订单状态
+                RefundQueryResponse response =
+                        paymentService.refundOrderQuery(orderPayLog.getTrandNo());
+                logger.info(String.format("orderNo:%s, 查询退款状态，返回：%s", order.getOrderNo(),
+                        JsonUtils.toJsonString(response)));
                 if (response == null || StringUtils.isBlank(response.getCode())) {
                     logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
                     return;
                 }
-                if(response.getCode().equals(PayGateCode.HADNLING) || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
-                    logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                if (response.getCode().equals(PayGateCode.HADNLING)
+                        || response.getCode().equals(PayGateCode.PAY_HADNLING)) {
+                    logger.error(String.format("退款支付网关订单支付中, trandNo:%s, code:%s",
+                            orderPayLog.getTrandNo(), response.getCode()));
                     orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
                     orderPayLog.setUpTime(new Date());
-                    orderPayLog.setRemark(String.format("退款支付网关订单支付中, trandNo:%s, code:%s", orderPayLog.getTrandNo(), response.getCode()));
+                    orderPayLog.setRemark(String.format("退款支付网关订单支付中, trandNo:%s, code:%s",
+                            orderPayLog.getTrandNo(), response.getCode()));
                     orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
                     return;
                 }
-            }else{
+            } else {
                 CashierRefundQueryReq cashierRefundQueryReq = new CashierRefundQueryReq();
                 cashierRefundQueryReq.setRefundTradeNo(orderPayLog.getTrandNo());
                 cashierRefundQueryReq.setUpdatePayStatusFlag(1);
                 CashierRefundQueryResponse cashierRefundQueryResponse =
                         cashierDeskService.refundQuery(cashierRefundQueryReq);
                 logger.info("orderNo:{},refundTraNo:{}, 查询退款状态，返回：{}", order.getOrderNo(),
-                        orderPayLog.getTrandNo(), JsonUtils.toJsonString(cashierRefundQueryResponse));
+                        orderPayLog.getTrandNo(),
+                        JsonUtils.toJsonString(cashierRefundQueryResponse));
 
                 if (cashierRefundQueryResponse == null
                         || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
                     logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
-                    String remark = "查询支付网关订单失败,";
-                    if(null != cashierRefundQueryResponse && null != cashierRefundQueryResponse.getResult())
-                        remark += cashierRefundQueryResponse.getResult().toString();
-                    orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
-                    orderPayLog.setUpTime(new Date());
-                    orderPayLog.setRemark(remark);
-                    orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+                    // 明确退款失败则记录失败，其他情况继续轮询,0200退款失败
+                    if (null != cashierRefundQueryResponse.getResult()
+                            && cashierRefundQueryResponse.getResult().getCode().equals("0020")) {
+                        String remark = "查询支付网关订单失败,";
+                        if (null != cashierRefundQueryResponse
+                                && null != cashierRefundQueryResponse.getResult())
+                            remark += cashierRefundQueryResponse.getResult().toString();
+                        orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                        orderPayLog.setUpTime(new Date());
+                        orderPayLog.setRemark(remark);
+                        orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+
+                    }
                     return;
+
                 }
             }
-            
+
             example = new OrderPayLogExample();
             example.createCriteria().andIdEqualTo(orderPayLog.getId());
             logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
