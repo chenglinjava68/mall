@@ -30,7 +30,19 @@ public class GsOrderLog implements Serializable {
 
     private String description;
 
+    private String orderSubNo;
+    
     private static final long serialVersionUID = 1L;
+
+    
+    
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
+    }
 
     public Long getId() {
         return id;
