@@ -72,7 +72,7 @@ public class PayService {
 
     @Autowired
     private DictService dictService;
-    
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -299,14 +299,16 @@ public class PayService {
         if (cashierPayQueryResponse == null
                 || cashierPayQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
             logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
-            //明确查询支付中失败才记录，0100，其他情况返回继续轮询
-            if(null != cashierPayQueryResponse.getResult() && "0100".equals(cashierPayQueryResponse.getResult().getCode())){
+            // 明确查询支付中失败才记录，0100，其他情况返回继续轮询
+            if (null != cashierPayQueryResponse.getResult()
+                    && "0100".equals(cashierPayQueryResponse.getResult().getCode())) {
                 orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
                 orderPayLog.setUpTime(new Date());
                 String remark = "";
-                if(null != cashierPayQueryResponse.getResult())
+                if (null != cashierPayQueryResponse.getResult())
                     remark = cashierPayQueryResponse.getResult().toString();
-                orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage()+ "," + remark);
+                orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage() + ","
+                        + remark);
                 orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
             }
             return;
@@ -396,21 +398,10 @@ public class PayService {
         Order updateOrder = new Order();
         updateOrder.setUpTime(new Date());
         updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
-        //指定渠道支付，直接将订单状态改为已完成
-        if(null != order.getSubResource()){
-            Dict dict = dictService.findDictByKey("sid");
-            if (null != dict) {
-                String value = dict.getOrderValue();
-                String[] valueArr = value.split(",");
-                for (String temp : valueArr) {
-                    //判断sid是否符合
-                    if (order.getSubResource().compareTo(Integer.valueOf(temp)) == 0){
-                        updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);
-                    }
-                }
-            }
+        // 线下交易，则订单状态为已发货
+        if (null != order.getOffline() && order.getOffline() == 1) {
+            updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);
         }
-        
         updateOrder.setPayTime(new Date());
         updateOrder.setCurrencyDepositAmount(bookingPayQueryVo.getCurrencyDepositAmount());
         updateOrder.setGatewayAmount(bookingPayQueryVo.getGatewayAmount());

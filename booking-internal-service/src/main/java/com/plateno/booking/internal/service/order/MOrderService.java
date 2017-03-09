@@ -476,19 +476,8 @@ public class MOrderService {
             if (book.getTotalAmount() <= 0) {
                 orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
                 payType = 3; // 支付方式，无需支付
-                if(null != book.getSubResource()){
-                    Dict dict = dictService.findDictByKey("sid");
-                    if (null != dict) {
-                        String value = dict.getOrderValue();
-                        String[] valueArr = value.split(",");
-                        for (String temp : valueArr) {
-                            //判断sid是否符合
-                            if (book.getSubResource().compareTo(Integer.valueOf(temp)) == 0){
-                                orderStatus = BookingResultCodeContants.PAY_STATUS_4;
-                            }
-                        }
-                    }
-                }
+                //线下交易，订单状态为已发货
+                orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
             }
 
             ordes.setResource(book.getResource());

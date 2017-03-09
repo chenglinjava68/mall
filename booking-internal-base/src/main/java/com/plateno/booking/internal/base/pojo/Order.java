@@ -93,7 +93,19 @@ public class Order implements Serializable {
      */
     private Integer gatewayAmount;
     
+    private Integer offline;
+    
     private static final long serialVersionUID = 1L;
+
+    
+    
+    public Integer getOffline() {
+        return offline;
+    }
+
+    public void setOffline(Integer offline) {
+        this.offline = offline;
+    }
 
     public Integer getId() {
         return id;

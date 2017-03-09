@@ -16,3 +16,5 @@ CREATE TABLE `m_dict` (
 );
 
 INSERT INTO m_dict VALUES(NULL,'sid','31566,31567',NOW(),1);
+
+ALTER TABLE m_order ADD offline INT(11) DEFAULT 0 COMMENT '是否为线下,1是0否';

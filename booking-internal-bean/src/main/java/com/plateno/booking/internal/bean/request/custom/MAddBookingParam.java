@@ -95,7 +95,22 @@ public class MAddBookingParam extends BaseParam implements Serializable {
      */
     private String area;
 
-	public String getProvince() {
+    /**
+     * 是否为线下交易，1是0否
+     */
+    private Integer offline;
+    
+    
+    
+	public Integer getOffline() {
+        return offline;
+    }
+
+    public void setOffline(Integer offline) {
+        this.offline = offline;
+    }
+
+    public String getProvince() {
 		return province;
 	}
 

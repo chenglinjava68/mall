@@ -1655,28 +1655,553 @@ public class OrderExample {
             return (Criteria) this;
         }
 
-        public Criteria andOrderNoLikeInsensitive(String value) {
-            addCriterion("upper(order_no) like", value.toUpperCase(), "orderNo");
+        public Criteria andRefundFailReasonIsNull() {
+            addCriterion("refund_fail_reason is null");
             return (Criteria) this;
         }
 
-        public Criteria andNameLikeInsensitive(String value) {
-            addCriterion("upper(name) like", value.toUpperCase(), "name");
+        public Criteria andRefundFailReasonIsNotNull() {
+            addCriterion("refund_fail_reason is not null");
             return (Criteria) this;
         }
 
-        public Criteria andMobileLikeInsensitive(String value) {
-            addCriterion("upper(mobile) like", value.toUpperCase(), "mobile");
+        public Criteria andRefundFailReasonEqualTo(String value) {
+            addCriterion("refund_fail_reason =", value, "refundFailReason");
             return (Criteria) this;
         }
 
-        public Criteria andRefundReasonLikeInsensitive(String value) {
-            addCriterion("upper(refund_reason) like", value.toUpperCase(), "refundReason");
+        public Criteria andRefundFailReasonNotEqualTo(String value) {
+            addCriterion("refund_fail_reason <>", value, "refundFailReason");
             return (Criteria) this;
         }
 
-        public Criteria andRemarkLikeInsensitive(String value) {
-            addCriterion("upper(remark) like", value.toUpperCase(), "remark");
+        public Criteria andRefundFailReasonGreaterThan(String value) {
+            addCriterion("refund_fail_reason >", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonGreaterThanOrEqualTo(String value) {
+            addCriterion("refund_fail_reason >=", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonLessThan(String value) {
+            addCriterion("refund_fail_reason <", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonLessThanOrEqualTo(String value) {
+            addCriterion("refund_fail_reason <=", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonLike(String value) {
+            addCriterion("refund_fail_reason like", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonNotLike(String value) {
+            addCriterion("refund_fail_reason not like", value, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonIn(List<String> values) {
+            addCriterion("refund_fail_reason in", values, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonNotIn(List<String> values) {
+            addCriterion("refund_fail_reason not in", values, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonBetween(String value1, String value2) {
+            addCriterion("refund_fail_reason between", value1, value2, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andRefundFailReasonNotBetween(String value1, String value2) {
+            addCriterion("refund_fail_reason not between", value1, value2, "refundFailReason");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelIsNull() {
+            addCriterion("logic_del is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelIsNotNull() {
+            addCriterion("logic_del is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelEqualTo(Byte value) {
+            addCriterion("logic_del =", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelNotEqualTo(Byte value) {
+            addCriterion("logic_del <>", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelGreaterThan(Byte value) {
+            addCriterion("logic_del >", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelGreaterThanOrEqualTo(Byte value) {
+            addCriterion("logic_del >=", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelLessThan(Byte value) {
+            addCriterion("logic_del <", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelLessThanOrEqualTo(Byte value) {
+            addCriterion("logic_del <=", value, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelIn(List<Byte> values) {
+            addCriterion("logic_del in", values, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelNotIn(List<Byte> values) {
+            addCriterion("logic_del not in", values, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelBetween(Byte value1, Byte value2) {
+            addCriterion("logic_del between", value1, value2, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andLogicDelNotBetween(Byte value1, Byte value2) {
+            addCriterion("logic_del not between", value1, value2, "logicDel");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceIsNull() {
+            addCriterion("sub_resource is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceIsNotNull() {
+            addCriterion("sub_resource is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceEqualTo(Integer value) {
+            addCriterion("sub_resource =", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceNotEqualTo(Integer value) {
+            addCriterion("sub_resource <>", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceGreaterThan(Integer value) {
+            addCriterion("sub_resource >", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceGreaterThanOrEqualTo(Integer value) {
+            addCriterion("sub_resource >=", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceLessThan(Integer value) {
+            addCriterion("sub_resource <", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceLessThanOrEqualTo(Integer value) {
+            addCriterion("sub_resource <=", value, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceIn(List<Integer> values) {
+            addCriterion("sub_resource in", values, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceNotIn(List<Integer> values) {
+            addCriterion("sub_resource not in", values, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceBetween(Integer value1, Integer value2) {
+            addCriterion("sub_resource between", value1, value2, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andSubResourceNotBetween(Integer value1, Integer value2) {
+            addCriterion("sub_resource not between", value1, value2, "subResource");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostIsNull() {
+            addCriterion("total_product_cost is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostIsNotNull() {
+            addCriterion("total_product_cost is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostEqualTo(Integer value) {
+            addCriterion("total_product_cost =", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostNotEqualTo(Integer value) {
+            addCriterion("total_product_cost <>", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostGreaterThan(Integer value) {
+            addCriterion("total_product_cost >", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostGreaterThanOrEqualTo(Integer value) {
+            addCriterion("total_product_cost >=", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostLessThan(Integer value) {
+            addCriterion("total_product_cost <", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostLessThanOrEqualTo(Integer value) {
+            addCriterion("total_product_cost <=", value, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostIn(List<Integer> values) {
+            addCriterion("total_product_cost in", values, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostNotIn(List<Integer> values) {
+            addCriterion("total_product_cost not in", values, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostBetween(Integer value1, Integer value2) {
+            addCriterion("total_product_cost between", value1, value2, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalProductCostNotBetween(Integer value1, Integer value2) {
+            addCriterion("total_product_cost not between", value1, value2, "totalProductCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostIsNull() {
+            addCriterion("total_express_cost is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostIsNotNull() {
+            addCriterion("total_express_cost is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostEqualTo(Integer value) {
+            addCriterion("total_express_cost =", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostNotEqualTo(Integer value) {
+            addCriterion("total_express_cost <>", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostGreaterThan(Integer value) {
+            addCriterion("total_express_cost >", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostGreaterThanOrEqualTo(Integer value) {
+            addCriterion("total_express_cost >=", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostLessThan(Integer value) {
+            addCriterion("total_express_cost <", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostLessThanOrEqualTo(Integer value) {
+            addCriterion("total_express_cost <=", value, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostIn(List<Integer> values) {
+            addCriterion("total_express_cost in", values, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostNotIn(List<Integer> values) {
+            addCriterion("total_express_cost not in", values, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_cost between", value1, value2, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressCostNotBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_cost not between", value1, value2, "totalExpressCost");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountIsNull() {
+            addCriterion("coupon_amount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountIsNotNull() {
+            addCriterion("coupon_amount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountEqualTo(Integer value) {
+            addCriterion("coupon_amount =", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountNotEqualTo(Integer value) {
+            addCriterion("coupon_amount <>", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountGreaterThan(Integer value) {
+            addCriterion("coupon_amount >", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("coupon_amount >=", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountLessThan(Integer value) {
+            addCriterion("coupon_amount <", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountLessThanOrEqualTo(Integer value) {
+            addCriterion("coupon_amount <=", value, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountIn(List<Integer> values) {
+            addCriterion("coupon_amount in", values, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountNotIn(List<Integer> values) {
+            addCriterion("coupon_amount not in", values, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountBetween(Integer value1, Integer value2) {
+            addCriterion("coupon_amount between", value1, value2, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCouponAmountNotBetween(Integer value1, Integer value2) {
+            addCriterion("coupon_amount not between", value1, value2, "couponAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountIsNull() {
+            addCriterion("currency_deposit_amount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountIsNotNull() {
+            addCriterion("currency_deposit_amount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountEqualTo(Integer value) {
+            addCriterion("currency_deposit_amount =", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountNotEqualTo(Integer value) {
+            addCriterion("currency_deposit_amount <>", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountGreaterThan(Integer value) {
+            addCriterion("currency_deposit_amount >", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("currency_deposit_amount >=", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountLessThan(Integer value) {
+            addCriterion("currency_deposit_amount <", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountLessThanOrEqualTo(Integer value) {
+            addCriterion("currency_deposit_amount <=", value, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountIn(List<Integer> values) {
+            addCriterion("currency_deposit_amount in", values, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountNotIn(List<Integer> values) {
+            addCriterion("currency_deposit_amount not in", values, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountBetween(Integer value1, Integer value2) {
+            addCriterion("currency_deposit_amount between", value1, value2, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCurrencyDepositAmountNotBetween(Integer value1, Integer value2) {
+            addCriterion("currency_deposit_amount not between", value1, value2, "currencyDepositAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountIsNull() {
+            addCriterion("gateway_amount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountIsNotNull() {
+            addCriterion("gateway_amount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountEqualTo(Integer value) {
+            addCriterion("gateway_amount =", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountNotEqualTo(Integer value) {
+            addCriterion("gateway_amount <>", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountGreaterThan(Integer value) {
+            addCriterion("gateway_amount >", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("gateway_amount >=", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountLessThan(Integer value) {
+            addCriterion("gateway_amount <", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountLessThanOrEqualTo(Integer value) {
+            addCriterion("gateway_amount <=", value, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountIn(List<Integer> values) {
+            addCriterion("gateway_amount in", values, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountNotIn(List<Integer> values) {
+            addCriterion("gateway_amount not in", values, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountBetween(Integer value1, Integer value2) {
+            addCriterion("gateway_amount between", value1, value2, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andGatewayAmountNotBetween(Integer value1, Integer value2) {
+            addCriterion("gateway_amount not between", value1, value2, "gatewayAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineIsNull() {
+            addCriterion("offline is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineIsNotNull() {
+            addCriterion("offline is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineEqualTo(Integer value) {
+            addCriterion("offline =", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotEqualTo(Integer value) {
+            addCriterion("offline <>", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineGreaterThan(Integer value) {
+            addCriterion("offline >", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineGreaterThanOrEqualTo(Integer value) {
+            addCriterion("offline >=", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineLessThan(Integer value) {
+            addCriterion("offline <", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineLessThanOrEqualTo(Integer value) {
+            addCriterion("offline <=", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineIn(List<Integer> values) {
+            addCriterion("offline in", values, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotIn(List<Integer> values) {
+            addCriterion("offline not in", values, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineBetween(Integer value1, Integer value2) {
+            addCriterion("offline between", value1, value2, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotBetween(Integer value1, Integer value2) {
+            addCriterion("offline not between", value1, value2, "offline");
             return (Criteria) this;
         }
     }

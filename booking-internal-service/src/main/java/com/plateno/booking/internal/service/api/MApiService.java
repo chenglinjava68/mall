@@ -52,8 +52,6 @@ public class MApiService {
 
     @Autowired
     private CouponService couponService;
-    @Autowired
-    private DictService dictService;
 
     /*
      * 
@@ -79,32 +77,15 @@ public class MApiService {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ResultVo Validate(MAddBookingParam addBookingParam, ResultVo output) {
-        
-     // 地址为空，指定的sid可不用校验地址
-        if (StringUtils.isBlank(addBookingParam.getConsigneeAddress())) {
-            if(null == addBookingParam.getSubResource()){
-                output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-                output.setResultMsg("地址不能为空");
-                return output;
-            }
-            Dict dict = dictService.findDictByKey("sid");
-            // sid不能为空
-            if (null != dict) {
-                String value = dict.getOrderValue();
-                String[] valueArr = value.split(",");
-                boolean flag = false;
-                for (String temp : valueArr) {
-                    if (addBookingParam.getSubResource().compareTo(Integer.valueOf(temp)) == 0)
-                        flag = true;
-                }
-                if (!flag) {
-                    output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-                    output.setResultMsg("地址不能为空");
-                    return output;
-                }
-            }
+
+        // 线下交易可不校验地址，线上交易需校验地址
+        if (StringUtils.isBlank(addBookingParam.getConsigneeAddress())
+                && 0 == addBookingParam.getOffline()) {
+            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+            output.setResultMsg("地址不能为空");
+            return output;
         }
-        
+
         ProductSkuBean pskubean = new ProductSkuBean();
         try {
             pskubean =
@@ -287,7 +268,7 @@ public class MApiService {
             return output;
         }
 
-        
+
         return output;
     }
 
