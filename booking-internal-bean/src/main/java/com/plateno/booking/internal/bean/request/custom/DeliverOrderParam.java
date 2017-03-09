@@ -7,7 +7,7 @@ import com.plateno.booking.internal.base.model.BaseParam;
 
 
 
-public class MOrderParam extends BaseParam implements Serializable {
+public class DeliverOrderParam extends BaseParam implements Serializable {
 	
 	private static final long serialVersionUID = 1205169223416028536L;
 	
@@ -34,11 +34,20 @@ public class MOrderParam extends BaseParam implements Serializable {
 	 */
 	private Integer payType;
 	
-
+	/**
+	 * 包裹集合
+	 */
+	private List<DeliverGoodParam> deliverGoodParams;
 	
 
 
+    public List<DeliverGoodParam> getDeliverGoodParams() {
+        return deliverGoodParams;
+    }
 
+    public void setDeliverGoodParams(List<DeliverGoodParam> deliverGoodParams) {
+        this.deliverGoodParams = deliverGoodParams;
+    }
 
     public String getOrderNo() {
         return orderNo;

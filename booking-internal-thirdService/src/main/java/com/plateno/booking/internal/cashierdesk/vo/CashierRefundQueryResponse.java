@@ -23,6 +23,11 @@ public class CashierRefundQueryResponse {
     public void setResult(CashierRefundQueryVo result) {
         this.result = result;
     }
+    @Override
+    public String toString() {
+        return "CashierRefundQueryResponse [msgCode=" + msgCode + ", message=" + message
+                + ", result=" + result + "]";
+    }
     
     
 }

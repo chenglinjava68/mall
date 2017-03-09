@@ -7,7 +7,19 @@ public class RefundOrderReq extends CashierBaseParam{
     private String refundOrderNo;//退款流水号
     private Integer memberId;//会员ID
     private Integer amount;//订单金额
+    /**
+     * 储值金额
+     */
+    private Integer currencyAmount;
     
+    
+    
+    public Integer getCurrencyAmount() {
+        return currencyAmount;
+    }
+    public void setCurrencyAmount(Integer currencyAmount) {
+        this.currencyAmount = currencyAmount;
+    }
     public String getTradeNo() {
         return tradeNo;
     }
@@ -37,6 +49,12 @@ public class RefundOrderReq extends CashierBaseParam{
     }
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+    @Override
+    public String toString() {
+        return "RefundOrderReq [tradeNo=" + tradeNo + ", refundTradeNo=" + refundTradeNo
+                + ", refundOrderNo=" + refundOrderNo + ", memberId=" + memberId + ", amount="
+                + amount + ", currencyAmount=" + currencyAmount + "]";
     }
 
     

@@ -97,7 +97,7 @@ public class MOrderWebRPCService extends BaseController{
 	
 	@ResponseBody
 	@RequestMapping(value = "/userRefund" ,method = RequestMethod.POST)
-	public ResultVo<Object> userRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
+	public ResultVo<Object> userRefund(@RequestBody MOrderParam param,BindingResult result) throws Exception{
 		log.info("用户申请退款的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
 		checkBaseParam(param);

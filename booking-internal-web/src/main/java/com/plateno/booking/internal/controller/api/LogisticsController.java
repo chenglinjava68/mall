@@ -19,6 +19,7 @@ import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.LogisticsEnum;
+import com.plateno.booking.internal.bean.request.custom.DeliverOrderParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.request.logistics.OrderLogisticsQueryReq;
@@ -57,7 +58,7 @@ public class LogisticsController extends BaseController{
     
     @ResponseBody
     @RequestMapping(value = "/deliverGoods" ,method = RequestMethod.POST)
-    public ResultVo<Object> deliverGoods(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
+    public ResultVo<Object> deliverGoods(@RequestBody @Valid DeliverOrderParam param,BindingResult result) throws Exception{
         log.info("订单发货通知接口,请求参数:"+ JsonUtils.toJsonString(param));
         bindingResultHandler(result);
         checkBaseParam(param);

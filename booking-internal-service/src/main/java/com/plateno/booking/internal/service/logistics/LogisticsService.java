@@ -29,6 +29,7 @@ import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.DeliverGoodParam;
+import com.plateno.booking.internal.bean.request.custom.DeliverOrderParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
@@ -190,12 +191,12 @@ public class LogisticsService {
      * @throws Exception
      */
     @Transactional
-    public ResultVo<Object> deliverOrder(final MOrderParam orderParam){
+    public ResultVo<Object> deliverOrder(final DeliverOrderParam param){
         ResultVo<Object> output = new ResultVo<Object>();
         // 校验订单是否可被处理
         List<Order> listOrder =
-                mallOrderMapper.queryOrderByOrderSubNo(orderParam.getOrderSubNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
+                mallOrderMapper.queryOrderByOrderSubNo(param.getOrderSubNo(),
+                        param.getMemberId(), param.getChannelId());
         if (CollectionUtils.isEmpty(listOrder)) {
             output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
             output.setResultMsg("订单查询失败,获取不到订单");
@@ -210,16 +211,16 @@ public class LogisticsService {
         orderUpdateService.updateToPayStatus_4(order);
         orderLogService.saveGSOrderLogWithOrderSubNo(order.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
-                ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(),orderParam.getOrderSubNo());
+                ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(),param.getOrderSubNo());
         
         //删除子订单下旧的包裹数据
-        logisticsMapperExt.delPackageByOrderSubNo(orderParam.getOrderSubNo());
+        logisticsMapperExt.delPackageByOrderSubNo(param.getOrderSubNo());
         //批量新增包裹
-        insertPackageBatch(order, orderParam);
+        insertPackageBatch(order, param);
         // 发送到短信
-        sendMsg(orderParam, order);
+        sendMsg(param, order);
         // 记录操作日志
-        recoredDeliverLog(orderParam, order);
+        recoredDeliverLog(param, order);
         return output;
     }
 
@@ -232,13 +233,13 @@ public class LogisticsService {
     * @return void    
     * @throws
      */
-    private void sendMsg(MOrderParam orderParam,Order order){
+    private void sendMsg(DeliverOrderParam param,Order order){
         DeliverGoodContent content = new DeliverGoodContent();
         content.setObjectNo(order.getOrderNo());
         content.setOrderCode(order.getOrderNo());
-        content.setName(orderProductService.getProductNameByOrderSubNo(orderParam.getOrderSubNo()));
-        content.setExpress(LogisticsTypeData.getDataMap().get(orderParam.getLogisticsType()));
-        content.setExpressCode(StringUtils.isBlank(orderParam.getLogisticsNo()) ? "无" : orderParam
+        content.setName(orderProductService.getProductNameByOrderSubNo(param.getOrderSubNo()));
+        content.setExpress(LogisticsTypeData.getDataMap().get(param.getLogisticsType()));
+        content.setExpressCode(StringUtils.isBlank(param.getLogisticsNo()) ? "无" : param
                 .getLogisticsNo());
         phoneMsgService.sendPhoneMessageAsync(order.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
                 content);
@@ -253,13 +254,13 @@ public class LogisticsService {
     * @return void    
     * @throws
      */
-    private void recoredDeliverLog(MOrderParam orderParam,Order order){
+    private void recoredDeliverLog(DeliverOrderParam param,Order order){
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
-        paramlog.setOperateUserid(orderParam.getOperateUserid());
-        paramlog.setOperateUsername(orderParam.getOperateUsername());
+        paramlog.setOperateUserid(param.getOperateUserid());
+        paramlog.setOperateUsername(param.getOperateUsername());
         paramlog.setOrderCode(order.getOrderNo());
-        paramlog.setPlateForm(orderParam.getPlateForm());
+        paramlog.setPlateForm(param.getPlateForm());
         paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
         operateLogService.saveOperateLog(paramlog);
     }
@@ -272,14 +273,14 @@ public class LogisticsService {
     * @return void    
     * @throws
      */
-    private void insertPackageBatch(Order order,MOrderParam orderParam){
-        for (DeliverGoodParam deliverGoodParam : orderParam.getDeliverGoodParams()) {
+    private void insertPackageBatch(Order order,DeliverOrderParam param){
+        for (DeliverGoodParam deliverGoodParam : param.getDeliverGoodParams()) {
             LogisticsPackage logisticsPackage = new LogisticsPackage();
             logisticsPackage.setLogisticsNo(deliverGoodParam.getLogisticsNo());
             logisticsPackage.setLogisticsType(deliverGoodParam.getLogisticsType());
             logisticsPackage.setCreateTime(new Date());
             logisticsPackage.setPackageFlag(PackageStatusEnum.START.getType());// 发货状态
-            logisticsPackage.setOrderSubNo(orderParam.getOrderSubNo());
+            logisticsPackage.setOrderSubNo(param.getOrderSubNo());
             logisticsPackage.setOrderNo(order.getOrderNo());
             logisticsPackageMapper.insertSelective(logisticsPackage);
             // 批量新增到logistics_product表中

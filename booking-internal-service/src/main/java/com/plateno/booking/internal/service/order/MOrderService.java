@@ -3,6 +3,8 @@ package com.plateno.booking.internal.service.order;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -334,7 +336,7 @@ public class MOrderService {
             throws Exception {
         ResultVo<List<MOperateLogResponse>> output = new ResultVo<List<MOperateLogResponse>>();
         List<MOperateLogResponse> lisLogs = new ArrayList<MOperateLogResponse>();
-        if(StringUtils.isNotBlank(params.getOrderCode())){
+        if (StringUtils.isNotBlank(params.getOrderCode())) {
             List<Order> listOrder =
                     mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(params.getOrderCode(),
                             params.getMemberId(), params.getChannelId());
@@ -344,8 +346,10 @@ public class MOrderService {
                 return output;
             }
         }
-        if(StringUtils.isNotBlank(params.getOrderSubNo())){
-            List<Order> listOrder = mallOrderMapper.queryOrderByOrderSubNo(params.getOrderSubNo(), params.getMemberId(), params.getChannelId());
+        if (StringUtils.isNotBlank(params.getOrderSubNo())) {
+            List<Order> listOrder =
+                    mallOrderMapper.queryOrderByOrderSubNo(params.getOrderSubNo(),
+                            params.getMemberId(), params.getChannelId());
             if (CollectionUtils.isEmpty(listOrder)) {
                 output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
                 output.setResultMsg("订单查询失败,获取不到订单");
@@ -353,9 +357,9 @@ public class MOrderService {
             }
         }
         OperatelogExample operatelogExample = new OperatelogExample();
-        if(StringUtils.isNotBlank(params.getOrderCode()))
+        if (StringUtils.isNotBlank(params.getOrderCode()))
             operatelogExample.createCriteria().andOrderCodeEqualTo(params.getOrderCode());
-        if(StringUtils.isNotBlank(params.getOrderSubNo()))
+        if (StringUtils.isNotBlank(params.getOrderSubNo()))
             operatelogExample.createCriteria().andOrderSubNoEqualTo(params.getOrderSubNo());
         List<Operatelog> listlogs = operatelogMapper.selectByExample(operatelogExample);
         for (Operatelog log : listlogs) {
@@ -364,8 +368,9 @@ public class MOrderService {
             response.setOperateType(log.getOperateType());
             response.setOperateUserid(log.getOperateUserid());
             response.setOperateUserName(log.getOperateUsername());
-            //将子订单赋值到父订单号中
-            response.setOrderCode(StringUtils.isNotBlank(params.getOrderSubNo()) ? log.getOrderSubNo() : log.getOrderCode());
+            // 将子订单赋值到父订单号中
+            response.setOrderCode(StringUtils.isNotBlank(params.getOrderSubNo()) ? log
+                    .getOrderSubNo() : log.getOrderCode());
             response.setPlateForm(log.getPlateForm());
             response.setRemark(log.getRemark());
             lisLogs.add(response);
@@ -492,7 +497,8 @@ public class MOrderService {
         op.setExpressCost(orderCheckInfo.getCostExpress());
         op.setOrderSubNo(order.getOrderNo() + orderCheckInfo.getChannelId());
         op.setChannelId(orderCheckInfo.getChannelId());
-        op.setProvidedId( null != orderCheckInfo.getProviderId() ? orderCheckInfo.getProviderId() : null);
+        op.setProvidedId(null != orderCheckInfo.getProviderId() ? orderCheckInfo.getProviderId()
+                : null);
         op.setExpressAmount(orderCheckInfo.getExpressFee());
         if (order.getCouponAmount() > 0) {
             // 单个商品占用的优惠券金额
@@ -522,8 +528,8 @@ public class MOrderService {
         BigDecimal pointMoneyBig =
                 new BigDecimal(orderCheckDetail.getPointDeductValue().getPointValue());
         int pointMoney =
-                productBig.divide(totalProductBig,2, BigDecimal.ROUND_DOWN).multiply(pointMoneyBig)
-                        .setScale(2, BigDecimal.ROUND_DOWN).intValue();
+                productBig.divide(totalProductBig, 2, BigDecimal.ROUND_DOWN)
+                        .multiply(pointMoneyBig).setScale(2, BigDecimal.ROUND_DOWN).intValue();
         return pointMoney;
     }
 
@@ -545,13 +551,17 @@ public class MOrderService {
             if (temp.getSpuId() == orderCheckInfo.getSpuId()) {
                 // 商品金额
                 BigDecimal couponAmoutBig =
-                        new BigDecimal(couponAmout).divide(new BigDecimal("100"),2, BigDecimal.ROUND_DOWN);
+                        new BigDecimal(couponAmout).divide(new BigDecimal("100"), 2,
+                                BigDecimal.ROUND_DOWN);
                 BigDecimal productAmoutBig =
-                        new BigDecimal(orderCheckInfo.getPrice()).divide(new BigDecimal("100"),2, BigDecimal.ROUND_DOWN);
+                        new BigDecimal(orderCheckInfo.getPrice()).divide(new BigDecimal("100"), 2,
+                                BigDecimal.ROUND_DOWN);
                 // （商品金额/订单总金额）*couponAmout,统一转化为BigDecimal运算
                 BigDecimal productCouponAmoutBig =
-                        productAmoutBig.divide(orderCheckDetail.getCouponOrderAmount(),2, BigDecimal.ROUND_DOWN)
-                                .multiply(couponAmoutBig).setScale(2, BigDecimal.ROUND_DOWN);
+                        productAmoutBig
+                                .divide(orderCheckDetail.getCouponOrderAmount(), 2,
+                                        BigDecimal.ROUND_DOWN).multiply(couponAmoutBig)
+                                .setScale(2, BigDecimal.ROUND_DOWN);
                 return productCouponAmoutBig.multiply(new BigDecimal("100")).intValue();
             }
         }
@@ -775,7 +785,8 @@ public class MOrderService {
             refundOrderReq.setTradeNo(successOrderPayLog.getTrandNo());// 支付流水号
             refundOrderReq.setRefundTradeNo(refundOrderPayLog.getTrandNo());
             refundOrderReq.setRefundOrderNo(orderParam.getOrderNo());
-            refundOrderReq.setAmount(-refundOrderPayLog.getAmount());// 金额
+            refundOrderReq.setAmount(-refundOrderPayLog.getAmount());// 总金额
+            refundOrderReq.setCurrencyAmount(-refundOrderPayLog.getCurrencyDepositAmount());//储值金额
             refundOrderReq.setMemberId(orderParam.getMemberId());// 会员id
             CashierRefundOrderResponse refundOrderResponse =
                     cashierDeskService.refundOrder(refundOrderReq);
@@ -890,6 +901,8 @@ public class MOrderService {
         if (listOrder.get(0).getPayMoney() > 0) {
             OrderPayLog orderPayLog = new OrderPayLog();
             orderPayLog.setAmount(-listOrder.get(0).getPayMoney());
+            orderPayLog.setCurrencyDepositAmount(-listOrder.get(0).getCurrencyDepositAmount());
+            orderPayLog.setGatewayAmount(-listOrder.get(0).getGatewayAmount());
             orderPayLog.setType(2);// 支出
             orderPayLog.setPoint(listOrder.get(0).getPoint());
             orderPayLog.setClientType(1);
@@ -1108,17 +1121,14 @@ public class MOrderService {
     public void handleGateWayefund(Order order) throws Exception {
 
         String orderNo = order.getOrderNo();
-
         // 获取记录并上锁，防止并发
         order = mallOrderMapper.getByOrderNoForUpdate(orderNo);
-
         if (order == null || order.getPayStatus() != PayStatusEnum.PAY_STATUS_10.getPayStatus()) {
             logger.info("退款确认，订单已经处理， orderNo:{}, payStatus:{}", orderNo,
                     order != null ? order.getPayStatus() + "" : "");
             return;
         }
-
-        logger.info(String.format("退款中订单处理开始, orderNo:%s", order.getOrderNo()));
+        logger.info("退款中订单处理开始, orderNo:{}", order.getOrderNo());
 
         OrderPayLogExample example = new OrderPayLogExample();
         example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2)
@@ -1127,9 +1137,11 @@ public class MOrderService {
         if (CollectionUtils.isEmpty(listpayLog))
             return;
 
+        // 支付网关和收银台切换时间
+        DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date startDate = dateFormat1.parse("2017-02-28 10:00:00");
         for (OrderPayLog orderPayLog : listpayLog) {
-
-            if (StringUtils.isNotBlank(orderPayLog.getReferenceid())) {
+            if (orderPayLog.getCreateTime().before(startDate)) {
                 // 获取网关的订单状态
                 RefundQueryResponse response =
                         paymentService.refundOrderQuery(orderPayLog.getTrandNo());
@@ -1151,44 +1163,61 @@ public class MOrderService {
                     return;
                 }
             } else {
-                CashierRefundQueryReq cashierRefundQueryReq = new CashierRefundQueryReq();
-                cashierRefundQueryReq.setRefundTradeNo(orderPayLog.getTrandNo());
-                cashierRefundQueryReq.setUpdatePayStatusFlag(1);
-                CashierRefundQueryResponse cashierRefundQueryResponse =
-                        cashierDeskService.refundQuery(cashierRefundQueryReq);
-                logger.info("orderNo:{},refundTraNo:{}, 查询退款状态，返回：{}", order.getOrderNo(),
-                        orderPayLog.getTrandNo(),
-                        JsonUtils.toJsonString(cashierRefundQueryResponse));
-
-                if (cashierRefundQueryResponse == null
-                        || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
-                    logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
-                    //明确退款失败则记录失败，其他情况继续轮询,0200退款失败
-                    if(null != cashierRefundQueryResponse.getResult() && cashierRefundQueryResponse.getResult().getCode().equals("0020")){
-                        String remark = "查询支付网关订单失败,";
-                        if (null != cashierRefundQueryResponse
-                                && null != cashierRefundQueryResponse.getResult())
-                            remark += cashierRefundQueryResponse.getResult().toString();
-                        orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
-                        orderPayLog.setUpTime(new Date());
-                        orderPayLog.setRemark(remark);
-                        orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
-                        
-                    }
+                //退款查询，失败或者退款中则返回
+                int flag = refundQuery(orderPayLog, orderNo);
+                if(flag == 0)
                     return;
-                }
             }
 
-            example = new OrderPayLogExample();
-            example.createCriteria().andIdEqualTo(orderPayLog.getId());
-            logger.info(String.format("orderNo:%s, 退款成功", order.getOrderNo()));
-            OrderPayLog record = new OrderPayLog();
-            record.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-            record.setUpTime(new Date());
-            orderPayLogMapper.updateByExampleSelective(record, example);
+            logger.info("orderNo:{}退款成功",orderNo);
+            updateOrderPayLog(orderPayLog);
         }
         orderRefundActorService.doSuccessOrderRefundActor(order);
 
+    }
+
+    /**
+     * 
+    * @Title: updateOrderPayLog 
+    * @Description: 更新流水日志
+    * @param @param orderPayLog    
+    * @return void    
+    * @throws
+     */
+    private void updateOrderPayLog(OrderPayLog orderPayLog){
+        orderPayLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
+        orderPayLog.setUpTime(new Date());
+        orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+    }
+
+    private int refundQuery(OrderPayLog orderPayLog, String orderNo) {
+        CashierRefundQueryReq cashierRefundQueryReq = new CashierRefundQueryReq();
+        cashierRefundQueryReq.setRefundTradeNo(orderPayLog.getTrandNo());
+        cashierRefundQueryReq.setUpdatePayStatusFlag(1);
+        CashierRefundQueryResponse cashierRefundQueryResponse =
+                cashierDeskService.refundQuery(cashierRefundQueryReq);
+        logger.info("orderNo:{},refundTraNo:{}, 查询退款状态，返回：{}", orderNo, orderPayLog.getTrandNo(),
+                cashierRefundQueryResponse.toString());
+
+        if (cashierRefundQueryResponse == null
+                || cashierRefundQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
+            logger.warn("查询支付网关订单失败,tranNo:{}", orderPayLog.getTrandNo());
+            // 明确退款失败则记录失败，其他情况继续轮询,0200退款失败
+            if (null != cashierRefundQueryResponse.getResult()
+                    && cashierRefundQueryResponse.getResult().getCode().equals("0020")) {
+                String remark = "查询支付网关订单失败,";
+                if (null != cashierRefundQueryResponse
+                        && null != cashierRefundQueryResponse.getResult())
+                    remark += cashierRefundQueryResponse.getResult().toString();
+                orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
+                orderPayLog.setUpTime(new Date());
+                orderPayLog.setRemark(remark);
+                orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
+
+            }
+            return 0;
+        }
+        return 1;
     }
 
     /**

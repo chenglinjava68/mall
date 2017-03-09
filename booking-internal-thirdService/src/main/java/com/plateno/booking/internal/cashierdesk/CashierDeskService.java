@@ -120,7 +120,6 @@ public class CashierDeskService {
         CashierJaxrsJacksonJsonObjectMapper jacksonMapper = new CashierJaxrsJacksonJsonObjectMapper();
         String signString = jacksonMapper.writeValueAsString(req);
         req.setSignData(MD5Maker.getMD5(signString));
-
         return jacksonMapper.writeValueAsString(req);
 
     }

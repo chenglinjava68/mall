@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.exception.OrderException;
 import com.plateno.booking.internal.bean.request.custom.DeliverGoodParam;
+import com.plateno.booking.internal.bean.request.custom.DeliverOrderParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.util.JsonUtils;
@@ -51,7 +52,7 @@ public class LogtisticsServiceTest {
     @Test
     public void testDeliverOrder() throws OrderException, Exception{
         
-        MOrderParam orderParam = new MOrderParam();
+        DeliverOrderParam orderParam = new DeliverOrderParam();
         orderParam.setOrderNo("O1487756635130785187");
         orderParam.setOrderSubNo("O1487756635130785187");
         orderParam.setLogisticsType(1);
@@ -70,7 +71,7 @@ public class LogtisticsServiceTest {
     
     @Test
     public void testJson() throws IOException{
-        MOrderParam param = new MOrderParam();
+        DeliverOrderParam param = new DeliverOrderParam();
         param.setOrderSubNo("O1487730839969474119");
         List<DeliverGoodParam> deliverGoodParams = Lists.newArrayList();
         DeliverGoodParam deliverGoodParam = new DeliverGoodParam();

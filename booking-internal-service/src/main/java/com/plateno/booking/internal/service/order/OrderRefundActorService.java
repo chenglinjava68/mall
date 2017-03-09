@@ -68,19 +68,23 @@ public class OrderRefundActorService {
     * @throws
      */
     public void doSuccessOrderRefundActor(Order order) throws OrderException{
-        order.setRefundSuccesstime(new Date());
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
-        orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "网关退款成功", "支付网关退款同步：退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "支付网关回调通知");
-        //更新账单状态
-        orderMapper.updateByPrimaryKeySelective(order);
+        updateOrderStatusToRefund(order);
+        orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "收银台回调通知", "收银台回调通知：退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "收银台回调通知");
+        //返还积分
         returnPoint(order);
+        //返还库存
         List<OrderProduct> orderProductList = orderStockService.returnStock(order.getOrderNo());
         //如果使用了优惠券，退还优惠券
         if(order.getCouponAmount() > 0) {
             returnCoupon(order.getOrderNo(), order.getMemberId());
         }
-        
         sendMsg(order, orderProductList);
+    }
+    
+    private void updateOrderStatusToRefund(Order order){
+        order.setRefundSuccesstime(new Date());
+        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
+        orderMapper.updateByPrimaryKeySelective(order);
     }
     
     /**

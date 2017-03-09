@@ -887,10 +887,6 @@
      	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
 		</if>
 
-		<if test="record.memberId != null and record.memberId != ''">
-     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
-		</if>
-
 		<if test="record.receiver != null and record.receiver != ''">
 			AND order_no in (select order_no from m_logistics where
 			consignee_name like
@@ -970,10 +966,6 @@
 		</if>
 		<if test="record.queryDel == null or record.queryDel == false">
      	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
-		</if>
-
-		<if test="record.memberId != null and record.memberId != ''">
-     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
 		</if>
 
 		<if test="record.receiver != null and record.receiver != ''">
