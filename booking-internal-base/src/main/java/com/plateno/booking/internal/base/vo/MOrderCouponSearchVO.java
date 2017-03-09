@@ -20,7 +20,23 @@ public class MOrderCouponSearchVO extends BaseSearchVO {
 	/** 优惠券子类型 */
 	private Integer subCouponType;
 	
-	public String getOrderNo() {
+	/**
+	 * 优惠券配置id
+	 */
+	private Integer configId;
+	
+	
+	
+	
+	public Integer getConfigId() {
+        return configId;
+    }
+
+    public void setConfigId(Integer configId) {
+        this.configId = configId;
+    }
+
+    public String getOrderNo() {
 		return orderNo;
 	}
 	

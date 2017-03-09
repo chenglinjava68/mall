@@ -226,6 +226,8 @@ public class OrderBuildService {
                 productInfo.setPoint(orderProduct.getPoint());
                 productInfo.setSellStrategy(orderProduct.getSellStrategy());
                 productInfo.setDisImages(orderProduct.getDisImages());
+                productInfo.setCoupouReduceAmount(orderProduct.getCoupouReduceAmount());
+                productInfo.setDeductPrice(orderProduct.getDeductPrice());
                 productInfoList.add(productInfo);
             }
             subOrderDetail.setProductInfo(productInfoList);
