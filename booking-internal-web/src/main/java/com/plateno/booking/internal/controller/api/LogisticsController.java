@@ -135,7 +135,6 @@ public class LogisticsController extends BaseController{
         log.info("确定收货的操作,请求参数:"+ JsonUtils.toJsonString(param));
         bindingResultHandler(result);
         checkBaseParam(param);
-        
         if(param.getPlateForm() != null && (param.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || param.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
             
             if(StringUtils.isBlank(param.getOperateUserid())) {
@@ -144,7 +143,6 @@ public class LogisticsController extends BaseController{
                 out.setResultMsg("请输入操作人ID");
                 return out;
             }
-            
             if(StringUtils.isBlank(param.getOperateUsername())) {
                 ResultVo<Object> out = new ResultVo<Object>();
                 out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
@@ -152,7 +150,6 @@ public class LogisticsController extends BaseController{
                 return out;
             }
         }
-        
         return logisticsService.enterReceipt(param);
     }
     

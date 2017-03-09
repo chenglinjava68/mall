@@ -72,37 +72,37 @@ public class LogisticsService {
     private LogisticsMapperExt logisticsMapperExt;
     @Autowired
     private OrderUpdateService orderUpdateService;
-    
-    
+
+
     /**
      * 
-    * @Title: queryOrderLogistics 
-    * @Description: 查询物流信息
-    * @param @param param
-    * @param @return    
-    * @return List<PackageProduct>    
-    * @throws
+     * @Title: queryOrderLogistics
+     * @Description: 查询物流信息
+     * @param @param param
+     * @param @return
+     * @return List<PackageProduct>
+     * @throws
      */
     public List<PackageProduct> queryOrderLogistics(OrderLogisticsQueryReq param) {
-        //根据父订单号查询
-        if(StringUtils.isNotBlank(param.getOrderNo()))
+        // 根据父订单号查询
+        if (StringUtils.isNotBlank(param.getOrderNo()))
             return findByOrderNo(param.getOrderNo());
-        //根据子订单查询
-        if(StringUtils.isNotBlank(param.getOrderSubNo()))
+        // 根据子订单查询
+        if (StringUtils.isNotBlank(param.getOrderSubNo()))
             return findByOrderSubNo(param.getOrderSubNo());
         return new ArrayList<PackageProduct>();
     }
 
     /**
      * 
-    * @Title: findByOrderSubNo 
-    * @Description: 根据子订单号查询包裹信息
-    * @param @param orderSubNo
-    * @param @return    
-    * @return List<PackageProduct>    
-    * @throws
+     * @Title: findByOrderSubNo
+     * @Description: 根据子订单号查询包裹信息
+     * @param @param orderSubNo
+     * @param @return
+     * @return List<PackageProduct>
+     * @throws
      */
-    private List<PackageProduct> findByOrderSubNo(String orderSubNo){
+    private List<PackageProduct> findByOrderSubNo(String orderSubNo) {
         List<PackageProduct> packageProductList = Lists.newArrayList();
         LogisticsPackageExample logisticsPackageExample = new LogisticsPackageExample();
         logisticsPackageExample.createCriteria().andOrderSubNoEqualTo(orderSubNo);
@@ -111,7 +111,8 @@ public class LogisticsService {
         for (LogisticsPackage logisticsPackage : logisticsPackageList) {
             PackageProduct packageProduct = new PackageProduct();
             copyPackage(logisticsPackage, packageProduct);
-            packageProduct.setProducts(orderProductService.queryProductInfosByOrderSubNo(orderSubNo));
+            packageProduct.setProducts(orderProductService
+                    .queryProductInfosByOrderSubNo(orderSubNo));
             packageProductList.add(packageProduct);
         }
         return packageProductList;
@@ -119,12 +120,12 @@ public class LogisticsService {
 
     /**
      * 
-    * @Title: findByOrderNo 
-    * @Description: 根据父订单查询包裹信息
-    * @param @param orderNo
-    * @param @return    
-    * @return List<PackageProduct>    
-    * @throws
+     * @Title: findByOrderNo
+     * @Description: 根据父订单查询包裹信息
+     * @param @param orderNo
+     * @param @return
+     * @return List<PackageProduct>
+     * @throws
      */
     private List<PackageProduct> findByOrderNo(String orderNo) {
         List<PackageProduct> packageProductList = Lists.newArrayList();
@@ -165,24 +166,24 @@ public class LogisticsService {
 
     /**
      * 
-    * @Title: copyPackage 
-    * @Description: 拷贝属性
-    * @param @param logisticsPackage
-    * @param @param packageProduct    
-    * @return void    
-    * @throws
+     * @Title: copyPackage
+     * @Description: 拷贝属性
+     * @param @param logisticsPackage
+     * @param @param packageProduct
+     * @return void
+     * @throws
      */
-    private void copyPackage(LogisticsPackage logisticsPackage,PackageProduct packageProduct){
+    private void copyPackage(LogisticsPackage logisticsPackage, PackageProduct packageProduct) {
         packageProduct.setLogisticsNo(logisticsPackage.getLogisticsNo());
         packageProduct.setLogisticsType(logisticsPackage.getLogisticsType());
         packageProduct.setLogisticsName(LogisticsTypeData.getDataMap().get(
                 logisticsPackage.getLogisticsType()));
         packageProduct.setExpressFee(logisticsPackage.getExpressFee());
         packageProduct.setCreateTime(logisticsPackage.getCreateTime());
-        packageProduct.setPackageFlagName(PackageStatusEnum.from(logisticsPackage
-                .getPackageFlag()));
+        packageProduct
+                .setPackageFlagName(PackageStatusEnum.from(logisticsPackage.getPackageFlag()));
     }
-    
+
     /**
      * 更新订单状态(发货通知)
      * 
@@ -191,31 +192,20 @@ public class LogisticsService {
      * @throws Exception
      */
     @Transactional
-    public ResultVo<Object> deliverOrder(final DeliverOrderParam param){
+    public ResultVo<Object> deliverOrder(final DeliverOrderParam param) {
         ResultVo<Object> output = new ResultVo<Object>();
-        // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.queryOrderByOrderSubNo(param.getOrderSubNo(),
-                        param.getMemberId(), param.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-        Order order = listOrder.get(0);
-        orderValidate.checkDeliverOrder(order, output);
+        Order order = checkDeliverOrder(param, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-            return output;
+            return null;
         }
         // 修改订单状态为待收货状态
         orderUpdateService.updateToPayStatus_4(order);
         orderLogService.saveGSOrderLogWithOrderSubNo(order.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
-                ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(),param.getOrderSubNo());
-        
-        //删除子订单下旧的包裹数据
+                ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(), param.getOrderSubNo());
+        // 删除子订单下旧的包裹数据
         logisticsMapperExt.delPackageByOrderSubNo(param.getOrderSubNo());
-        //批量新增包裹
+        // 批量新增包裹
         insertPackageBatch(order, param);
         // 发送到短信
         sendMsg(param, order);
@@ -226,14 +216,40 @@ public class LogisticsService {
 
     /**
      * 
-    * @Title: sendMsg 
-    * @Description: 发送短信
-    * @param @param orderParam
-    * @param @param order    
-    * @return void    
-    * @throws
+     * @Title: checkDeliverOrder
+     * @Description: 检查该订单是否可以打包
+     * @param @param param
+     * @param @param output
+     * @param @return
+     * @return Order
+     * @throws
      */
-    private void sendMsg(DeliverOrderParam param,Order order){
+    private Order checkDeliverOrder(DeliverOrderParam param, ResultVo<Object> output) {
+        // 校验订单是否可被处理
+        List<Order> listOrder =
+                mallOrderMapper.queryOrderByOrderSubNo(param.getOrderSubNo(), param.getMemberId(),
+                        param.getChannelId());
+        if (CollectionUtils.isEmpty(listOrder)) {
+            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+            output.setResultMsg("订单查询失败,获取不到订单");
+            return null;
+        }
+        Order order = listOrder.get(0);
+        orderValidate.checkDeliverOrder(order, output);
+        return order;
+    }
+
+
+    /**
+     * 
+     * @Title: sendMsg
+     * @Description: 发送短信
+     * @param @param orderParam
+     * @param @param order
+     * @return void
+     * @throws
+     */
+    private void sendMsg(DeliverOrderParam param, Order order) {
         DeliverGoodContent content = new DeliverGoodContent();
         content.setObjectNo(order.getOrderNo());
         content.setOrderCode(order.getOrderNo());
@@ -244,17 +260,17 @@ public class LogisticsService {
         phoneMsgService.sendPhoneMessageAsync(order.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
                 content);
     }
-    
+
     /**
      * 
-    * @Title: recoredDeliverLog 
-    * @Description: 记录发货日志
-    * @param @param orderParam
-    * @param @param order    
-    * @return void    
-    * @throws
+     * @Title: recoredDeliverLog
+     * @Description: 记录发货日志
+     * @param @param orderParam
+     * @param @param order
+     * @return void
+     * @throws
      */
-    private void recoredDeliverLog(DeliverOrderParam param,Order order){
+    private void recoredDeliverLog(DeliverOrderParam param, Order order) {
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.DELIVER_ORDER.getOperateType());
         paramlog.setOperateUserid(param.getOperateUserid());
@@ -264,16 +280,16 @@ public class LogisticsService {
         paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
         operateLogService.saveOperateLog(paramlog);
     }
-    
+
     /**
      * 
-    * @Title: insertPackageBatch 
-    * @Description: 批量新增包裹
-    * @param @param orderParam    
-    * @return void    
-    * @throws
+     * @Title: insertPackageBatch
+     * @Description: 批量新增包裹
+     * @param @param orderParam
+     * @return void
+     * @throws
      */
-    private void insertPackageBatch(Order order,DeliverOrderParam param){
+    private void insertPackageBatch(Order order, DeliverOrderParam param) {
         for (DeliverGoodParam deliverGoodParam : param.getDeliverGoodParams()) {
             LogisticsPackage logisticsPackage = new LogisticsPackage();
             logisticsPackage.setLogisticsNo(deliverGoodParam.getLogisticsNo());
@@ -288,8 +304,8 @@ public class LogisticsService {
                     deliverGoodParam.getOrderProductIds());
         }
     }
-    
-    
+
+
     /**
      * 
      * @Title: modifydeliverOrder
@@ -343,22 +359,11 @@ public class LogisticsService {
     @Transactional(rollbackFor = Exception.class)
     public ResultVo<Object> enterReceipt(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
-        // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-        orderValidate.checkEnterReceiptStatus(listOrder.get(0), output);
+        Order order = checkEnterReceipt(orderParam, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-
         // 修改订单状态为已完成
-        Order order = listOrder.get(0);
         orderUpdateService.updateToPayStatus_5(order);
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_5, "确认收货", "手动确定收货", 0,
@@ -369,13 +374,39 @@ public class LogisticsService {
 
     /**
      * 
-    * @Title: recordReceiveLog 
-    * @Description: 记录收货日志
-    * @param @param orderParam    
-    * @return void    
+    * @Title: checkEnterReceipt 
+    * @Description: 检查是否可以确认收货
+    * @param @param orderParam
+    * @param @param output
+    * @param @return    
+    * @return Order    
     * @throws
      */
-    private void recordReceiveLog(MOrderParam orderParam){
+    private Order checkEnterReceipt(MOrderParam orderParam, ResultVo<Object> output) {
+        // 校验订单是否可被处理
+        List<Order> listOrder =
+                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
+                        orderParam.getMemberId(), orderParam.getChannelId());
+        if (CollectionUtils.isEmpty(listOrder)) {
+            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+            output.setResultMsg("订单查询失败,获取不到订单");
+            return null;
+        }
+        Order order = listOrder.get(0);
+        orderValidate.checkEnterReceiptStatus(listOrder.get(0), output);
+        return order;
+    }
+
+
+    /**
+     * 
+     * @Title: recordReceiveLog
+     * @Description: 记录收货日志
+     * @param @param orderParam
+     * @return void
+     * @throws
+     */
+    private void recordReceiveLog(MOrderParam orderParam) {
         // 如果是后台操作，记录操作日志
         if (orderParam.getPlateForm() != null
                 && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam
@@ -390,9 +421,9 @@ public class LogisticsService {
             operateLogService.saveOperateLog(paramlog);
         }
     }
-    
-    
-    
+
+
+
     public ResultVo<Object> modifyReceiptInfo(ReceiptParam receiptParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();

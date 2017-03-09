@@ -575,7 +575,7 @@
 
 	<select id="queryOrderSubNoCount" resultType="integer">
   	<![CDATA[ 
-		SELECT COUNT(*) FROM m_order_product t WHERE t.`order_no` = #{orderNo} GROUP BY order_sub_no
+		SELECT COUNT(DISTINCT(order_sub_no)) FROM m_order_product t WHERE t.`order_no` = #{orderNo}
 	]]>
 	</select>
 
