@@ -18,6 +18,7 @@ import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.model.BookingPayQueryVo;
 import com.plateno.booking.internal.base.model.NotifyReturn;
+import com.plateno.booking.internal.base.pojo.Dict;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
@@ -40,6 +41,7 @@ import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
+import com.plateno.booking.internal.service.dict.DictService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 
 @Service
@@ -68,6 +70,9 @@ public class PayService {
     @Autowired
     private CashierDeskService cashierDeskService;
 
+    @Autowired
+    private DictService dictService;
+    
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -391,6 +396,21 @@ public class PayService {
         Order updateOrder = new Order();
         updateOrder.setUpTime(new Date());
         updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+        //指定渠道支付，直接将订单状态改为已完成
+        if(null != order.getSubResource()){
+            Dict dict = dictService.findDictByKey("sid");
+            if (null != dict) {
+                String value = dict.getOrderValue();
+                String[] valueArr = value.split(",");
+                for (String temp : valueArr) {
+                    //判断sid是否符合
+                    if (order.getSubResource().compareTo(Integer.valueOf(temp)) == 0){
+                        updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);
+                    }
+                }
+            }
+        }
+        
         updateOrder.setPayTime(new Date());
         updateOrder.setCurrencyDepositAmount(bookingPayQueryVo.getCurrencyDepositAmount());
         updateOrder.setGatewayAmount(bookingPayQueryVo.getGatewayAmount());

@@ -103,6 +103,9 @@ public abstract class AbsParamVerifyService {
 		addBookingParam.setProvince(StringUtils.trimToEmpty(addBookingParam.getProvince()));
 		addBookingParam.setCity(StringUtils.trimToEmpty(addBookingParam.getCity()));
 		addBookingParam.setArea(StringUtils.trimToEmpty(addBookingParam.getArea()));
+		
+		
+		
 	}
 	
 }

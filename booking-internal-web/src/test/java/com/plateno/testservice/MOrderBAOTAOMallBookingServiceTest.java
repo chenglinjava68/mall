@@ -33,7 +33,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		addBookingParam.setQuantity(2);
 		addBookingParam.setConsigneeName("Zhangsan");
 		addBookingParam.setConsigneeMobile("13999999999");
-		addBookingParam.setConsigneeAddress("宇宙");
+		addBookingParam.setConsigneeAddress("");
 		addBookingParam.setProvince("广东省");
 		addBookingParam.setCity("广州市");
 		addBookingParam.setArea("番禺区");
@@ -45,7 +45,7 @@ public class MOrderBAOTAOMallBookingServiceTest {
 		addBookingParam.setMemberId(181295316);
 		addBookingParam.setResource(2);
 		addBookingParam.setSellStrategy(1);
-		addBookingParam.setSubResource(10086);
+		addBookingParam.setSubResource(1);
 		addBookingParam.setPoint(0);
 		//addBookingParam.setCouponId(19742);
 		

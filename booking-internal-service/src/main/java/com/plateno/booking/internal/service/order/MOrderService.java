@@ -30,6 +30,7 @@ import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
+import com.plateno.booking.internal.base.pojo.Dict;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
@@ -92,6 +93,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.member.PointService;
+import com.plateno.booking.internal.service.dict.DictService;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
@@ -171,7 +173,9 @@ public class MOrderService {
 
     @Autowired
     private OrderRefundActorService orderRefundActorService;
-
+    @Autowired
+    private DictService dictService;
+    
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -472,6 +476,19 @@ public class MOrderService {
             if (book.getTotalAmount() <= 0) {
                 orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
                 payType = 3; // 支付方式，无需支付
+                if(null != book.getSubResource()){
+                    Dict dict = dictService.findDictByKey("sid");
+                    if (null != dict) {
+                        String value = dict.getOrderValue();
+                        String[] valueArr = value.split(",");
+                        for (String temp : valueArr) {
+                            //判断sid是否符合
+                            if (book.getSubResource().compareTo(Integer.valueOf(temp)) == 0){
+                                orderStatus = BookingResultCodeContants.PAY_STATUS_4;
+                            }
+                        }
+                    }
+                }
             }
 
             ordes.setResource(book.getResource());

@@ -22,16 +22,11 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	@NotNull(message = "选购数量,不能为空")
 	private Integer quantity;
 
-	@NotNull(message = "收货人,不能为空")
-	@NotEmpty(message = "收货人,不能为空")
 	private String consigneeName;
 	
-	@NotNull(message = "收货人手机,不能为空")
-	@NotEmpty(message = "收货人手机,不能为空")
 	private String consigneeMobile;
 	
-	@NotNull(message = "收货地址,不能为空")
-	@NotEmpty(message = "收货地址,不能为空")
+
 	private String consigneeAddress;
 	
 	@NotNull(message = "配送方式,不能为空")
