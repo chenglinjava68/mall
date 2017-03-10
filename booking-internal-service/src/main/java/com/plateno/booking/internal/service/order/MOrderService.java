@@ -910,7 +910,7 @@ public class MOrderService {
         OrderPayLog successOrderPayLog = listPayLog.get(0);
 
         // 旧的网关退款数据，走旧的退款平台，收银台referenceid是空的
-        if (StringUtils.isNotBlank(refundOrderPayLog.getReferenceid())) {
+        if (StringUtils.isNotBlank(successOrderPayLog.getReferenceid())) {
             // 封装退款参数
             RefundOrderParam refundOrderParam = new RefundOrderParam();
             refundOrderParam.setRefundAmount(-refundOrderPayLog.getAmount());
@@ -1515,8 +1515,11 @@ public class MOrderService {
             return;
 
         for (OrderPayLog orderPayLog : listpayLog) {
-
-            if (StringUtils.isNotBlank(orderPayLog.getReferenceid())) {
+            //获取成功支付的流水
+            example = new OrderPayLogExample();
+            example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(2);
+            List<OrderPayLog> successPayLogList = orderPayLogMapper.selectByExample(example);
+            if (StringUtils.isNotBlank(successPayLogList.get(0).getReferenceid())) {
                 // 获取网关的订单状态
                 RefundQueryResponse response =
                         paymentService.refundOrderQuery(orderPayLog.getTrandNo());
