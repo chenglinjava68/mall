@@ -262,8 +262,8 @@ public class OrderQueryService {
         } else {
             refundAmount = order.getPayMoney();
         }
-
         sc.setRefundAmount(refundAmount);
+        sc.setRefundReason(order.getRefundReason());
         sc.setCouponAmount(order.getCouponAmount());
         sc.setPointMoney(order.getPointMoney());
         sc.setTotalExpressAmount(order.getTotalExpressAmount());

@@ -71,7 +71,6 @@ public class SelectOrderResponse implements java.io.Serializable{
 	private Integer subResource; 
 	
 	/**
-<<<<<<< HEAD
 	 * 储值金额
 	 */
 	private Integer currencyDepositAmount;
@@ -96,8 +95,10 @@ public class SelectOrderResponse implements java.io.Serializable{
      */
     private Integer chanelid;
     
-    
-
+    /**
+     * 退款原因
+     */
+    private String refundReason;
 	
 
 	
@@ -108,7 +109,15 @@ public class SelectOrderResponse implements java.io.Serializable{
     
     
     
-	public Integer getChanelid() {
+	public String getRefundReason() {
+        return refundReason;
+    }
+
+    public void setRefundReason(String refundReason) {
+        this.refundReason = refundReason;
+    }
+
+    public Integer getChanelid() {
         return chanelid;
     }
 
