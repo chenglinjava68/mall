@@ -477,10 +477,12 @@ public class MOrderService {
                 orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
                 payType = 3; // 支付方式，无需支付
                 //线下交易，订单状态为已发货
-                if(null != book.getOffline() && book.getOffline() == 1)
+                if(null != book.getOffline() && book.getOffline() == 1){
                     orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
+                    ordes.setOffline(book.getOffline());
+                }
             }
-
+            
             ordes.setResource(book.getResource());
             // 商品非积分的总的价格，不包含运费
             ordes.setAmount(book.getQuantity() * price + expressFee);
@@ -549,7 +551,11 @@ public class MOrderService {
             logistics.setConsigneeAddress(book.getConsigneeAddress());
             logistics.setConsigneeMobile(book.getConsigneeMobile());
             logistics.setExpressFee(pskubean.getExpressFee());
-            logistics.setLogisticsType(1);// 物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
+            //线下交易为自提
+            if(null != book.getOffline() && book.getOffline() == 1)
+                logistics.setLogisticsType(7);// 物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
+            else
+                logistics.setLogisticsType(1);// 物流类型(1 圆通、2申通、3韵达、4百事通、5顺丰、6 EMS),默认圆通
             logistics.setProvince(book.getProvince());
             logistics.setCity(book.getCity());
             logistics.setArea(book.getArea());
