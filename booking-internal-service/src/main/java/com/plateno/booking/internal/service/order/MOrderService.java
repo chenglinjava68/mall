@@ -479,10 +479,9 @@ public class MOrderService {
                 //线下交易，订单状态为已发货
                 if(null != book.getOffline() && book.getOffline() == 1){
                     orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
-                    ordes.setOffline(book.getOffline());
                 }
             }
-            
+            ordes.setOffline(book.getOffline());
             ordes.setResource(book.getResource());
             // 商品非积分的总的价格，不包含运费
             ordes.setAmount(book.getQuantity() * price + expressFee);
