@@ -477,7 +477,8 @@ public class MOrderService {
                 orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
                 payType = 3; // 支付方式，无需支付
                 //线下交易，订单状态为已发货
-                orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
+                if(null != book.getOffline() && book.getOffline() == 1)
+                    orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
             }
 
             ordes.setResource(book.getResource());
