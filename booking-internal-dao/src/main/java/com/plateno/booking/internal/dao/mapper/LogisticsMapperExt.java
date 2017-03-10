@@ -14,4 +14,15 @@ public interface LogisticsMapperExt {
     
     void delPackageProductByOrderSubNo(@Param("orderSubNo")String orderSubNo);
     
+    /**
+     * 
+    * @Title: queryOrderSubCount 
+    * @Description: 查询订单的子订单包裹数量
+    * @param @param orderNo
+    * @param @return    
+    * @return Integer    
+    * @throws
+     */
+    Integer queryOrderSubCount(@Param("orderNo")String orderNo);
+    
 }

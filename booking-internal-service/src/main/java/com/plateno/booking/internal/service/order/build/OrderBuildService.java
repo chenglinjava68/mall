@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
-import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
@@ -31,6 +30,7 @@ import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeIn
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.custom.SubOrderDetail;
+import com.plateno.booking.internal.dao.mapper.LogisticsMapperExt;
 
 @Service
 public class OrderBuildService {
@@ -42,11 +42,13 @@ public class OrderBuildService {
     private MLogisticsMapper mLogisticsMapper;
     
     @Autowired
-    private LogisticsPackageMapper packageMapper;
+    private LogisticsMapperExt logisticsMapperExt;
     
     
     @Autowired
     private OrderProductMapper orderProductMapper;
+    
+    
     
     /**
      * 
@@ -91,12 +93,10 @@ public class OrderBuildService {
             orderInfo.setOrderDetailRemark("待发货，快递公司将会在三个工作日内进行发货");
         } else if (order.getPayStatus().equals(4)) {
             //已发货状态，需要检查是否所有包裹都已经有快递单,如有未发货子订单，则为部分发货
-            LogisticsPackageExample example = new LogisticsPackageExample();
-            example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-            List<LogisticsPackage> list = packageMapper.selectByExample(example);
-            if(count != list.size()){
+            int orderSubNoCount = logisticsMapperExt.queryOrderSubCount(order.getOrderNo());
+            if(count != orderSubNoCount){
                 //部分发货状态
-                orderInfo.setViewStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
+                orderInfo.setViewStatus(PayStatusEnum.PAY_STATUS_14.getViewStstus());
                 orderInfo.setOrderDetailRemark("您的订单已发出部分商品，其他商品将陆续发出，请您耐心等候。");
             }else{
                 orderInfo.setOrderDetailRemark("待收货，请留意电话进行快递查收");
