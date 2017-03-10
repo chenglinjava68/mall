@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
+import com.plateno.booking.internal.base.constant.PayTypeEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
@@ -435,7 +436,7 @@ public class MOrderService {
         // 当优惠券的金额大于商品需要支付的金额的时候，如果包邮，需要支付的金额将会是0，这是直接把订单的状态变成代发货
         if (book.getTotalAmount() <= 0) {
             orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
-            payType = 3; // 支付方式，无需支付
+            payType = PayTypeEnum.PAY_TYPE_ACTIVITY.getPayType(); // 支付方式，无需支付
             if(book.getOffline() == 1){
               //线下交易，订单状态为已发货
                 orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();

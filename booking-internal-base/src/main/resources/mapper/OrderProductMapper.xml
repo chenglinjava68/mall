@@ -579,11 +579,11 @@
 	]]>
 	</select>
 
-	<select id="queryOrderSubNoByOrderNo">
+	<select id="queryOrderSubNoByOrderNo" resultType="String">
   	<![CDATA[ 
     	select order_sub_no
     	from m_order_product
-     	where order_no = #{order_no})
+     	where order_no = #{orderNo}
   	]]>
 	</select>
 

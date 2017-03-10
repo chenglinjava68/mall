@@ -12,4 +12,6 @@ public interface LogisticsMapperExt {
     
     void delPackageByOrderSubNo(@Param("orderSubNo")String orderSubNo);
     
+    void delPackageProductByOrderSubNo(@Param("orderSubNo")String orderSubNo);
+    
 }

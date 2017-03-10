@@ -26,8 +26,8 @@ public class CouponServiceTest {
     public void testQuery(){
         QueryParam param = new QueryParam();
         param.setPlatformId(CouponPlatformType.fromResource(2).getPlatformId());
-        param.setCouponId(1);
-        param.setMebId(181295316);
+        param.setCouponId(37695);
+        param.setMebId(135944358);
         ResultVo<QueryResponse> result = couponService.queryCoupon(param);
         System.out.println(result.getData().toString());
     }

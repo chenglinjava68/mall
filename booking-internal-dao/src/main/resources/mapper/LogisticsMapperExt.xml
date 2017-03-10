@@ -11,6 +11,11 @@
 </insert>  
 
 
+  <delete id="delPackageProductByOrderSubNo">
+    delete from m_logistics_product
+    where package_id in (select id from m_logistics_package where order_sub_no = #{orderSubNo})
+  </delete>
+
   <delete id="delPackageByOrderSubNo">
     delete from m_logistics_package
     where order_sub_no = #{orderSubNo}

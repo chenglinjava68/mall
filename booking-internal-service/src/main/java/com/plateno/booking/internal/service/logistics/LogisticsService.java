@@ -111,8 +111,7 @@ public class LogisticsService {
         for (LogisticsPackage logisticsPackage : logisticsPackageList) {
             PackageProduct packageProduct = new PackageProduct();
             copyPackage(logisticsPackage, packageProduct);
-            packageProduct.setProducts(orderProductService
-                    .queryProductInfosByOrderSubNo(orderSubNo));
+            packageProduct.setProducts(orderProductService.queryProductInfosByPackageId(logisticsPackage.getId()));
             packageProductList.add(packageProduct);
         }
         return packageProductList;
@@ -157,7 +156,7 @@ public class LogisticsService {
             for (LogisticsPackage logisticsPackage : logisticsPackageList) {
                 PackageProduct packageProduct = new PackageProduct();
                 copyPackage(logisticsPackage, packageProduct);
-                packageProduct.setProducts(orderProductService.queryProductInfosByOrderNo(orderNo));
+                packageProduct.setProducts(orderProductService.queryProductInfosByPackageId(logisticsPackage.getId()));
                 packageProductList.add(packageProduct);
             }
         }
@@ -204,6 +203,7 @@ public class LogisticsService {
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
                 ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(), param.getOrderSubNo());
         // 删除子订单下旧的包裹数据
+        logisticsMapperExt.delPackageProductByOrderSubNo(param.getOrderSubNo());
         logisticsMapperExt.delPackageByOrderSubNo(param.getOrderSubNo());
         // 批量新增包裹
         insertPackageBatch(order, param);
@@ -254,9 +254,6 @@ public class LogisticsService {
         content.setObjectNo(order.getOrderNo());
         content.setOrderCode(order.getOrderNo());
         content.setName(orderProductService.getProductNameByOrderSubNo(param.getOrderSubNo()));
-        content.setExpress(LogisticsTypeData.getDataMap().get(param.getLogisticsType()));
-        content.setExpressCode(StringUtils.isBlank(param.getLogisticsNo()) ? "无" : param
-                .getLogisticsNo());
         phoneMsgService.sendPhoneMessageAsync(order.getMobile(), Config.SMS_SERVICE_TEMPLATE_SEVEN,
                 content);
     }
