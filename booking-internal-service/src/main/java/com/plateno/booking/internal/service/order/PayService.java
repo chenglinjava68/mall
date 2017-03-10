@@ -18,6 +18,7 @@ import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.model.BookingPayQueryVo;
 import com.plateno.booking.internal.base.model.NotifyReturn;
+import com.plateno.booking.internal.base.pojo.Dict;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
@@ -40,6 +41,7 @@ import com.plateno.booking.internal.common.util.number.StringUtil;
 import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
+import com.plateno.booking.internal.service.dict.DictService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 
 @Service
@@ -67,6 +69,9 @@ public class PayService {
 
     @Autowired
     private CashierDeskService cashierDeskService;
+
+    @Autowired
+    private DictService dictService;
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception {
@@ -282,10 +287,10 @@ public class PayService {
         logger.info("支付中订单处理，orderId:{}, trandNo:{}", orderPayLog.getOrderId(),
                 orderPayLog.getTrandNo());
         // 获取网关的订单状态
+
         CashierPayQueryResponse cashierPayQueryResponse = queryPayFromCashier(orderPayLog);
         if(null == cashierPayQueryResponse)
             return;
-        
         PayQueryVo payQueryVo = cashierPayQueryResponse.getResult();
         BookingPayQueryVo bookingPayQueryVo = new BookingPayQueryVo();
         BeanUtils.copyProperties(bookingPayQueryVo, payQueryVo);
@@ -406,6 +411,10 @@ public class PayService {
         Order updateOrder = new Order();
         updateOrder.setUpTime(new Date());
         updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
+        // 线下交易，则订单状态为已发货
+        if (null != order.getOffline() && order.getOffline() == 1) {
+            updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_4);
+        }
         updateOrder.setPayTime(new Date());
         updateOrder.setCurrencyDepositAmount(bookingPayQueryVo.getCurrencyDepositAmount());
         updateOrder.setGatewayAmount(bookingPayQueryVo.getGatewayAmount());

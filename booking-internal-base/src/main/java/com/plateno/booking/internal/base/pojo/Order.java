@@ -100,7 +100,7 @@ public class Order implements Serializable {
      */
     private Integer totalExpressAmount;
     
-    
+    private Integer offline;
     
     public Integer getTotalExpressAmount() {
         return totalExpressAmount;
@@ -118,7 +118,19 @@ public class Order implements Serializable {
         this.pointMoney = pointMoney;
     }
 
+
+    
     private static final long serialVersionUID = 1L;
+
+    
+    
+    public Integer getOffline() {
+        return offline;
+    }
+
+    public void setOffline(Integer offline) {
+        this.offline = offline;
+    }
 
     public Integer getId() {
         return id;

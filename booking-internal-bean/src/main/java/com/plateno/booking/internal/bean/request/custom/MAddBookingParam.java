@@ -21,16 +21,11 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	private Integer totalAmount;
 	
 
-	@NotNull(message = "收货人,不能为空")
-	@NotEmpty(message = "收货人,不能为空")
 	private String consigneeName;
 	
-	@NotNull(message = "收货人手机,不能为空")
-	@NotEmpty(message = "收货人手机,不能为空")
 	private String consigneeMobile;
 	
-	@NotNull(message = "收货地址,不能为空")
-	@NotEmpty(message = "收货地址,不能为空")
+
 	private String consigneeAddress;
 	
 	@NotNull(message = "配送方式,不能为空")
@@ -110,7 +105,10 @@ public class MAddBookingParam extends BaseParam implements Serializable {
      */
     private int sid;
     
-    
+    /**
+     * 是否为线下交易，1是0否
+     */
+    private Integer offline;
     
     
 	@Override
@@ -133,6 +131,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
     public Integer getConfigId() {
         return configId;
     }
+
 
 
 
@@ -168,6 +167,19 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 
     public void setGoodsList(List<MOrderGoodsParam> goodsList) {
         this.goodsList = goodsList;
+    }
+        
+
+    
+    
+    
+	public Integer getOffline() {
+        return offline;
+    }
+
+    public void setOffline(Integer offline) {
+        this.offline = offline;
+
     }
 
     public String getProvince() {

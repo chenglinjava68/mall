@@ -116,4 +116,5 @@ public abstract class AbsParamVerifyService {
         addBookingParam.setArea(StringUtils.trimToEmpty(addBookingParam.getArea()));
     }
 
+
 }

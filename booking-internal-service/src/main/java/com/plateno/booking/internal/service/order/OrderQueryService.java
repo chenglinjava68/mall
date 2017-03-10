@@ -237,6 +237,7 @@ public class OrderQueryService {
         return orderDetail;
     }
 
+
     private void paramsDeal(Order order, List<SelectOrderResponse> list) {
         SelectOrderResponse sc = new SelectOrderResponse();
         sc.setPoint(order.getPoint());
@@ -297,11 +298,14 @@ public class OrderQueryService {
                 sc.setConsigneeAddress(mLogistics.getProvince() + mLogistics.getCity()
                         + mLogistics.getArea() + mLogistics.getConsigneeAddress());
             }
+            //总的快递费
+            sc.setTotalExpressAmount(mLogistics.getExpressFee());
         }
-
         //查询商品信息
         List<ProductInfo> productInfoList = orderProductService.queryProductInfosByOrderNo(order.getOrderNo());
         sc.setProductInfos(productInfoList);
+        sc.setChanelid(order.getChanelid());
+
         list.add(sc);
     }
 

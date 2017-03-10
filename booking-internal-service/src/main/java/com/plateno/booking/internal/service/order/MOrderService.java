@@ -83,6 +83,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.member.PointService;
+import com.plateno.booking.internal.service.dict.DictService;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
@@ -166,6 +167,11 @@ public class MOrderService {
 
     @Autowired
     private LogisticsPackageMapper packageMapper;
+
+
+    @Autowired
+    private DictService dictService;
+    
 
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
@@ -430,8 +436,11 @@ public class MOrderService {
         if (book.getTotalAmount() <= 0) {
             orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
             payType = 3; // 支付方式，无需支付
+            if(book.getOffline() == 1){
+              //线下交易，订单状态为已发货
+                orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
+            }
         }
-
         order.setResource(book.getResource());
         // 商品非积分的总的价格，不包含运费
         order.setAmount(orderCheckDetail.getTotalPrice());
@@ -761,7 +770,7 @@ public class MOrderService {
         OrderPayLog successOrderPayLog = listPayLog.get(0);
 
         // 旧的网关退款数据，走旧的退款平台，收银台referenceid是空的
-        if (StringUtils.isNotBlank(refundOrderPayLog.getReferenceid())) {
+        if (StringUtils.isNotBlank(successOrderPayLog.getReferenceid())) {
             // 封装退款参数
             RefundOrderParam refundOrderParam = new RefundOrderParam();
             refundOrderParam.setRefundAmount(-refundOrderPayLog.getAmount());
@@ -1141,7 +1150,12 @@ public class MOrderService {
         DateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Date startDate = dateFormat1.parse("2017-02-28 10:00:00");
         for (OrderPayLog orderPayLog : listpayLog) {
-            if (orderPayLog.getCreateTime().before(startDate)) {
+            //获取成功支付的流水
+            example = new OrderPayLogExample();
+            example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(1).andStatusEqualTo(2);
+            List<OrderPayLog> successPayLogList = orderPayLogMapper.selectByExample(example);
+            if (StringUtils.isNotBlank(successPayLogList.get(0).getReferenceid())) {
+
                 // 获取网关的订单状态
                 RefundQueryResponse response =
                         paymentService.refundOrderQuery(orderPayLog.getTrandNo());

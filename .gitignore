@@ -10,7 +10,30 @@
 *.mvn
 *.settings
 *.classpath
+<<<<<<< HEAD
 booking-internal-dao/bin/pom.xml
 booking-internal-email/bin/pom.xml
 booking-internal-hotel/bin/pom.xml
 booking-internal-interceptor/bin/pom.xml
+=======
+booking-internal-email/bin/pom.xml
+booking-internal-email/bin/target/booking-internal-email-0.0.1.jar
+booking-internal-email/bin/target/maven-archiver/pom.properties
+booking-internal-hotel/bin/pom.xml
+booking-internal-hotel/bin/target/booking-internal-hotel-0.0.1.jar
+booking-internal-hotel/bin/target/maven-archiver/pom.properties
+booking-internal-dao/bin/.gitignore
+booking-internal-dao/bin/pom.xml
+booking-internal-email/bin/.gitignore
+booking-internal-interceptor/bin/.gitignore
+booking-internal-interceptor/bin/pom.xml
+mall-booking-util/bin/.gitignore
+mall-booking-util/bin/pom.xml
+booking-internal-hotel/bin/.gitignore
+mall-booking-conf/bin/.gitignore
+mall-booking-conf/bin/pom.xml
+booking-internal-dao/bin/target/booking-internal-dao-0.0.1.jar
+booking-internal-dao/bin/target/maven-archiver/pom.properties
+booking-internal-interceptor/bin/target/booking-internal-interceptor-0.0.1.jar
+booking-internal-interceptor/bin/target/maven-archiver/pom.properties
+>>>>>>> master

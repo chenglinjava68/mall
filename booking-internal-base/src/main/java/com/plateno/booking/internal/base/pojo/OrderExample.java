@@ -2264,6 +2264,65 @@ public class OrderExample {
             addCriterion("total_express_amount not between", value1, value2, "totalExpressAmount");
             return (Criteria) this;
         }
+        public Criteria andOfflineIsNull() {
+            addCriterion("offline is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineIsNotNull() {
+            addCriterion("offline is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineEqualTo(Integer value) {
+            addCriterion("offline =", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotEqualTo(Integer value) {
+            addCriterion("offline <>", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineGreaterThan(Integer value) {
+            addCriterion("offline >", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineGreaterThanOrEqualTo(Integer value) {
+            addCriterion("offline >=", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineLessThan(Integer value) {
+            addCriterion("offline <", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineLessThanOrEqualTo(Integer value) {
+            addCriterion("offline <=", value, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineIn(List<Integer> values) {
+            addCriterion("offline in", values, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotIn(List<Integer> values) {
+            addCriterion("offline not in", values, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineBetween(Integer value1, Integer value2) {
+            addCriterion("offline between", value1, value2, "offline");
+            return (Criteria) this;
+        }
+
+        public Criteria andOfflineNotBetween(Integer value1, Integer value2) {
+            addCriterion("offline not between", value1, value2, "offline");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
