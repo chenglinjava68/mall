@@ -579,5 +579,13 @@
 	]]>
 	</select>
 
+	<select id="queryOrderSubNoByOrderNo">
+  	<![CDATA[ 
+    	select order_sub_no
+    	from m_order_product
+     	where order_no = #{order_no})
+  	]]>
+	</select>
+
 
 </mapper>

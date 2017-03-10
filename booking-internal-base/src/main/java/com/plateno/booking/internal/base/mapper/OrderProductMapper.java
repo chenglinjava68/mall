@@ -46,5 +46,15 @@ public interface OrderProductMapper extends BaseMapper<OrderProduct,OrderProduct
 	
 	int queryOrderSubNoCount(@Param("orderNo")String orderNo);
 	
+	/**
+	 * 
+	* @Title: queryOrderSubNoByOrderNo 
+	* @Description: 根据父订单号查询子订单
+	* @param @param orderNo
+	* @param @return    
+	* @return List<String>    
+	* @throws
+	 */
+	List<String> queryOrderSubNoByOrderNo(@Param("orderNo")String orderNo);
    
 }

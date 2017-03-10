@@ -240,6 +240,7 @@ public class OrderQueryService {
 
     private void paramsDeal(Order order, List<SelectOrderResponse> list) {
         SelectOrderResponse sc = new SelectOrderResponse();
+        sc.setOrderSubNos(orderProductMapper.queryOrderSubNoByOrderNo(order.getOrderNo()));
         sc.setPoint(order.getPoint());
         sc.setAmount(order.getAmount());
         sc.setMemberId(Long.parseLong(order.getMemberId().toString()));

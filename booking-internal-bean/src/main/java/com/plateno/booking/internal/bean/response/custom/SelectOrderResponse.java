@@ -101,15 +101,25 @@ public class SelectOrderResponse implements java.io.Serializable{
     private String refundReason;
 	
 
+	/**
+	 * 子订单列表
+	 */
+    private List<String> orderSubNos;
 	
 
 	
+    
+    
+    
+	public List<String> getOrderSubNos() {
+        return orderSubNos;
+    }
 
-	
-    
-    
-    
-	public String getRefundReason() {
+    public void setOrderSubNos(List<String> orderSubNos) {
+        this.orderSubNos = orderSubNos;
+    }
+
+    public String getRefundReason() {
         return refundReason;
     }
 
