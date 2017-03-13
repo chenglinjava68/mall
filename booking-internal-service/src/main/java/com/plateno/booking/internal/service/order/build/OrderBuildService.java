@@ -217,16 +217,7 @@ public class OrderBuildService {
             //子订单状态取父订单状态，父订单的部分发货状态，需要查询包裹数量
             subOrderDetail.setSubOrderStatus(order.getPayStatus());
             subOrderDetail.setSubViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-            //查询包裹
-            LogisticsPackageExample example = new LogisticsPackageExample();
-            example.createCriteria().andOrderSubNoEqualTo(orderProducts.get(0).getOrderSubNo());
-            List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
-            if(subOrderDetail.getSubViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-                if(CollectionUtils.isNotEmpty(logisticsPackageList)){
-                    subOrderDetail.setSubViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
-                    subOrderDetail.setSubOrderStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
-                }
-            }
+
             List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
             for (OrderProduct orderProduct : orderProducts) {
                 ProductInfo productInfo = new ProductInfo();
@@ -245,6 +236,20 @@ public class OrderBuildService {
             subOrderDetail.setProductInfo(productInfoList);
             subOrderDetails.add(subOrderDetail);
         }
+        
+        for(SubOrderDetail subOrderDetail : subOrderDetails){
+            //查询包裹
+            LogisticsPackageExample example = new LogisticsPackageExample();
+            example.createCriteria().andOrderSubNoEqualTo(subOrderDetail.getSubOrderNo());
+            List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
+            if(subOrderDetail.getSubViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
+                if(CollectionUtils.isEmpty(logisticsPackageList)){
+                    subOrderDetail.setSubViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
+                    subOrderDetail.setSubOrderStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
+                }
+            }
+        }
+        
         return subOrderDetails;
     }
     
