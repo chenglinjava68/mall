@@ -34,6 +34,12 @@
 			AND product.chanelid = #{record.channelId,jdbcType=INTEGER}
 		</if>
 		<if
+			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
+        	<![CDATA[ 
+        		AND mo.create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
+        		]]>
+		</if>	
+		<if
 			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 
         		AND mo.create_time <= FROM_UNIXTIME(#{record.bookingEndDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 23:59:59')
@@ -95,6 +101,12 @@
 		<if test="record.channelId != null">
 			AND product.chanelid = #{record.channelId,jdbcType=INTEGER}
 		</if>
+		<if
+			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
+        	<![CDATA[ 
+        		AND mo.create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
+        		]]>
+		</if>		
 		<if
 			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 

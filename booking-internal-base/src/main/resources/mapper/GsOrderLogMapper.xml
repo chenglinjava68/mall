@@ -11,9 +11,10 @@
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
     <result column="channel" property="channel" jdbcType="INTEGER" />
-    <result column="create_oprt" property="createOprt" jdbcType="INTEGER" />
+    <result column="create_oprt" property="createOprt" jdbcType="BIGINT" />
     <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
-    <result column="update_oprt" property="updateOprt" jdbcType="INTEGER" />
+    <result column="update_oprt" property="updateOprt" jdbcType="BIGINT" />
+    <result column="order_sub_no" property="orderSubNo" jdbcType="VARCHAR" />
   </resultMap>
   <resultMap id="ResultMapWithBLOBs" type="com.plateno.booking.internal.base.pojo.GsOrderLog" extends="BaseResultMap" >
     <result column="description" property="description" jdbcType="LONGVARCHAR" />
@@ -78,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List" >
     id, trade_no, status, view_status, clientType, status_desc, remark, create_time, 
-    channel, create_oprt, update_time, update_oprt
+    channel, create_oprt, update_time, update_oprt, order_sub_no
   </sql>
   <sql id="Blob_Column_List" >
     description
@@ -88,6 +89,7 @@
     <if test="distinct" >
       distinct
     </if>
+    'true' as QUERYID,
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -104,6 +106,7 @@
     <if test="distinct" >
       distinct
     </if>
+    'true' as QUERYID,
     <include refid="Base_Column_List" />
     from gs_order_log
     <if test="_parameter != null" >
@@ -132,26 +135,23 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
-    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    insert into gs_order_log (trade_no, status, view_status, 
-      clientType, status_desc, remark, 
-      create_time, channel, create_oprt, 
-      update_time, update_oprt, description
-      )
-    values (#{tradeNo,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{viewStatus,jdbcType=INTEGER}, 
-      #{clienttype,jdbcType=INTEGER}, #{statusDesc,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{channel,jdbcType=INTEGER}, #{createOprt,jdbcType=INTEGER}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{updateOprt,jdbcType=INTEGER}, #{description,jdbcType=LONGVARCHAR}
-      )
+    insert into gs_order_log (id, trade_no, status, 
+      view_status, clientType, status_desc, 
+      remark, create_time, channel, 
+      create_oprt, update_time, update_oprt, 
+      order_sub_no, description)
+    values (#{id,jdbcType=BIGINT}, #{tradeNo,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 
+      #{viewStatus,jdbcType=INTEGER}, #{clienttype,jdbcType=INTEGER}, #{statusDesc,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{channel,jdbcType=INTEGER}, 
+      #{createOprt,jdbcType=BIGINT}, #{updateTime,jdbcType=TIMESTAMP}, #{updateOprt,jdbcType=BIGINT}, 
+      #{orderSubNo,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLog" >
-    <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER" >
-      SELECT LAST_INSERT_ID()
-    </selectKey>
     insert into gs_order_log
     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
       <if test="tradeNo != null" >
         trade_no,
       </if>
@@ -185,11 +185,17 @@
       <if test="updateOprt != null" >
         update_oprt,
       </if>
+      <if test="orderSubNo != null" >
+        order_sub_no,
+      </if>
       <if test="description != null" >
         description,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
       <if test="tradeNo != null" >
         #{tradeNo,jdbcType=VARCHAR},
       </if>
@@ -215,13 +221,16 @@
         #{channel,jdbcType=INTEGER},
       </if>
       <if test="createOprt != null" >
-        #{createOprt,jdbcType=INTEGER},
+        #{createOprt,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null" >
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateOprt != null" >
-        #{updateOprt,jdbcType=INTEGER},
+        #{updateOprt,jdbcType=BIGINT},
+      </if>
+      <if test="orderSubNo != null" >
+        #{orderSubNo,jdbcType=VARCHAR},
       </if>
       <if test="description != null" >
         #{description,jdbcType=LONGVARCHAR},
@@ -265,13 +274,16 @@
         channel = #{record.channel,jdbcType=INTEGER},
       </if>
       <if test="record.createOprt != null" >
-        create_oprt = #{record.createOprt,jdbcType=INTEGER},
+        create_oprt = #{record.createOprt,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null" >
         update_time = #{record.updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="record.updateOprt != null" >
-        update_oprt = #{record.updateOprt,jdbcType=INTEGER},
+        update_oprt = #{record.updateOprt,jdbcType=BIGINT},
+      </if>
+      <if test="record.orderSubNo != null" >
+        order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null" >
         description = #{record.description,jdbcType=LONGVARCHAR},
@@ -292,9 +304,10 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       channel = #{record.channel,jdbcType=INTEGER},
-      create_oprt = #{record.createOprt,jdbcType=INTEGER},
+      create_oprt = #{record.createOprt,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      update_oprt = #{record.updateOprt,jdbcType=INTEGER},
+      update_oprt = #{record.updateOprt,jdbcType=BIGINT},
+      order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -311,9 +324,10 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=TIMESTAMP},
       channel = #{record.channel,jdbcType=INTEGER},
-      create_oprt = #{record.createOprt,jdbcType=INTEGER},
+      create_oprt = #{record.createOprt,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=TIMESTAMP},
-      update_oprt = #{record.updateOprt,jdbcType=INTEGER}
+      update_oprt = #{record.updateOprt,jdbcType=BIGINT},
+      order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,13 +360,16 @@
         channel = #{channel,jdbcType=INTEGER},
       </if>
       <if test="createOprt != null" >
-        create_oprt = #{createOprt,jdbcType=INTEGER},
+        create_oprt = #{createOprt,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null" >
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="updateOprt != null" >
-        update_oprt = #{updateOprt,jdbcType=INTEGER},
+        update_oprt = #{updateOprt,jdbcType=BIGINT},
+      </if>
+      <if test="orderSubNo != null" >
+        order_sub_no = #{orderSubNo,jdbcType=VARCHAR},
       </if>
       <if test="description != null" >
         description = #{description,jdbcType=LONGVARCHAR},
@@ -370,9 +387,10 @@
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       channel = #{channel,jdbcType=INTEGER},
-      create_oprt = #{createOprt,jdbcType=INTEGER},
+      create_oprt = #{createOprt,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
-      update_oprt = #{updateOprt,jdbcType=INTEGER},
+      update_oprt = #{updateOprt,jdbcType=BIGINT},
+      order_sub_no = #{orderSubNo,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -386,39 +404,10 @@
       remark = #{remark,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       channel = #{channel,jdbcType=INTEGER},
-      create_oprt = #{createOprt,jdbcType=INTEGER},
+      create_oprt = #{createOprt,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
-      update_oprt = #{updateOprt,jdbcType=INTEGER}
+      update_oprt = #{updateOprt,jdbcType=BIGINT},
+      order_sub_no = #{orderSubNo,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select resultMap="ResultMapWithBLOBs" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" id="selectByExampleWithBLOBsWithRowbounds" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from gs_order_log
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.GsOrderLogExample" id="selectByExampleWithRowbounds" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from gs_order_log
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
 </mapper>

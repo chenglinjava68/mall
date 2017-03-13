@@ -84,7 +84,6 @@ public class CouponValidateService {
         // 适用商品集合,空则为全部商品
         List<OrderCheckInfo> couponProductList = Lists.newArrayList();
         OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
-        orderCheckDetail.setCouponProductList(couponProductList);
         List<OrderCheckInfo> orderCheckInfos = orderCheckDetail.getOrderCheckInfo();
 
         // 判断是否有商品符合，查询出使用商品以及适用商品的金额
@@ -115,8 +114,11 @@ public class CouponValidateService {
                 output.setResultMsg("订单中的商品都不符合优惠券适用商品");
                 return;
             }
+            orderCheckDetail.setCouponProductList(couponProductList);
         } else {
             productApplyAmout = orderCheckDetail.getTotalPrice();
+            //没找到使用商品，则插入全部商品
+            orderCheckDetail.setCouponProductList(orderCheckDetail.getOrderCheckInfo());
         }
         // 适用商品金额
         BigDecimal productApplyAmoutBig =

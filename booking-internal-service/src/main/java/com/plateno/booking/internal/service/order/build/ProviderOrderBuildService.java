@@ -38,6 +38,7 @@ public class ProviderOrderBuildService {
         Integer productAmount = 0;//商品总额
         Integer couponAmout = 0;//优惠券优惠金额
         Integer fee = 0;//快递费
+        Integer deductPrice = 0;//积分抵扣金额
         for (OrderProduct orderProduct : listProduct) {
             ProductInfo productInfo = new ProductInfo();
             orderProductService.copyOrderProduct(productInfo, orderProduct);
@@ -49,13 +50,15 @@ public class ProviderOrderBuildService {
                 couponAmout += orderProduct.getCoupouReduceAmount() * orderProduct.getSkuCount();
             if(null != orderProduct.getExpressAmount())
                 fee += orderProduct.getExpressAmount();
+            if(null != orderProduct.getDeductPrice())
+                deductPrice += orderProduct.getDeductPrice();
         }
         //子订单实付金额
         provider.setSubPayMoney(sumAmount);
         provider.setProductAmout(productAmount);
         provider.setCouponAmount(couponAmout);
         provider.setFee(fee);
-        //子订单占用积分
+        provider.setDeductPrice(deductPrice);
         //子订单
         provider.setProductInfos(productInfoList);
     }

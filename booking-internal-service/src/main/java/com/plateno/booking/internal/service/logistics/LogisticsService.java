@@ -275,6 +275,7 @@ public class LogisticsService {
         paramlog.setOrderCode(order.getOrderNo());
         paramlog.setPlateForm(param.getPlateForm());
         paramlog.setRemark(OperateLogEnum.DELIVER_ORDER.getOperateName());
+        paramlog.setOrderSubNo(param.getOrderSubNo());
         operateLogService.saveOperateLog(paramlog);
     }
 

@@ -80,8 +80,10 @@ public class ProviderOrderService {
                 LogisticsPackageExample example = new LogisticsPackageExample();
                 example.createCriteria().andOrderSubNoEqualTo(provider.getOrderSubNo());
                 List<LogisticsPackage> packageList = packageMapper.selectByExample(example);
-                if(CollectionUtils.isNotEmpty(packageList))
+                if(CollectionUtils.isEmpty(packageList)){
                     provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
+                    provider.setSubPayStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
+                }
             }
             providerOrderBuildService.buildProductInfosAndCal(provider);
             //查询收货人地址，采用前端查询，返回替换后的最新收件人姓名，地址，电话
