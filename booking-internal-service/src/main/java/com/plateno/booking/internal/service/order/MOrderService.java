@@ -170,10 +170,6 @@ public class MOrderService {
     private LogisticsPackageMapper packageMapper;
 
 
-    @Autowired
-    private DictService dictService;
-    
-
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();

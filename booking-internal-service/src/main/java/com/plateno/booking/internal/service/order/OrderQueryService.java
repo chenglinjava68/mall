@@ -277,7 +277,8 @@ public class OrderQueryService {
             List packageList = packageMapper.selectByExample(example);
             //部分订单未发货
             if(count != packageList.size()){
-                sc.setViewStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
+                sc.setViewStatus(PayStatusEnum.PAY_STATUS_14.getViewStstus());
+                sc.setPayStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
             }
         }
         sc.setLogicDel(order.getLogicDel());
