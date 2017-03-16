@@ -187,6 +187,9 @@ public class ProductValidateService {
                             - addBookingParam.getCouponAmount().multiply(new BigDecimal(100))
                                     .intValue();
         }
+        //金额小于0，统一按0计算
+        if(payMoney <= 0)
+            payMoney = 0;
         if (addBookingParam.getTotalAmount() != payMoney) {
             output.setResultCode(getClass(), MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMsgCode());
             output.setResultMsg(MsgCode.VALIDATE_ORDERAMOUNT_ERROR.getMessage());

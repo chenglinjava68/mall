@@ -42,6 +42,17 @@ public class OrderProductService {
         return productInfos;
     }
     
+    
+    public List<Integer> queryProductInfosIntByOrderSubNo(String orderSubNo){
+        List<ProductInfo> productInfos = queryProductInfosByOrderSubNo(orderSubNo);
+        List<Integer> productInfoInts = Lists.newArrayList();
+        for(ProductInfo productInfo : productInfos){
+            productInfoInts.add(productInfo.getOrderProductId());
+        }
+        return productInfoInts;
+    }
+    
+    
     /**
      * 
     * @Title: getProductNameByOrderSubNo 
@@ -107,6 +118,7 @@ public class OrderProductService {
     * @throws
      */
     public void copyOrderProduct(ProductInfo productInfo,OrderProduct orderProduct){
+        productInfo.setOrderProductId(orderProduct.getId());
         productInfo.setProductId(orderProduct.getProductId());
         productInfo.setCount(orderProduct.getSkuCount());
         productInfo.setPrice(orderProduct.getPrice());

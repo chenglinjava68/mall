@@ -3,9 +3,9 @@
 <mapper namespace="com.plateno.booking.internal.dao.mapper.ProviderOrderMapper">
 	<select id="queryProviderOrder" resultType="com.plateno.booking.internal.dao.pojo.ProviderOrder">
 		SELECT
-		DISTINCT(product.`order_sub_no`) AS orderSubNo,
+		orderSub.order_sub_no AS orderSubNo,
 		mo.`pay_type` AS payType,
-		mo.`pay_status` AS subPayStatus,
+		orderSub.sub_flag AS subPayStatus,
 		mo.`resource` AS resource,
 		mo.`create_time`,
 		mo.order_no as orderNo,
@@ -13,32 +13,35 @@
 		mo.`mobile`,
 		mo.`resource`
 		FROM
-		m_order_product product,
-		m_order mo ,m_logistics logistics
-		WHERE product.`order_no` = mo.`order_no` AND product.`order_no` =
+		m_order mo ,m_logistics logistics,
+		m_order_sub
+		orderSub
+		WHERE orderSub.`order_no` = mo.`order_no` AND
+		orderSub.`order_no` =
 		logistics.`order_no`
-		
+
 		<if test="record.payStatus != null and record.payStatus > 0">
-			AND mo.pay_status = #{record.payStatus}
+			AND orderSub.sub_flag = #{record.payStatus}
 		</if>
 		<if test="record.mobile != null and record.mobile != ''">
 			AND mo.mobile = #{record.mobile}
 		</if>
 		<if test="record.orderSubNo != null and record.orderSubNo != ''">
-			AND product.order_sub_no = #{record.orderSubNo}
+			AND orderSub.order_sub_no = #{record.orderSubNo}
 		</if>
 		<if test="record.resource != null and record.resource > 0">
 			AND mo.resource = #{record.resource}
 		</if>
 		<if test="record.channelId != null">
-			AND product.chanelid = #{record.channelId,jdbcType=INTEGER}
+			AND orderSub.channel_id =
+			#{record.channelId,jdbcType=INTEGER}
 		</if>
 		<if
 			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
         	<![CDATA[ 
         		AND mo.create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
         		]]>
-		</if>	
+		</if>
 		<if
 			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 
@@ -46,30 +49,25 @@
         		]]>
 		</if>
 		<if test="record.statusList != null and record.statusList.size() > 0">
-		<![CDATA[ and mo.pay_status in  ]]>
+		<![CDATA[ and orderSub.sub_flag in  ]]>
 			<foreach item="item" index="index" collection="record.statusList"
 				open="(" separator="," close=")">
 				#{item}
 			</foreach>
 		</if>
-		
+
 		<if test="record.name != null and record.name != ''">
-			AND product.order_no in (select order_no from m_order where
-			name like
-			CONCAT('%',#{record.name},'%'))
+			AND mo.name like CONCAT('%',#{record.name},'%')
 		</if>
-		
+
 		<if test="record.receiver != null and record.receiver != ''">
-			AND product.order_no in (select order_no from m_logistics where
-			consignee_name like
-			CONCAT('%',#{record.receiver},'%'))
+			AND logistics.consignee_name like
+			CONCAT('%',#{record.receiver},'%')
 		</if>
 		<if test="record.receiverMobile != null and record.receiverMobile != ''">
-			AND product.order_no in (select order_no from m_logistics where
-			consignee_mobile =
-			#{record.receiverMobile})
-		</if>		
-													
+			AND logistics.consignee_mobile like
+			CONCAT('%',#{record.receiverMobile},'%')
+		</if>
 		ORDER BY create_time desc
 		<if test="record.showLimit">
 			LIMIT #{record.pageNo,jdbcType=INTEGER}
@@ -77,36 +75,39 @@
 		</if>
 	</select>
 
-<select id="countProviderOrder" resultType="Integer">
+	<select id="countProviderOrder" resultType="Integer">
 		SELECT
-		count(DISTINCT(product.`order_sub_no`))
+		count(orderSub.order_sub_no)
 		FROM
-		m_order_product product,
-		m_order mo ,m_logistics logistics
-		WHERE product.`order_no` = mo.`order_no` AND product.`order_no` =
+		m_order mo ,m_logistics
+		logistics,
+		m_order_sub orderSub
+		WHERE orderSub.`order_no` =
+		mo.`order_no` AND orderSub.`order_no` =
 		logistics.`order_no`
-		
+
 		<if test="record.payStatus != null and record.payStatus > 0">
-			AND mo.pay_status = #{record.payStatus}
+			AND orderSub.sub_flag = #{record.payStatus}
 		</if>
 		<if test="record.mobile != null and record.mobile != ''">
 			AND mo.mobile = #{record.mobile}
 		</if>
 		<if test="record.orderSubNo != null and record.orderSubNo != ''">
-			AND product.order_sub_no = #{record.orderSubNo}
+			AND orderSub.order_sub_no = #{record.orderSubNo}
 		</if>
 		<if test="record.resource != null and record.resource > 0">
 			AND mo.resource = #{record.resource}
 		</if>
 		<if test="record.channelId != null">
-			AND product.chanelid = #{record.channelId,jdbcType=INTEGER}
+			AND orderSub.channel_id =
+			#{record.channelId,jdbcType=INTEGER}
 		</if>
 		<if
 			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
         	<![CDATA[ 
         		AND mo.create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
         		]]>
-		</if>		
+		</if>
 		<if
 			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 
@@ -114,38 +115,42 @@
         		]]>
 		</if>
 		<if test="record.statusList != null and record.statusList.size() > 0">
-		<![CDATA[ and mo.pay_status in  ]]>
+		<![CDATA[ and orderSub.sub_flag in  ]]>
 			<foreach item="item" index="index" collection="record.statusList"
 				open="(" separator="," close=")">
 				#{item}
 			</foreach>
 		</if>
-		
+
 		<if test="record.name != null and record.name != ''">
-			AND product.order_no in (select order_no from m_order where
-			name like
-			CONCAT('%',#{record.name},'%'))
+			AND mo.name like CONCAT('%',#{record.name},'%')
 		</if>
-		
+
 		<if test="record.receiver != null and record.receiver != ''">
-			AND product.order_no in (select order_no from m_logistics where
-			consignee_name like
-			CONCAT('%',#{record.receiver},'%'))
+			AND logistics.consignee_name like
+			CONCAT('%',#{record.receiver},'%')
 		</if>
 		<if test="record.receiverMobile != null and record.receiverMobile != ''">
-			AND product.order_no in (select order_no from m_logistics where
-			consignee_mobile =
-			#{record.receiverMobile})
-		</if>												
+			AND logistics.consignee_mobile like
+			CONCAT('%',#{record.receiverMobile},'%')
+		</if>
+		ORDER BY create_time desc
+		<if test="record.showLimit">
+			LIMIT #{record.pageNo,jdbcType=INTEGER}
+			,#{record.pageNumber,jdbcType=INTEGER}
+		</if>
 	</select>
 
 
-<select id="queryProviderOrderDetail" resultType="com.plateno.booking.internal.dao.pojo.ProviderOrderDetail">
+	<select id="queryProviderOrderDetail"
+		resultType="com.plateno.booking.internal.dao.pojo.ProviderOrderDetail">
 		SELECT
-		DISTINCT(product.`order_sub_no`) AS orderSubNo,
-		mo.`pay_type` AS payType,
-		mo.`pay_status` AS subPayStatus,
-		mo.`resource` AS resource,
+		orderSub.`order_sub_no` AS orderSubNo,
+		mo.`pay_type`
+		AS payType,
+		orderSub.`sub_flag` AS subPayStatus,
+		mo.`resource` AS
+		resource,
 		mo.`create_time` as createTime,
 		mo.`pay_time` as payTime,
 		mo.order_no as orderNo,
@@ -155,10 +160,11 @@
 		mo.`mobile`,
 		mo.`resource`
 		FROM
-		m_order_product product,
-		m_order mo ,m_logistics logistics
-		WHERE product.`order_no` = mo.`order_no` AND product.`order_no` =
-		logistics.`order_no` and product.order_sub_no = #{orderSubNo}
+		m_order mo ,m_logistics logistics,
+		m_order_sub orderSub
+		WHERE
+		orderSub.`order_no` = mo.`order_no` AND orderSub.`order_no` =
+		logistics.`order_no` and orderSub.order_sub_no = #{orderSubNo}
 	</select>
 
 

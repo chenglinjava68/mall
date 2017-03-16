@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Lists;
 import com.plateno.booking.internal.base.constant.PackageStatusEnum;
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
@@ -34,7 +35,6 @@ import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.request.logistics.OrderLogisticsQueryReq;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
 import com.plateno.booking.internal.dao.mapper.LogisticsMapperExt;
@@ -44,6 +44,7 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.service.order.OrderProductService;
+import com.plateno.booking.internal.service.order.OrderSubService;
 import com.plateno.booking.internal.service.order.OrderUpdateService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 
@@ -72,7 +73,8 @@ public class LogisticsService {
     private LogisticsMapperExt logisticsMapperExt;
     @Autowired
     private OrderUpdateService orderUpdateService;
-
+    @Autowired
+    private OrderSubService orderSubService;
 
     /**
      * 
@@ -197,8 +199,16 @@ public class LogisticsService {
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return null;
         }
-        // 修改订单状态为待收货状态
-        orderUpdateService.updateToPayStatus_4(order);
+        //修改子订单状态为待收货
+        orderSubService.updateToPayStatus_4(param.getOrderSubNo());
+        //判断所有包裹是否都打包
+        if(orderSubService.hasAllDeliver(order.getOrderNo())){
+            // 修改订单状态为待收货状态
+            orderUpdateService.updateToPayStatus_4(order);
+        }else{
+            //部分发货
+            orderUpdateService.updateToPayStatus_14(order);
+        }
         orderLogService.saveGSOrderLogWithOrderSubNo(order.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_4, "发货操作", "发货成功", 0,
                 ViewStatusEnum.VIEW_STATUS_DELIVERS.getCode(), param.getOrderSubNo());
@@ -297,6 +307,10 @@ public class LogisticsService {
             logisticsPackage.setOrderSubNo(param.getOrderSubNo());
             logisticsPackage.setOrderNo(order.getOrderNo());
             logisticsPackageMapper.insertSelective(logisticsPackage);
+            //如果包裹数据为空，则默认绑定子订单商品,用户自提则默认选中子订单
+            if(CollectionUtils.isEmpty(deliverGoodParam.getOrderProductIds()) || deliverGoodParam.getLogisticsType() == 7){
+                deliverGoodParam.setOrderProductIds(orderProductService.queryProductInfosIntByOrderSubNo(param.getOrderSubNo()));
+            }
             // 批量新增到logistics_product表中
             logisticsMapperExt.insertBatch(logisticsPackage.getId(),
                     deliverGoodParam.getOrderProductIds());
@@ -363,6 +377,7 @@ public class LogisticsService {
         }
         // 修改订单状态为已完成
         orderUpdateService.updateToPayStatus_5(order);
+        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_5.getPayStatus());
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_5, "确认收货", "手动确定收货", 0,
                 ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode());

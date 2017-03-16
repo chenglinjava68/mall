@@ -44,9 +44,6 @@ public class MBookingWebRPCService extends BaseController{
 	private BOTAOMallBookingService botaoMallBookingService;
 	
 	@Autowired
-	private WechatTemplementSerivce wechatTemplementSerivce;
-	
-	@Autowired
 	private RedisUtils redisUtils;
 	
 	

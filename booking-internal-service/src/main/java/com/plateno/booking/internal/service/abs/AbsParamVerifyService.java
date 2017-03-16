@@ -109,7 +109,13 @@ public abstract class AbsParamVerifyService {
             output.setResultMsg("下单失败,订单子来源错误:" + addBookingParam.getSubResource());
             return;
         }
-
+        // 线下交易可不校验地址，线上交易需校验地址
+        if (StringUtils.isBlank(addBookingParam.getConsigneeAddress())
+                && 0 == addBookingParam.getOffline()) {
+            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
+            output.setResultMsg("地址不能为空");
+            return;
+        }
         // 因为一开始省市县没有分开传输，所以为了兼容不要求必传，如果不传填空串
         addBookingParam.setProvince(StringUtils.trimToEmpty(addBookingParam.getProvince()));
         addBookingParam.setCity(StringUtils.trimToEmpty(addBookingParam.getCity()));

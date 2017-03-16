@@ -18,10 +18,11 @@ import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.model.BookingPayQueryVo;
 import com.plateno.booking.internal.base.model.NotifyReturn;
-import com.plateno.booking.internal.base.pojo.Dict;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
+import com.plateno.booking.internal.base.pojo.OrderSub;
+import com.plateno.booking.internal.base.pojo.OrderSubExample;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
@@ -69,10 +70,13 @@ public class PayService {
 
     @Autowired
     private CashierDeskService cashierDeskService;
-
+    
     @Autowired
-    private DictService dictService;
+    private OrderSubService orderSubService;
 
+    
+    
+    
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -358,9 +362,13 @@ public class PayService {
         checkOrderStatus(order, orderPayLog);
         // 更新订单状态
         doUpdateOrderStatus(order, bookingPayQueryVo);
+        //更新子订单状态
+        orderSubService.doUpdateOrderSubStatusToPay(order);
     }
 
 
+
+    
     private void checkOrderPayLog(BookingPayQueryVo bookingPayQueryVo, OrderPayLog orderPayLog) {
         // 判断是否已经处理
         if (orderPayLog.getStatus() != BookingConstants.BILL_LOG_NORMAL) {

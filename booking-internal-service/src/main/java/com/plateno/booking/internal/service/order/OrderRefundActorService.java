@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
@@ -58,6 +59,9 @@ public class OrderRefundActorService {
     @Autowired
     private OrderStockService orderStockService;
     
+    @Autowired
+    private OrderSubService orderSubService;
+    
     /**
      * @throws OrderException 
      * 
@@ -69,6 +73,7 @@ public class OrderRefundActorService {
      */
     public void doSuccessOrderRefundActor(Order order) throws OrderException{
         updateOrderStatusToRefund(order);
+        orderSubService.updateToPayStatus(order.getOrderNo(), PayStatusEnum.PAY_STATUS_7.getPayStatus());
         orderLogService.saveGSOrderLog(order.getOrderNo(), BookingResultCodeContants.PAY_STATUS_7, "收银台回调通知", "收银台回调通知：退款成功", 0,ViewStatusEnum.VIEW_STATUS_REFUND.getCode(), "收银台回调通知");
         //返还积分
         returnPoint(order);
@@ -83,7 +88,7 @@ public class OrderRefundActorService {
     
     private void updateOrderStatusToRefund(Order order){
         order.setRefundSuccesstime(new Date());
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_7);
+        order.setPayStatus(PayStatusEnum.PAY_STATUS_7.getPayStatus());
         orderMapper.updateByPrimaryKeySelective(order);
     }
     

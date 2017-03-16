@@ -17,8 +17,6 @@ import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
-import com.plateno.booking.internal.base.pojo.LogisticsPackage;
-import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
@@ -26,12 +24,15 @@ import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
+import com.plateno.booking.internal.base.pojo.OrderSub;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.custom.SubOrderDetail;
 import com.plateno.booking.internal.dao.mapper.LogisticsMapperExt;
+import com.plateno.booking.internal.service.order.OrderProductService;
+import com.plateno.booking.internal.service.order.OrderSubService;
 
 @Service
 public class OrderBuildService {
@@ -51,6 +52,11 @@ public class OrderBuildService {
     @Autowired
     private LogisticsPackageMapper packageMapper;
     
+    @Autowired
+    private OrderSubService orderSubService;
+    
+    @Autowired
+    private OrderProductService orderProductService;
     
     /**
      * 
@@ -191,65 +197,17 @@ public class OrderBuildService {
     * @throws
      */
     public List<SubOrderDetail> buildSubOrderDetail(Order order){
-        OrderProductExample orderProductExample = new OrderProductExample();
-        orderProductExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-        List<OrderProduct> list = orderProductMapper.selectByExample(orderProductExample);
-
-        // 根据仓库分组
-        Map<Integer, List<OrderProduct>> orderProductMap = Maps.newHashMap();
-        for (OrderProduct temp : list) {
-            List<OrderProduct> orderProducts = orderProductMap.get(temp.getChannelId());
-            if (CollectionUtils.isEmpty(orderProducts)) {
-                orderProducts = Lists.newArrayList();
-            }
-            orderProducts.add(temp);
-            orderProductMap.put(temp.getChannelId(), orderProducts);
-        }
-
         List<SubOrderDetail> subOrderDetails = Lists.newArrayList();
-        Iterator<Map.Entry<Integer,List<OrderProduct>>> iter = orderProductMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Map.Entry<Integer,List<OrderProduct>> entry = (Map.Entry<Integer,List<OrderProduct>>) iter.next();
-            List<OrderProduct> orderProducts = entry.getValue();
+        List<OrderSub> orderSubs = orderSubService.queryOrderSubByOrderNo(order.getOrderNo());
+        for(OrderSub orderSub : orderSubs){
             SubOrderDetail subOrderDetail = new SubOrderDetail();
-            subOrderDetail.setChannelId(orderProducts.get(0).getChannelId());
-            subOrderDetail.setSubOrderNo(orderProducts.get(0).getOrderSubNo());
-            //子订单状态取父订单状态，父订单的部分发货状态，需要查询包裹数量
-            subOrderDetail.setSubOrderStatus(order.getPayStatus());
-            subOrderDetail.setSubViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-
-            List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
-            for (OrderProduct orderProduct : orderProducts) {
-                ProductInfo productInfo = new ProductInfo();
-                productInfo.setProductId(orderProduct.getProductId());
-                productInfo.setCount(orderProduct.getSkuCount());
-                productInfo.setPrice(orderProduct.getPrice());
-                productInfo.setProductName(orderProduct.getProductName());
-                productInfo.setProductPropertis(orderProduct.getProductProperty());
-                productInfo.setPoint(orderProduct.getPoint());
-                productInfo.setSellStrategy(orderProduct.getSellStrategy());
-                productInfo.setDisImages(orderProduct.getDisImages());
-                productInfo.setCoupouReduceAmount(orderProduct.getCoupouReduceAmount());
-                productInfo.setDeductPrice(orderProduct.getDeductPrice());
-                productInfoList.add(productInfo);
-            }
-            subOrderDetail.setProductInfo(productInfoList);
+            subOrderDetail.setSubOrderNo(orderSub.getOrderSubNo());
+            subOrderDetail.setChannelId(orderSub.getChannelId());
+            subOrderDetail.setSubOrderStatus(orderSub.getSubFlag());
+            subOrderDetail.setSubViewStatus(PayStatusEnum.toViewStatus(orderSub.getSubFlag()));
+            subOrderDetail.setProductInfo(orderProductService.queryProductInfosByOrderSubNo(orderSub.getOrderSubNo()));
             subOrderDetails.add(subOrderDetail);
         }
-        
-        for(SubOrderDetail subOrderDetail : subOrderDetails){
-            //查询包裹
-            LogisticsPackageExample example = new LogisticsPackageExample();
-            example.createCriteria().andOrderSubNoEqualTo(subOrderDetail.getSubOrderNo());
-            List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
-            if(subOrderDetail.getSubViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-                if(CollectionUtils.isEmpty(logisticsPackageList)){
-                    subOrderDetail.setSubViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
-                    subOrderDetail.setSubOrderStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
-                }
-            }
-        }
-        
         return subOrderDetails;
     }
     

@@ -75,16 +75,16 @@ public class ProviderOrderService {
     private void buildProviderOrder(List<ProviderOrder> list,ProviderOrderParam param){
         for(ProviderOrder provider : list){
             provider.setViewStatus(PayStatusEnum.toViewStatus(provider.getSubPayStatus()));
-            //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
-            if(provider.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-                LogisticsPackageExample example = new LogisticsPackageExample();
-                example.createCriteria().andOrderSubNoEqualTo(provider.getOrderSubNo());
-                List<LogisticsPackage> packageList = packageMapper.selectByExample(example);
-                if(CollectionUtils.isEmpty(packageList)){
-                    provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
-                    provider.setSubPayStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
-                }
-            }
+//            //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
+//            if(provider.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
+//                LogisticsPackageExample example = new LogisticsPackageExample();
+//                example.createCriteria().andOrderSubNoEqualTo(provider.getOrderSubNo());
+//                List<LogisticsPackage> packageList = packageMapper.selectByExample(example);
+//                if(CollectionUtils.isEmpty(packageList)){
+//                    provider.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
+//                    provider.setSubPayStatus(PayStatusEnum.PAY_STATUS_3.getPayStatus());
+//                }
+//            }
             providerOrderBuildService.buildProductInfosAndCal(provider);
             //查询收货人地址，采用前端查询，返回替换后的最新收件人姓名，地址，电话
             ConsigneeInfo consigneeInfo = orderBuildService.buildConsigneeInfo(provider.getOrderNo(), 3);
@@ -98,20 +98,15 @@ public class ProviderOrderService {
     public ResultVo<ProviderOrderDetail> queryOrderDetail(ProviderOrderDetailParam  param){
         ResultVo<ProviderOrderDetail> result = new ResultVo<ProviderOrderDetail>();
         ProviderOrderDetail detail = providerOrderMapper.queryProviderOrderDetail(param.getOrderSubNo());
+        if(null == detail)
+            return result;
         //查询收件人信息
         detail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(detail.getOrderNo(), param.getPlateForm()));
-        
-        //如父订单状态为已发货，则查询是否有包裹，如无，则修改为未发货
         detail.setViewStatus(PayStatusEnum.toViewStatus(detail.getSubPayStatus()));
         //查询包裹
         LogisticsPackageExample example = new LogisticsPackageExample();
         example.createCriteria().andOrderSubNoEqualTo(detail.getOrderSubNo());
         List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
-        if(detail.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-            if(CollectionUtils.isNotEmpty(logisticsPackageList)){
-                detail.setViewStatus(PayStatusEnum.PAY_STATUS_3.getViewStstus());
-            }
-        }
         //查询快递单信息
         if(CollectionUtils.isNotEmpty(logisticsPackageList)){
             providerOrderBuildService.buildPackage(logisticsPackageList, detail);

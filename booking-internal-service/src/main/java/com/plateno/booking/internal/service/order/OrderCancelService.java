@@ -66,6 +66,9 @@ public class OrderCancelService {
 
     @Autowired
     private OrderStockService orderStockService;
+    @Autowired
+    private OrderSubService orderSubService;
+    
 
     /**
      * 更新订单状态(取消)
@@ -136,12 +139,13 @@ public class OrderCancelService {
         }
         
         Order order = new Order();
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_2);
+        order.setPayStatus(PayStatusEnum.PAY_STATUS_2.getPayStatus());
         order.setUpTime(new Date());
         OrderExample orderExample = new OrderExample();
         orderExample.createCriteria().andOrderNoEqualTo(orderParam.getOrderNo());
         mallOrderMapper.updateByExampleSelective(order, orderExample);
-
+        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_2.getPayStatus());
+        
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
                 BookingResultCodeContants.PAY_STATUS_2, PayStatusEnum.PAY_STATUS_2.getDesc(), desc,
                 0, ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);

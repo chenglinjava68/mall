@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.collect.Maps;
 import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PayTypeEnum;
@@ -42,6 +44,7 @@ import com.plateno.booking.internal.base.pojo.OrderExample.Criteria;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
+import com.plateno.booking.internal.base.pojo.OrderSub;
 import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
@@ -84,7 +87,6 @@ import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
 import com.plateno.booking.internal.member.PointService;
-import com.plateno.booking.internal.service.dict.DictService;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
@@ -169,7 +171,9 @@ public class MOrderService {
     @Autowired
     private LogisticsPackageMapper packageMapper;
 
-
+    @Autowired
+    private OrderSubService orderSubService;
+    
     public ResultVo<Object> saveOperateLog(MOperateLogParam orderParam) throws OrderException,
             Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -280,7 +284,7 @@ public class MOrderService {
         order.setPayStatus(modifyOrderParams.getNewStatus());
         order.setRemark(modifyOrderParams.getRemark());
         order.setUpTime(new Date());
-
+        orderSubService.updateToPayStatus(modifyOrderParams.getOrderNo(), modifyOrderParams.getNewStatus());
         if (mallOrderMapper.updateByPrimaryKeySelective(order) > 0)
             orderLogService.saveGSOrderLog(modifyOrderParams.getOrderNo(),
                     modifyOrderParams.getNewStatus(), "客服修改状态",
@@ -394,11 +398,15 @@ public class MOrderService {
             MAddBookingParam book = income.getAddBookingParam();
             // 插入order
             Order order = insertMasterOrder(book, orderCheckDetail);
+            //子订单拆单对象
+            Map<String,OrderSub> orderSubMap = Maps.newHashMap();
             // 插入order_product
             for (MOrderGoodsParam orderGoodsParam : book.getGoodsList()) {
-                insertSingleOrderProduct(order, orderGoodsParam, orderCheckDetail);
+                OrderProduct orderProduct = insertSingleOrderProduct(order, orderGoodsParam, orderCheckDetail);
+                spiltOrder(order, orderProduct, orderSubMap);
             }
-
+            //插入orderSub
+            orderSubService.insertOrderSub(orderSubMap);
             // 订单插入成功之后，后续动作
             orderInsertActorService.insertAfter(book, order, orderCheckDetail);
             return order;
@@ -406,6 +414,32 @@ public class MOrderService {
         } catch (Exception e) {
             logger.error("订单创建失败,input:{}", income.toString(), e);
             throw new OrderException("订单创建失败:" + e.getMessage());
+        }
+    }
+    
+    /**
+     * 
+    * @Title: spiltOrder 
+    * @Description: 拆单
+    * @param @param order
+    * @param @param orderProduct
+    * @param @param orderSubMap    
+    * @return void    
+    * @throws
+     */
+    private void spiltOrder(Order order,OrderProduct orderProduct,Map<String,OrderSub> orderSubMap){
+        if(null != orderSubMap.get(orderProduct.getOrderSubNo())){
+            OrderSub orderSub = orderSubMap.get(orderProduct.getOrderSubNo());
+            orderSub.setSubPrice(orderSub.getSubPrice() + calPayMoney(orderProduct));
+        }else{
+            OrderSub orderSub = new OrderSub();
+            orderSub.setOrderNo(order.getOrderNo());
+            orderSub.setOrderSubNo(orderProduct.getOrderSubNo());
+            orderSub.setSubFlag(order.getPayStatus());
+            orderSub.setChannelId(orderProduct.getChannelId());
+            orderSub.setProvidedId(orderProduct.getProvidedId());
+            orderSub.setSubPrice(calPayMoney(orderProduct));
+            orderSubMap.put(orderProduct.getOrderSubNo(), orderSub);
         }
     }
 
@@ -433,7 +467,7 @@ public class MOrderService {
         if (book.getTotalAmount() <= 0) {
             orderStatus = PayStatusEnum.PAY_STATUS_3.getPayStatus();
             payType = PayTypeEnum.PAY_TYPE_ACTIVITY.getPayType(); // 支付方式，无需支付
-            if(book.getOffline() == 1){
+            if(null != book.getOffline() && book.getOffline() == 1){
               //线下交易，订单状态为已发货
                 orderStatus = PayStatusEnum.PAY_STATUS_4.getPayStatus();
             }
@@ -477,7 +511,7 @@ public class MOrderService {
     }
 
 
-    private void insertSingleOrderProduct(Order order, MOrderGoodsParam orderGoodsParam,
+    private OrderProduct insertSingleOrderProduct(Order order, MOrderGoodsParam orderGoodsParam,
             OrderCheckDetail orderCheckDetail) {
         OrderCheckInfo orderCheckInfo =
                 orderCheckDetail.getOrderCheckInfoMap().get(orderGoodsParam.getGoodsId());
@@ -514,10 +548,30 @@ public class MOrderService {
         if (null != order.getPoint() && order.getPoint() > 0 && order.getPointMoney() > 0) {
             op.setDeductPrice(countPointMoney(orderCheckDetail, orderCheckInfo));
         }
-
         orderProductMapper.insertSelective(op);
+        return op;
     }
 
+    /**
+     * 
+    * @Title: calPayMoney 
+    * @Description: 计算实付金额
+    * @param @param orderProduct
+    * @param @return    
+    * @return Integer    
+    * @throws
+     */
+    private Integer calPayMoney(OrderProduct orderProduct){
+        Integer subPrice = orderProduct.getPrice();
+        if(null != orderProduct.getCoupouReduceAmount())
+            subPrice -= orderProduct.getCoupouReduceAmount();
+        if(null != orderProduct.getDeductPrice())
+            subPrice -= orderProduct.getDeductPrice();
+        subPrice *=orderProduct.getSkuCount();
+        return subPrice;
+    }
+    
+    
     /**
      * 
      * @Title: countPointMoney
@@ -608,8 +662,9 @@ public class MOrderService {
         };
         Order order = new Order();
         order.setLogicDel(LogicDelEnum.DEL.getType());
+        order.setPayStatus(PayStatusEnum.PAY_STATUS_9.getPayStatus());
         updateOrderStatusByNo(order, call);
-
+        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_9.getPayStatus());
         return output;
     }
 
@@ -894,7 +949,7 @@ public class MOrderService {
             }
         };
         Order order = new Order();
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_6);// 用户申请退款==>退款审核中
+        order.setPayStatus(PayStatusEnum.PAY_STATUS_6.getPayStatus());// 用户申请退款==>退款审核中
         order.setRefundAmount(listOrder.get(0).getPayMoney());
         order.setPoint(listOrder.get(0).getPoint());
         order.setRefundTime(new Date());
@@ -902,7 +957,9 @@ public class MOrderService {
         order.setRefundPoint(listOrder.get(0).getPoint());
         order.setUpTime(new Date());
         updateOrderStatusByNo(order, call);
-
+        
+        orderSubService.updateToPayStatus(listOrder.get(0).getOrderNo(), PayStatusEnum.PAY_STATUS_6.getPayStatus());
+        
         // 使用优惠券，有可能支付金额是0，这时退款不需要和支付网关交互
         if (listOrder.get(0).getPayMoney() > 0) {
             OrderPayLog orderPayLog = new OrderPayLog();
@@ -1065,7 +1122,7 @@ public class MOrderService {
         Order order = listOrder.get(0);
         order.setPayStatus(modifyOrderParams.getNewStatus());
         order.setUpTime(new Date());
-
+        orderSubService.updateToPayStatus(modifyOrderParams.getOrderNo(), modifyOrderParams.getNewStatus());
 
         if (mallOrderMapper.updateByPrimaryKeySelective(order) > 0)
             orderLogService.saveGSOrderLog(modifyOrderParams.getOrderNo(),
@@ -1101,17 +1158,17 @@ public class MOrderService {
 
         // 更新订单状态
         Order o = new Order();
-        o.setPayStatus(BookingResultCodeContants.PAY_STATUS_5);
+        o.setPayStatus(PayStatusEnum.PAY_STATUS_5.getPayStatus());
         o.setUpTime(new Date());
         List<Integer> list = new ArrayList<>(1);
-        list.add(BookingResultCodeContants.PAY_STATUS_4);
+        list.add(PayStatusEnum.PAY_STATUS_4.getPayStatus());
         int row = this.updateOrderStatusByNo(o, orderNo, list);
         // 订单已经处理
         if (row < 1) {
             logger.info("job 已发货-->已完成,订单已经处理, orderNo：" + orderNo);
             return;
         }
-
+        orderSubService.updateToPayStatus(orderNo, PayStatusEnum.PAY_STATUS_5.getPayStatus());
         orderLogService.saveGSOrderLog(orderNo, BookingConstants.PAY_STATUS_5, "已完成", "超时确定收货", 0,
                 ViewStatusEnum.VIEW_STATUS_COMPLETE.getCode(), "扫单job维护");
     }

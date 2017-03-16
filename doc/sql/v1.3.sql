@@ -8,7 +8,7 @@ ALTER TABLE m_order_product ADD `provided_id` INT(11)  COMMENT '供应商id';
 ALTER TABLE m_order_product ADD `express_amount` INT(11)  COMMENT '快递费';
 ALTER TABLE m_order_product ADD `coupou_reduce_amount` INT(11)  COMMENT '优惠券优惠金额，单位（分）';
 ALTER TABLE m_order_product ADD `point_reduce_amount` INT(11)  COMMENT '积分优惠金额，单位（分）';
-UPDATE m_order_product SET order_sub_no = order_no;
+
 ALTER TABLE m_order_coupon ADD `config_id` INT(11)  COMMENT '优惠券配置id';
 ALTER TABLE operate_log ADD `order_sub_no` VARCHAR(255)   DEFAULT '' COMMENT '子订单code';
 ALTER TABLE gs_order_log ADD `order_sub_no` VARCHAR(255)   DEFAULT '' COMMENT '子订单code';
@@ -53,15 +53,27 @@ FROM
   m_order o 
   LEFT JOIN m_order_product p 
     ON o.order_no = p.order_no WHERE o.order_no IS NOT NULL;
-UPDATE m_order_product SET order_sub_no = order_no;
+
+    INSERT INTO m_order_sub(order_no,order_sub_no,sub_flag,sub_price,channel_id) SELECT order_no,CONCAT(order_no,chanelid),pay_status,pay_money,chanelid FROM m_order;
+    
+UPDATE m_order_product SET order_sub_no = CONCAT(order_no,channel_id) WHERE order_no IS NOT NULL AND channel_id IS NOT NULL;
 --子订单的积分抵扣金额，存储到父订单中
-SELECT 
+ SELECT 
   CONCAT(
     'update m_order set point_money = ',
-    product.`deduct_price`
+    product.`deduct_price`,' where order_no = "',m.`order_no`,'";'
   ) 
 FROM
   m_order_product product,
   m_order m 
 WHERE product.`order_no` = m.`order_no` 
-  AND product.`deduct_price` > 0 
+  AND product.`deduct_price` > 0 ;
+  
+  CREATE TABLE `m_logistics_product` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
+  `package_id` INT(11) DEFAULT NULL,
+  `order_product_id` INT(11) DEFAULT NULL COMMENT '订单商品表主键',
+  PRIMARY KEY (`id`)
+) ENGINE=INNODB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='包裹对应的商品';
+  
+  

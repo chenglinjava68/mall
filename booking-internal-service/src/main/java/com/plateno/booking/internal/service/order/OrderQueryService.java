@@ -18,7 +18,6 @@ import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.model.SelectOrderParam;
 import com.plateno.booking.internal.base.model.bill.OrderProductInfo;
-import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.MLogistics;
 import com.plateno.booking.internal.base.pojo.MLogisticsExample;
 import com.plateno.booking.internal.base.pojo.Order;
@@ -59,6 +58,9 @@ public class OrderQueryService {
     
     @Autowired
     private LogisticsService logisticsService;
+    
+    @Autowired
+    private OrderSubService orderSubService;
     
     
     /**
@@ -240,7 +242,7 @@ public class OrderQueryService {
 
     private void paramsDeal(Order order, List<SelectOrderResponse> list) {
         SelectOrderResponse sc = new SelectOrderResponse();
-        sc.setOrderSubNos(orderProductMapper.queryOrderSubNoByOrderNo(order.getOrderNo()));
+        sc.setOrderSubNos(orderSubService.queryOrderSubStrByOrderNo(order.getOrderNo()));
         sc.setPoint(order.getPoint());
         sc.setAmount(order.getAmount());
         sc.setMemberId(Long.parseLong(order.getMemberId().toString()));
@@ -269,20 +271,7 @@ public class OrderQueryService {
         sc.setPointMoney(order.getPointMoney());
         sc.setTotalExpressAmount(order.getTotalExpressAmount());
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
-        //已发货，查询是否所有子订单都有包裹
-        if(sc.getViewStatus() == PayStatusEnum.PAY_STATUS_4.getViewStstus()){
-            int count = orderProductMapper.queryOrderSubNoCount(order.getOrderNo());
-            LogisticsPackageExample example = new LogisticsPackageExample();
-            example.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-            List packageList = packageMapper.selectByExample(example);
-            //部分订单未发货
-            if(count != packageList.size()){
-                sc.setViewStatus(PayStatusEnum.PAY_STATUS_14.getViewStstus());
-                sc.setPayStatus(PayStatusEnum.PAY_STATUS_14.getPayStatus());
-            }
-        }
         sc.setLogicDel(order.getLogicDel());
-
         // todo查询物流信息，需优化
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
         mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
@@ -306,8 +295,6 @@ public class OrderQueryService {
         //查询商品信息
         List<ProductInfo> productInfoList = orderProductService.queryProductInfosByOrderNo(order.getOrderNo());
         sc.setProductInfos(productInfoList);
-        sc.setChanelid(order.getChanelid());
-
         list.add(sc);
     }
 

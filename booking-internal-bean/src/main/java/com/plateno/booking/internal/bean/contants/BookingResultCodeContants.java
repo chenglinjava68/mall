@@ -70,7 +70,7 @@ public interface BookingResultCodeContants {
 	/**
 	 * 允许发货的状态
 	 */
-	public final static List<Integer> DELIVER_GOODS_STATUS = Arrays.asList(3,4, 8);
+	public final static List<Integer> DELIVER_GOODS_STATUS = Arrays.asList(3,4, 8,14);
 
 	// 允许执行被执行更新操作的订单状态
 	public final static List<Integer> READY_PAY_STATUS = Arrays.asList(1,7,5);
