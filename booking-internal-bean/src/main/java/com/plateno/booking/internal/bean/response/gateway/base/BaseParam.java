@@ -28,5 +28,14 @@ public class BaseParam {
 	public void setReferenceId(String referenceId) {
 		this.referenceId = referenceId;
 	}
+
+    @Override
+    public String toString() {
+        return "BaseParam [code=" + code + ", message=" + message + ", referenceId=" + referenceId
+                + "]";
+    }
+	
+	
+	
 }
 
