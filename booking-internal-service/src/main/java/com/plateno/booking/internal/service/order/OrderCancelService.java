@@ -68,8 +68,9 @@ public class OrderCancelService {
     private OrderStockService orderStockService;
     @Autowired
     private OrderSubService orderSubService;
+    @Autowired
+    private OrderRefundActorService orderRefundService;
     
-
     /**
      * 更新订单状态(取消)
      * 
@@ -104,87 +105,92 @@ public class OrderCancelService {
      */
     private ResultVo<Object> cancelOrder(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
+        //查询订单
+        queryOrder(orderParam, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        Order order = (Order) output.getData();
+        //查询订单是否可以取消
+        orderValidate.checkCancelOrder(order, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        //定时任务取消，判断是否到可取消时间
+        checkCancelTime(orderParam, order,output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        String desc = (String) output.getData();
+        
+        updateOrderStatus(order, PayStatusEnum.PAY_STATUS_2.getPayStatus());
+        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_2.getPayStatus());
+        orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
+                BookingResultCodeContants.PAY_STATUS_2, PayStatusEnum.PAY_STATUS_2.getDesc(), desc,
+                0, ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
+        //返还利益
+        orderRefundService.returnBenefit(order);
+        // 退还库存
+        orderStockService.returnStock( order.getOrderNo());
+        // 如果是后台操作，取消记录操作日志
+        recordCancelLog(orderParam);
+        return output;
+    }
 
-        // 校验订单是否可被处理
+    /**
+     * 
+    * @Title: queryOrder 
+    * @Description: 查询订单
+    * @param @param orderParam
+    * @param @param output    
+    * @return void    
+    * @throws
+     */
+    private void queryOrder(MOrderParam orderParam,ResultVo<Object> output){
         List<Order> listOrder =
                 mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
                         orderParam.getMemberId(), orderParam.getChannelId());
         if (CollectionUtils.isEmpty(listOrder)) {
             output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
             output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
+            return;
         }
-        orderValidate.checkCancelOrder(listOrder.get(0), output);
-        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-            return output;
-        }
-
+        output.setData(listOrder.get(0));
+        return;
+    }
+    
+    /**
+     * 
+    * @Title: checkCancelTime 
+    * @Description: 检查是否到超时取消时间
+    * @param @param orderParam
+    * @param @param order
+    * @param @return    
+    * @return ResultVo<Object>    
+    * @throws
+     */
+    private void checkCancelTime(MOrderParam orderParam,Order order,ResultVo<Object> output){
         String desc = "手动取消订单";
         // 判断取消类型
         if (orderParam.getType() != null && orderParam.getType() == 1) {
-
             desc = "超时取消订单";
-
-            logger.info(String.format("orderNo:%s, 超时取消订单", orderParam.getOrderNo()));
+            logger.info("超时取消订单，orderNo：{}",orderParam.getOrderNo());
             long now = new Date().getTime();
-            long createTime = listOrder.get(0).getCreateTime().getTime();
+            long createTime = order.getCreateTime().getTime();
             // 29分钟，避免时间存在误差
             if (now - createTime <= 29 * 60 * 1000) {
-                logger.info(String.format("orderNo:%s, 超期取消时间错误:%s", orderParam.getOrderNo(),
-                        listOrder.get(0).getCreateTime()));
+                logger.info("orderNo:{}, 超期取消时间错误:{}",orderParam.getOrderNo(),
+                        order.getCreateTime());
                 output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
                 output.setResultMsg("超时取消时间未到达30分钟");
-                return output;
+                return;
             }
         }
-        
-        Order order = new Order();
-        order.setPayStatus(PayStatusEnum.PAY_STATUS_2.getPayStatus());
-        order.setUpTime(new Date());
-        OrderExample orderExample = new OrderExample();
-        orderExample.createCriteria().andOrderNoEqualTo(orderParam.getOrderNo());
-        mallOrderMapper.updateByExampleSelective(order, orderExample);
-        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_2.getPayStatus());
-        
-        orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
-                BookingResultCodeContants.PAY_STATUS_2, PayStatusEnum.PAY_STATUS_2.getDesc(), desc,
-                0, ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
-
-        // 退还积分
-        if (listOrder.get(0).getPoint() > 0) {
-
-            logger.info("取消订单，退还积分，orderNo:{}, point:{}", listOrder.get(0).getOrderNo(), listOrder
-                    .get(0).getPoint());
-
-            ValueBean vb = new ValueBean();
-            vb.setPointvalue(listOrder.get(0).getPoint());
-            vb.setMebId(listOrder.get(0).getMemberId());
-            vb.setTrandNo(listOrder.get(0).getOrderNo());
-            int mallAddPoint = pointService.mallAddPoint(vb);
-            if (mallAddPoint > 0) {
-                logger.error("取消订单，退还积分失败，orderNo:{}, memberId:{}, point:{}", listOrder.get(0)
-                        .getOrderNo(), listOrder.get(0).getMemberId(), listOrder.get(0).getPoint());
-                LogUtils.DISPERSED_ERROR_LOGGER.error(
-                        "取消订单，退还积分失败，orderNo:{}, memberId:{}, point:{}", listOrder.get(0)
-                                .getOrderNo(), listOrder.get(0).getMemberId(), listOrder.get(0)
-                                .getPoint());
-            }
-        }
-
-        // 退还库存
-        try {
-            logger.info("取消订单，退还库存，orderNo:{}", listOrder.get(0).getOrderNo());
-            orderStockService.returnStock( listOrder.get(0).getOrderNo());
-        } catch (Exception e) {
-            logger.error("退还库存生异常:" + orderParam.getOrderNo(), e);
-        }
-
-        // 如果使用了优惠券，退还优惠券
-        if (listOrder.get(0).getCouponAmount() > 0) {
-            returnCoupon(listOrder.get(0).getOrderNo(), listOrder.get(0).getMemberId());
-        }
-
-        // 如果是后台操作，取消记录操作日志
+        output.setData(desc);
+        return;
+    }
+    
+    private void recordCancelLog(MOrderParam orderParam){
         if (orderParam.getPlateForm() != null
                 && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam
                         .getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
@@ -197,52 +203,12 @@ public class OrderCancelService {
             paramlog.setRemark(OperateLogEnum.CANCEL_ORDER.getOperateName());
             operateLogService.saveOperateLog(paramlog);
         }
-
-        return output;
     }
-
-    /**
-     * 返回优惠券
-     * 
-     * @param orderNo
-     */
-    private ResultVo<String> returnCoupon(String orderNo, Integer memberId) {
-
-        logger.info("退还优惠券, orderNo:{}", orderNo);
-
-        MOrderCouponSearchVO svo = new MOrderCouponSearchVO();
-        svo.setOrderNo(orderNo);
-        // 查询优惠券信息
-        List<MOrderCouponPO> couponList = mOrderCouponMapper.list(svo);
-
-        if (couponList.size() <= 0) {
-            logger.error("订单orderNo:{}, 找不到优惠券的使用信息", orderNo);
-            return new ResultVo<String>(ResultCode.FAILURE, null, "查询优惠券信息失败");
-        } else {
-
-            MOrderCouponPO mOrderCouponPO = couponList.get(0);
-
-            CancelParam param = new CancelParam();
-            param.setCouponId(mOrderCouponPO.getCouponId());
-            param.setMebId(memberId);
-
-            ResultVo<CancelResponse> cancelCouponResult = couponService.cancelCoupon(param);
-
-            if (!cancelCouponResult.success()) {
-                logger.error("退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo,
-                        memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
-                LogUtils.DISPERSED_ERROR_LOGGER.error(
-                        "退还优惠券失败，orderNo:{}, memberId:{}, couponId:{}, result:{}", orderNo,
-                        memberId, mOrderCouponPO.getCouponId(), cancelCouponResult);
-
-                return new ResultVo<String>(ResultCode.FAILURE, null, "返回优惠券失败，"
-                        + cancelCouponResult.getResultMsg());
-            }
-
-            return new ResultVo<String>(ResultCode.SUCCESS);
-        }
+    
+    private void updateOrderStatus(Order order,int payStatus){
+        order.setPayStatus(payStatus);
+        order.setUpTime(new Date());
+        mallOrderMapper.updateByPrimaryKeySelective(order);
     }
-
-
     
 }

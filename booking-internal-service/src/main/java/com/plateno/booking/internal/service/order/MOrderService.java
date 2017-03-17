@@ -25,14 +25,11 @@ import com.plateno.booking.internal.base.constant.LogicDelEnum;
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PayTypeEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
-import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
-import com.plateno.booking.internal.base.mapper.MLogisticsMapper;
 import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
-import com.plateno.booking.internal.base.mapper.SmsLogMapper;
 import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
@@ -78,7 +75,6 @@ import com.plateno.booking.internal.common.util.redis.RedisUtils;
 import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
-import com.plateno.booking.internal.email.service.PhoneMsgService;
 import com.plateno.booking.internal.gateway.PaymentService;
 import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
@@ -86,11 +82,10 @@ import com.plateno.booking.internal.goods.vo.OrderCheckInfo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.annotation.service.ServiceErrorCode;
-import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
-import com.plateno.booking.internal.service.order.state.OrderStatusContext;
+import com.plateno.booking.internal.service.util.ProductPriceUtil;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
 
 
@@ -106,25 +101,11 @@ public class MOrderService {
     @Autowired
     private RedisUtils redisUtils;
 
-
-    @Autowired
-    private OrderStatusContext orderStatusContext;
-
-
     @Autowired
     private OrderMapper mallOrderMapper;
 
     @Autowired
-    private MLogisticsMapper mLogisticsMapper;
-
-    @Autowired
     private OrderProductMapper orderProductMapper;
-
-    @Autowired
-    private MallGoodsService mallGoodsService;
-
-    @Autowired
-    private PointService pointService;
 
     @Autowired
     private OrderPayLogMapper orderPayLogMapper;
@@ -142,19 +123,10 @@ public class MOrderService {
     private OrderLogService orderLogService;
 
     @Autowired
-    private SmsLogMapper smsLogMapper;
-
-    @Autowired
-    private PhoneMsgService phoneMsgService;
-
-    @Autowired
     private CouponService couponService;
 
     @Autowired
     private MOrderCouponMapper mOrderCouponMapper;
-
-    @Autowired
-    private ProductCalService productCalService;
 
     @Autowired
     private OrderInsertActorService orderInsertActorService;
@@ -167,9 +139,6 @@ public class MOrderService {
 
     @Autowired
     private OrderStockService orderStockService;
-
-    @Autowired
-    private LogisticsPackageMapper packageMapper;
 
     @Autowired
     private OrderSubService orderSubService;
@@ -208,7 +177,6 @@ public class MOrderService {
     private ResultVo<Object> modifyOrder(ModifyOrderParams modifyOrderParams)
             throws OrderException, Exception {
 
-        logger.info("修改订单，参数:" + JsonUtils.toJsonString(modifyOrderParams));
 
         ResultVo<Object> output = new ResultVo<Object>();
         List<Order> listOrder =
@@ -221,15 +189,7 @@ public class MOrderService {
         }
 
         Order order = listOrder.get(0);
-
         int oldStatus = order.getPayStatus();
-
-        // 所有订单状态都能修改，
-        /*
-         * orderValidate.checkModifyOrder(order, output); if
-         * (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) { return output; }
-         */
-
         // 但是只能修改成代发货、待收货、已完成、退款审核中、已退款
         if (!CAN_MODIFY_STATUS.contains(modifyOrderParams.getNewStatus())) {
             logger.info(String.format("orderNo:%s, new status:%s, 不支持修改成该状态", order.getOrderNo(),
@@ -342,7 +302,7 @@ public class MOrderService {
     public ResultVo<List<MOperateLogResponse>> selectOperateLog(MOperateLogParam params)
             throws Exception {
         ResultVo<List<MOperateLogResponse>> output = new ResultVo<List<MOperateLogResponse>>();
-        List<MOperateLogResponse> lisLogs = new ArrayList<MOperateLogResponse>();
+        List<MOperateLogResponse> listLogs = new ArrayList<MOperateLogResponse>();
         if (StringUtils.isNotBlank(params.getOrderCode())) {
             List<Order> listOrder =
                     mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(params.getOrderCode(),
@@ -353,6 +313,7 @@ public class MOrderService {
                 return output;
             }
         }
+        //查询是否根据子订单编码
         if (StringUtils.isNotBlank(params.getOrderSubNo())) {
             List<Order> listOrder =
                     mallOrderMapper.queryOrderByOrderSubNo(params.getOrderSubNo(),
@@ -371,28 +332,40 @@ public class MOrderService {
         List<Operatelog> listlogs = operatelogMapper.selectByExample(operatelogExample);
         for (Operatelog log : listlogs) {
             MOperateLogResponse response = new MOperateLogResponse();
-            response.setOperateTime(log.getOperateTime().getTime());
-            response.setOperateType(log.getOperateType());
-            response.setOperateUserid(log.getOperateUserid());
-            response.setOperateUserName(log.getOperateUsername());
-            // 将子订单赋值到父订单号中
-            response.setOrderCode(StringUtils.isNotBlank(params.getOrderSubNo()) ? log
-                    .getOrderSubNo() : log.getOrderCode());
-            response.setPlateForm(log.getPlateForm());
-            response.setRemark(log.getRemark());
-            lisLogs.add(response);
+            copyLogToResponse(params, log, response);
+            listLogs.add(response);
         }
-        output.setData(lisLogs);
+        output.setData(listLogs);
         return output;
     }
 
+    private void copyLogToResponse(MOperateLogParam params,Operatelog log,MOperateLogResponse response){
+        response.setOperateTime(log.getOperateTime().getTime());
+        response.setOperateType(log.getOperateType());
+        response.setOperateUserid(log.getOperateUserid());
+        response.setOperateUserName(log.getOperateUsername());
+        // 将子订单赋值到父订单号中
+        response.setOrderCode(StringUtils.isNotBlank(params.getOrderSubNo()) ? log
+                .getOrderSubNo() : log.getOrderCode());
+        response.setPlateForm(log.getPlateForm());
+        response.setRemark(log.getRemark());
+    }
 
-
+    /**
+     * 
+    * @Title: insertOrder 
+    * @Description: 新增订单
+    * @param @param income
+    * @param @param output
+    * @param @return
+    * @param @throws OrderException    
+    * @return com.plateno.booking.internal.base.pojo.Order    
+    * @throws
+     */
     @Transactional(rollbackFor = OrderException.class)
     public com.plateno.booking.internal.base.pojo.Order insertOrder(MAddBookingIncomeVo income,
             ResultVo output) throws OrderException {
         try {
-
             // 库存信息对象
             OrderCheckDetail orderCheckDetail = (OrderCheckDetail) output.getData();
             MAddBookingParam book = income.getAddBookingParam();
@@ -403,6 +376,7 @@ public class MOrderService {
             // 插入order_product
             for (MOrderGoodsParam orderGoodsParam : book.getGoodsList()) {
                 OrderProduct orderProduct = insertSingleOrderProduct(order, orderGoodsParam, orderCheckDetail);
+                //拆单
                 spiltOrder(order, orderProduct, orderSubMap);
             }
             //插入orderSub
@@ -430,7 +404,7 @@ public class MOrderService {
     private void spiltOrder(Order order,OrderProduct orderProduct,Map<String,OrderSub> orderSubMap){
         if(null != orderSubMap.get(orderProduct.getOrderSubNo())){
             OrderSub orderSub = orderSubMap.get(orderProduct.getOrderSubNo());
-            orderSub.setSubPrice(orderSub.getSubPrice() + calPayMoney(orderProduct));
+            orderSub.setSubPrice(orderSub.getSubPrice() + ProductPriceUtil.calProductPayMoney(orderProduct));
         }else{
             OrderSub orderSub = new OrderSub();
             orderSub.setOrderNo(order.getOrderNo());
@@ -438,7 +412,7 @@ public class MOrderService {
             orderSub.setSubFlag(order.getPayStatus());
             orderSub.setChannelId(orderProduct.getChannelId());
             orderSub.setProvidedId(orderProduct.getProvidedId());
-            orderSub.setSubPrice(calPayMoney(orderProduct));
+            orderSub.setSubPrice(ProductPriceUtil.calProductPayMoney(orderProduct));
             orderSubMap.put(orderProduct.getOrderSubNo(), orderSub);
         }
     }
@@ -552,24 +526,6 @@ public class MOrderService {
         return op;
     }
 
-    /**
-     * 
-    * @Title: calPayMoney 
-    * @Description: 计算实付金额
-    * @param @param orderProduct
-    * @param @return    
-    * @return Integer    
-    * @throws
-     */
-    private Integer calPayMoney(OrderProduct orderProduct){
-        Integer subPrice = orderProduct.getPrice();
-        if(null != orderProduct.getCoupouReduceAmount())
-            subPrice -= orderProduct.getCoupouReduceAmount();
-        if(null != orderProduct.getDeductPrice())
-            subPrice -= orderProduct.getDeductPrice();
-        subPrice *=orderProduct.getSkuCount();
-        return subPrice;
-    }
     
     
     /**
@@ -638,37 +594,51 @@ public class MOrderService {
     @Transactional
     public ResultVo<Object> deleteOrder(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
+        //查询订单是否存在
+        queryOrder(orderParam, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        Order order = (Order) output.getData();
+        //校验订单是否可删除
+        orderValidate.checkDeleteOrder(order, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        //删除标志
+        order.setLogicDel(LogicDelEnum.DEL.getType());
+        updateOrderStatus(order, PayStatusEnum.PAY_STATUS_9.getPayStatus());
+        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_9.getPayStatus());
+        return output;
+    }
+    
+    private void updateOrderStatus(Order order,int payStatus){
+        order.setPayStatus(payStatus);
+        order.setUpTime(new Date());
+        mallOrderMapper.updateByPrimaryKeySelective(order);
+    }
 
-        // 校验订单是否可被处理
+    /**
+     * 
+    * @Title: queryOrder 
+    * @Description: 查询订单
+    * @param @param orderParam
+    * @param @param output    
+    * @return void    
+    * @throws
+     */
+    private void queryOrder(MOrderParam orderParam,ResultVo<Object> output){
         List<Order> listOrder =
                 mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
                         orderParam.getMemberId(), orderParam.getChannelId());
         if (CollectionUtils.isEmpty(listOrder)) {
             output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
             output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
+            return;
         }
-        orderValidate.checkDeleteOrder(listOrder.get(0), output);
-        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
-            return output;
-        }
-
-        // 构造sql的过滤语句
-        CallMethod<Order> call = new CallMethod<Order>() {
-            @Override
-            void call(Criteria criteria, Order order) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-        Order order = new Order();
-        order.setLogicDel(LogicDelEnum.DEL.getType());
-        order.setPayStatus(PayStatusEnum.PAY_STATUS_9.getPayStatus());
-        updateOrderStatusByNo(order, call);
-        orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_9.getPayStatus());
-        return output;
+        output.setData(listOrder.get(0));
+        return;
     }
-
-
 
     /**
      * 客服确定退款
@@ -680,15 +650,11 @@ public class MOrderService {
     @Transactional(rollbackFor = Exception.class)
     public ResultVo<Object> refundOrder(MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
-        final List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
+        queryOrder(orderParam, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-        final Order dbOrder = listOrder.get(0);
+        Order dbOrder = (Order) output.getData();
         orderValidate.checkRefund(dbOrder, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             logger.info("output:" + output);
@@ -706,11 +672,8 @@ public class MOrderService {
         if (!result.success()) {
             return result;
         }
-
         // 返还库存
         orderStockService.returnStock(dbOrder.getOrderNo());
-
-
         // 记录操作日志
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.AGREE_REFUND_OP.getOperateType());
@@ -871,46 +834,54 @@ public class MOrderService {
     public ResultVo<Object> adminRefuseRefund(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();
         // 校验订单是否可被处理
-        List<Order> listOrder =
-                mallOrderMapper.getOrderByNoAndMemberIdAndChannelId(orderParam.getOrderNo(),
-                        orderParam.getMemberId(), orderParam.getChannelId());
-        if (CollectionUtils.isEmpty(listOrder)) {
-            output.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-            output.setResultMsg("订单查询失败,获取不到订单");
-            return output;
-        }
-        orderValidate.checkAdminRefund(listOrder.get(0), output);
+        queryOrder(orderParam, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
             return output;
         }
-
-        // 构造sql的过滤语句
-        CallMethod<Order> call = new CallMethod<Order>() {
-            @Override
-            void call(Criteria criteria, Order order) throws Exception {
-                invoke(criteria, "andOrderNoEqualTo", orderParam.getOrderNo());
-            }
-        };
-        Order order = new Order();
-        order.setPayStatus(BookingResultCodeContants.PAY_STATUS_8);// 退款审核中==>退款审核不通过
+        Order order = (Order) output.getData();
+        orderValidate.checkAdminRefund(order, output);
+        if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
+            return output;
+        }
+        
+        //更新订单
         order.setRefundSuccesstime(new Date());
         order.setRefundFailReason(StringUtils.trimToEmpty(orderParam.getRefundRemark())); // 退款失败原因
-        updateOrderStatusByNo(order, call);
-
+        updateOrderStatus(order, PayStatusEnum.PAY_STATUS_8.getPayStatus());
         // 更新退款流水为失败
-        OrderPayLog record = new OrderPayLog();
-        record.setStatus(3);
-        OrderPayLogExample example = new OrderPayLogExample();
-        example.createCriteria().andOrderIdEqualTo(listOrder.get(0).getId()).andTypeEqualTo(2)
-                .andStatusEqualTo(1);
-        orderPayLogMapper.updateByExampleSelective(record, example);
-
+        updateOrderPayLogToFail(order);
 
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
-                BookingResultCodeContants.PAY_STATUS_8, "拒绝退款操作",
+                PayStatusEnum.PAY_STATUS_8.getPayStatus(), "拒绝退款操作",
                 StringUtils.trimToEmpty(orderParam.getRefundRemark()), 0,
                 ViewStatusEnum.VIEW_STATUS_REFUND_FAIL.getCode());
 
+        recordRefundLog(orderParam);
+
+        return output;
+    }
+    
+    
+    private void updateOrderPayLogToFail(Order order){
+     // 更新退款流水为失败
+        OrderPayLog record = new OrderPayLog();
+        record.setStatus(3);
+        OrderPayLogExample example = new OrderPayLogExample();
+        example.createCriteria().andOrderIdEqualTo(order.getId()).andTypeEqualTo(2)
+                .andStatusEqualTo(1);
+        orderPayLogMapper.updateByExampleSelective(record, example);
+    }
+    
+
+    /**
+     * 
+    * @Title: recordRefundLog 
+    * @Description: 记录退款日志
+    * @param @param orderParam    
+    * @return void    
+    * @throws
+     */
+    private void recordRefundLog(MOrderParam orderParam){
         MOperateLogParam paramlog = new MOperateLogParam();
         paramlog.setOperateType(OperateLogEnum.REFUSE_REFUNDING.getOperateType());
         paramlog.setOperateUserid(orderParam.getOperateUserid());
@@ -919,11 +890,8 @@ public class MOrderService {
         paramlog.setPlateForm(orderParam.getPlateForm());
         paramlog.setRemark(OperateLogEnum.REFUSE_REFUNDING.getOperateName());
         operateLogService.saveOperateLog(paramlog);
-
-        return output;
     }
-
-
+    
     @Transactional
     public ResultVo<Object> userRefund(final MOrderParam orderParam) throws Exception {
         ResultVo<Object> output = new ResultVo<Object>();

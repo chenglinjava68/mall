@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.util;
 
+import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 
 public class ProductPriceUtil {
@@ -29,6 +30,20 @@ public class ProductPriceUtil {
         return productPay;
     }
     
-    
+    public static Integer calProductPayMoney(OrderProduct orderProduct){
+        //商品实付金额
+        int productPay = orderProduct.getPrice();
+        //优惠券优惠金额
+        if(null != orderProduct.getCoupouReduceAmount())
+            productPay -= orderProduct.getCoupouReduceAmount();
+        //积分抵扣金额
+        if(null != orderProduct.getDeductPrice())
+            productPay -= orderProduct.getDeductPrice();
+        productPay = productPay * orderProduct.getSkuCount();
+        //快递费
+        if(null != orderProduct.getExpressAmount())
+            productPay += orderProduct.getExpressAmount();
+        return productPay;
+    }
     
 }

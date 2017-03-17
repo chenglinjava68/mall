@@ -45,52 +45,24 @@ public class OrderInsertActorService {
     private CouponService couponService;
 
     public void insertAfter(MAddBookingParam book, Order order,OrderCheckDetail orderCheckDetail) throws Exception {
-
-
         // 插入快递单信息
-        logger.info("插入快递单信息");
-        MLogistics logistics = new MLogistics();
-        logistics.setOrderNo(order.getOrderNo());
-        logistics.setShippingType(1);// 1包邮,2普通快递
-        logistics.setConsigneeName(book.getConsigneeName());
-        logistics.setConsigneeAddress(book.getConsigneeAddress());
-        logistics.setConsigneeMobile(book.getConsigneeMobile());
-        logistics.setProvince(book.getProvince());
-        logistics.setCity(book.getCity());
-        logistics.setArea(book.getArea());
-        mLogisticsMapper.insertSelective(logistics);
-
+        insertConsignee(book, order);
         // 如果使用优惠券，记录优惠券的使用信息
         if (book.getCouponId() != null && book.getCouponId() > 0) {
-            MOrderCouponPO mOrderCouponPO = new MOrderCouponPO();
-            mOrderCouponPO.setCouponId(book.getCouponId());
-            mOrderCouponPO.setOrderNo(order.getOrderNo());
-            mOrderCouponPO.setCouponType(CouponEnum.MONEY_COUPON.getType());
-            mOrderCouponPO.setSubCouponType(CouponEnum.MONEY_COUPON.getSubType());
-            mOrderCouponPO.setCouponName(book.getCouponName());
-            mOrderCouponPO.setAmount(book.getCouponAmount());
-            mOrderCouponPO.setOrderCouponAmount(book.getValidCouponAmount());
-            mOrderCouponPO.setCreateTime(new Date());
-            mOrderCouponPO.setConfigId(book.getConfigId());
-            mOrderCouponMapper.insert(mOrderCouponPO);
+            insertCoupon(book, order);
         }
-
-
         // 扣减库存
         boolean modifyStock = mallGoodsService.deductBatchStock(book.getGoodsList());
         if (!modifyStock) {
             logger.error("扣减库存失败， {}", modifyStock);
             throw new OrderException("系统正忙，扣减库存失败，请重试！");
         }
-
         // 扣减积分
-        if (book.getSellStrategy().equals(2)) {
-            logger.info("下单扣减积分， sellStrategy:{}, point:{}", book.getSellStrategy(),
-                    book.getPoint());
+        if (book.getPoint() > 0) {
+            logger.info("memberId:{%s}扣减point:{%s}",book.getMemberId(),book.getPoint());
             boolean minusPoint = minusPoint(book.getMemberId(), book.getPoint());
             if (!minusPoint) {
                 logger.error("扣积分失败， {}， {}", book.getMemberId(), minusPoint);
-
                 // 事务回滚，归还库存
                 boolean result = mallGoodsService.returnBatchStock(book.getGoodsList());
                 if (!result) {
@@ -100,40 +72,22 @@ public class OrderInsertActorService {
                 throw new OrderException("系统正忙，扣减积分，请重试！");
             }
         }
-
         // 使用优惠券
         if (book.getCouponId() != null && book.getCouponId() > 0) {
-            UseParam useCouponParam = new UseParam();
-            useCouponParam.setCouponId(book.getCouponId());
-            useCouponParam.setMebId(book.getMemberId());
-            useCouponParam.setOrderCode(order.getOrderNo());
-            useCouponParam.setPlatformId(CouponPlatformType.fromResource(book.getResource())
-                    .getPlatformId());
-            Conditions conditions = new Conditions();
-            useCouponParam.setConditions(conditions);
-            conditions.setOrderAmount(orderCheckDetail.getCouponOrderAmount());
-            if(CollectionUtils.isNotEmpty(orderCheckDetail.getCouponProductList())){
-                conditions.setProductId(orderCheckDetail.getCouponProductList().get(0).getSpuId().intValue());
-                conditions.setCategoryId(orderCheckDetail.getCouponProductList().get(0).getCategoryId());
-            }
-            ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
+            ResultVo<BaseResponse> useCouponResult = userCoupon(book, order, orderCheckDetail);
             if (!useCouponResult.success()) {
-
                 logger.error("优惠券使用失败, memberId:{}, couponId:{}, result:{}", book.getMemberId(),
                         book.getCouponId(), useCouponResult);
-
                 // 事务回滚，归还库存
                 boolean result = mallGoodsService.returnBatchStock(book.getGoodsList());
                 if (!result) {
                     logger.error("下单扣减优惠券失败，回滚事务，归还库存失败，goodsJson:{}",
                             JsonUtils.toJsonString(book.getGoodsList()));
                 }
-
                 // 事务回滚，退还积分
-                if (book.getSellStrategy().equals(2)) {
+                if (book.getPoint() > 0) {
                     logger.info("使用优惠券失败，退还积分， memberId:{}, point:{}", book.getMemberId(),
                             book.getPoint());
-
                     ValueBean vb = new ValueBean();
                     vb.setPointvalue(book.getPoint());
                     vb.setMebId(book.getMemberId());
@@ -141,9 +95,6 @@ public class OrderInsertActorService {
                     int mallAddPoint = pointService.mallAddPoint(vb);
                     if (mallAddPoint > 0) {
                         logger.error("下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}",
-                                order.getOrderNo(), book.getMemberId(), book.getPoint());
-                        LogUtils.DISPERSED_ERROR_LOGGER.error(
-                                "下单事务回滚，退还积分失败，orderNo:{}, memberId:{}, point:{}",
                                 order.getOrderNo(), book.getMemberId(), book.getPoint());
                     }
                 }
@@ -172,4 +123,49 @@ public class OrderInsertActorService {
         }
     }
 
+    private void insertConsignee(MAddBookingParam book, Order order){
+        MLogistics logistics = new MLogistics();
+        logistics.setOrderNo(order.getOrderNo());
+        logistics.setShippingType(1);// 1包邮,2普通快递
+        logistics.setConsigneeName(book.getConsigneeName());
+        logistics.setConsigneeAddress(book.getConsigneeAddress());
+        logistics.setConsigneeMobile(book.getConsigneeMobile());
+        logistics.setProvince(book.getProvince());
+        logistics.setCity(book.getCity());
+        logistics.setArea(book.getArea());
+        mLogisticsMapper.insertSelective(logistics);
+    }
+    
+    private void insertCoupon(MAddBookingParam book, Order order){
+        MOrderCouponPO mOrderCouponPO = new MOrderCouponPO();
+        mOrderCouponPO.setCouponId(book.getCouponId());
+        mOrderCouponPO.setOrderNo(order.getOrderNo());
+        mOrderCouponPO.setCouponType(CouponEnum.MONEY_COUPON.getType());
+        mOrderCouponPO.setSubCouponType(CouponEnum.MONEY_COUPON.getSubType());
+        mOrderCouponPO.setCouponName(book.getCouponName());
+        mOrderCouponPO.setAmount(book.getCouponAmount());
+        mOrderCouponPO.setOrderCouponAmount(book.getValidCouponAmount());
+        mOrderCouponPO.setCreateTime(new Date());
+        mOrderCouponPO.setConfigId(book.getConfigId());
+        mOrderCouponMapper.insert(mOrderCouponPO);
+    }
+    
+    private ResultVo<BaseResponse> userCoupon(MAddBookingParam book, Order order,OrderCheckDetail orderCheckDetail){
+        UseParam useCouponParam = new UseParam();
+        useCouponParam.setCouponId(book.getCouponId());
+        useCouponParam.setMebId(book.getMemberId());
+        useCouponParam.setOrderCode(order.getOrderNo());
+        useCouponParam.setPlatformId(CouponPlatformType.fromResource(book.getResource())
+                .getPlatformId());
+        Conditions conditions = new Conditions();
+        useCouponParam.setConditions(conditions);
+        conditions.setOrderAmount(orderCheckDetail.getCouponOrderAmount());
+        if(CollectionUtils.isNotEmpty(orderCheckDetail.getCouponProductList())){
+            conditions.setProductId(orderCheckDetail.getCouponProductList().get(0).getSpuId().intValue());
+            conditions.setCategoryId(orderCheckDetail.getCouponProductList().get(0).getCategoryId());
+        }
+        ResultVo<BaseResponse> useCouponResult = couponService.useCoupon(useCouponParam);
+        return useCouponResult;
+    }
+    
 }
