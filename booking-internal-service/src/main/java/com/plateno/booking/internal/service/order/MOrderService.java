@@ -605,6 +605,7 @@ public class MOrderService {
             return output;
         }
         Order order = (Order) output.getData();
+        output.setData(null);
         // 校验订单是否可删除
         orderValidate.checkDeleteOrder(order, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {

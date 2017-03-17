@@ -154,4 +154,10 @@ public class OrderProductService {
         return productInfos;
     }
     
+    public List<OrderProduct> queryOrderProductByOrderNo(String orderNo){
+        OrderProductExample example = new OrderProductExample();
+        example.createCriteria().andOrderNoEqualTo(orderNo);
+        return orderProductMapper.selectByExample(example);
+    }
+    
 }

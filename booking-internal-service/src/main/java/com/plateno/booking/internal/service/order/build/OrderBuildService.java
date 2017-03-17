@@ -29,6 +29,7 @@ import com.plateno.booking.internal.bean.contants.BookingConstants;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.OrderInfo;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
+import com.plateno.booking.internal.bean.response.custom.SelectOrderResponse;
 import com.plateno.booking.internal.bean.response.custom.SubOrderDetail;
 import com.plateno.booking.internal.dao.mapper.LogisticsMapperExt;
 import com.plateno.booking.internal.service.order.OrderProductService;
@@ -39,36 +40,36 @@ public class OrderBuildService {
 
     @Autowired
     private OrderPayLogMapper orderPayLogMapper;
-    
+
     @Autowired
     private MLogisticsMapper mLogisticsMapper;
-    
+
     @Autowired
     private LogisticsMapperExt logisticsMapperExt;
-    
-    
+
+
     @Autowired
     private OrderProductMapper orderProductMapper;
     @Autowired
     private LogisticsPackageMapper packageMapper;
-    
+
     @Autowired
     private OrderSubService orderSubService;
-    
+
     @Autowired
     private OrderProductService orderProductService;
-    
+
     /**
      * 
-    * @Title: buildOrderInfo 
-    * @Description: 构建orderInfo
-    * @param @param order
-    * @param @param plateForm
-    * @param @return    
-    * @return OrderInfo    
-    * @throws
+     * @Title: buildOrderInfo
+     * @Description: 构建orderInfo
+     * @param @param order
+     * @param @param plateForm
+     * @param @return
+     * @return OrderInfo
+     * @throws
      */
-    public OrderInfo buildOrderInfo(Order order,Integer plateForm ,Integer count){
+    public OrderInfo buildOrderInfo(Order order, Integer plateForm) {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setCreateDate(order.getCreateTime().getTime());
         orderInfo.setOrderNo(order.getOrderNo());
@@ -91,7 +92,7 @@ public class OrderBuildService {
         orderInfo.setPayTime(order.getPayTime().getTime());
         orderInfo.setName(order.getName());
         orderInfo.setMobile(order.getMobile());
-        //设置前端订单状态
+        // 设置前端订单状态
         orderInfo.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         if (order.getPayStatus().equals(1)) {
             orderInfo.setOrderDetailRemark("待付款，请你在30分钟内支付，否则订单取消");
@@ -100,15 +101,7 @@ public class OrderBuildService {
         } else if (order.getPayStatus().equals(3)) {
             orderInfo.setOrderDetailRemark("待发货，快递公司将会在三个工作日内进行发货");
         } else if (order.getPayStatus().equals(4)) {
-            //已发货状态，需要检查是否所有包裹都已经有快递单,如有未发货子订单，则为部分发货
-            int orderSubNoCount = logisticsMapperExt.queryOrderSubCount(order.getOrderNo());
-            if(count != orderSubNoCount){
-                //部分发货状态
-                orderInfo.setViewStatus(PayStatusEnum.PAY_STATUS_14.getViewStstus());
-                orderInfo.setOrderDetailRemark("您的订单已发出部分商品，其他商品将陆续发出，请您耐心等候。");
-            }else{
-                orderInfo.setOrderDetailRemark("待收货，请留意电话进行快递查收");
-            }
+            orderInfo.setOrderDetailRemark("待收货，请留意电话进行快递查收");
         } else if (order.getPayStatus().equals(5)) {
             orderInfo.setOrderDetailRemark("已完成，已确认收货，欢迎下次购买");
         } else if (order.getPayStatus().equals(6)) {
@@ -121,6 +114,8 @@ public class OrderBuildService {
             orderInfo.setOrderDetailRemark("审核不通过，如有问题，请联系铂涛会客服");
         } else if (order.getPayStatus().equals(BookingConstants.PAY_STATUS_13)) { // 退款失败
             orderInfo.setOrderDetailRemark("审核失败，如有问题，请联系铂涛会客服");
+        } else if (order.getPayStatus().equals(PayStatusEnum.PAY_STATUS_14.getPayStatus())) {
+            orderInfo.setOrderDetailRemark("您的订单已发出部分商品，其他商品将陆续发出，请您耐心等候。");
         }
         orderInfo.setFailReason(order.getRefundFailReason());
         orderInfo.setRefundTime(order.getRefundTime() == null ? null : order.getRefundTime()
@@ -130,27 +125,27 @@ public class OrderBuildService {
         orderInfo.setRefundAmount(order.getRefundAmount());
         orderInfo.setRefundReason(order.getRefundReason());
         orderInfo.setPoint(order.getPoint());
-        orderInfo.setOrderAmount(order.getAmount());//订单总金额
-        orderInfo.setPayAmount(order.getPayMoney());//实付金额
-        orderInfo.setCouponAmount(order.getCouponAmount());//优惠券金额
-        orderInfo.setFee(order.getTotalExpressAmount());//运费
-        orderInfo.setCurrencyDepositAmount(order.getCurrencyDepositAmount());//储值金额
-        orderInfo.setGatewayAmount(order.getGatewayAmount());//网关支付金额
+        orderInfo.setOrderAmount(order.getAmount());// 订单总金额
+        orderInfo.setPayAmount(order.getPayMoney());// 实付金额
+        orderInfo.setCouponAmount(order.getCouponAmount());// 优惠券金额
+        orderInfo.setFee(order.getTotalExpressAmount());// 运费
+        orderInfo.setCurrencyDepositAmount(order.getCurrencyDepositAmount());// 储值金额
+        orderInfo.setGatewayAmount(order.getGatewayAmount());// 网关支付金额
         orderInfo.setDeductPrice(order.getPointMoney());
         return orderInfo;
     }
-    
+
     /**
      * 
-    * @Title: buildConsigneeInfo 
-    * @Description: 构建ConsigneeInfo
-    * @param @param order
-    * @param @param plateForm
-    * @param @return    
-    * @return ConsigneeInfo    
-    * @throws
+     * @Title: buildConsigneeInfo
+     * @Description: 构建ConsigneeInfo
+     * @param @param order
+     * @param @param plateForm
+     * @param @return
+     * @return ConsigneeInfo
+     * @throws
      */
-    public ConsigneeInfo buildConsigneeInfo(String orderNo,Integer plateForm){
+    public ConsigneeInfo buildConsigneeInfo(String orderNo, Integer plateForm) {
         ConsigneeInfo consigneeInfo = new ConsigneeInfo();
         MLogisticsExample mLogisticsExample = new MLogisticsExample();
         mLogisticsExample.createCriteria().andOrderNoEqualTo(orderNo);
@@ -182,34 +177,42 @@ public class OrderBuildService {
             consigneeInfo.setNewName(logc.getConsigneeNewName());
             consigneeInfo.setNewMobile(logc.getConsigneeNewMobile());
         }
-        
+
         return consigneeInfo;
     }
+
+    public void buildConsigneeInfo(String orderNo,Integer plateForm,SelectOrderResponse sc){
+        ConsigneeInfo consigneeInfo = buildConsigneeInfo(orderNo, plateForm);
+        sc.setConsigneeAddress(consigneeInfo.getConsigneeAddress());
+        sc.setConsigneeMobile(consigneeInfo.getMobile());
+        sc.setConsigneeName(consigneeInfo.getConsigneeName());
+    }
     
-    
+
     /**
      * 
-    * @Title: buildSubOrderDetail 
-    * @Description: 构建subOrderDetail
-    * @param @param order
-    * @param @return    
-    * @return List<SubOrderDetail>    
-    * @throws
+     * @Title: buildSubOrderDetail
+     * @Description: 构建subOrderDetail
+     * @param @param order
+     * @param @return
+     * @return List<SubOrderDetail>
+     * @throws
      */
-    public List<SubOrderDetail> buildSubOrderDetail(Order order){
+    public List<SubOrderDetail> buildSubOrderDetail(Order order) {
         List<SubOrderDetail> subOrderDetails = Lists.newArrayList();
         List<OrderSub> orderSubs = orderSubService.queryOrderSubByOrderNo(order.getOrderNo());
-        for(OrderSub orderSub : orderSubs){
+        for (OrderSub orderSub : orderSubs) {
             SubOrderDetail subOrderDetail = new SubOrderDetail();
             subOrderDetail.setSubOrderNo(orderSub.getOrderSubNo());
             subOrderDetail.setChannelId(orderSub.getChannelId());
             subOrderDetail.setSubOrderStatus(orderSub.getSubFlag());
             subOrderDetail.setSubViewStatus(PayStatusEnum.toViewStatus(orderSub.getSubFlag()));
-            subOrderDetail.setProductInfo(orderProductService.queryProductInfosByOrderSubNo(orderSub.getOrderSubNo()));
+            subOrderDetail.setProductInfo(orderProductService
+                    .queryProductInfosByOrderSubNo(orderSub.getOrderSubNo()));
             subOrderDetails.add(subOrderDetail);
         }
         return subOrderDetails;
     }
-    
-    
+
+
 }

@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
+import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
+import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
 import com.plateno.booking.internal.base.pojo.OrderProductExample;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDetail;
@@ -27,6 +29,8 @@ public class ProviderOrderBuildService {
     private OrderProductMapper orderProductMapper;
     @Autowired
     private OrderProductService orderProductService;
+    @Autowired
+    private LogisticsPackageMapper packageMapper;
     
     public void buildProductInfosAndCal(ProviderOrder provider){
       //查询商品信息
@@ -63,7 +67,10 @@ public class ProviderOrderBuildService {
         provider.setProductInfos(productInfoList);
     }
     
-    public void buildPackage(List<LogisticsPackage> logisticsPackageList,ProviderOrderDetail detail){
+    public void buildPackage(ProviderOrderDetail detail){
+        LogisticsPackageExample example = new LogisticsPackageExample();
+        example.createCriteria().andOrderSubNoEqualTo(detail.getOrderSubNo());
+        List<LogisticsPackage> logisticsPackageList = packageMapper.selectByExample(example);
         List<PackageProduct> packageProductList = Lists.newArrayList();
         for (LogisticsPackage logisticsPackage : logisticsPackageList) {
             PackageProduct packageProduct = new PackageProduct();

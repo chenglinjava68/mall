@@ -137,9 +137,7 @@ public class OrderQueryService {
             output.setResultMsg("订单查询失败,获取不到订单");
             return output;
         }
-        OrderProductExample example = new OrderProductExample();
-        example.createCriteria().andOrderNoEqualTo(listOrder.get(0).getOrderNo());
-        List<OrderProduct> listPro = orderProductMapper.selectByExample(example);
+        List<OrderProduct> listPro = orderProductService.queryOrderProductByOrderNo(listOrder.get(0).getOrderNo());
 
         OrderProductInfo orderProductInfo = new OrderProductInfo();
         orderProductInfo.setOrder(listOrder.get(0));
@@ -228,9 +226,7 @@ public class OrderQueryService {
         Order order = listOrder.get(0);
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setSubOrderDetails(orderBuildService.buildSubOrderDetail(order));
-        //子订单数量
-        int count = orderBuildService.buildSubOrderDetail(order).size();
-        orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm , count));
+        orderDetail.setOrderInfo(orderBuildService.buildOrderInfo(order, plateForm ));
         orderDetail.setConsigneeInfo(orderBuildService.buildConsigneeInfo(order.getOrderNo(), plateForm));
         //订单状态符合再查询物流信息
         OrderLogisticsQueryReq req = new OrderLogisticsQueryReq();
@@ -273,25 +269,8 @@ public class OrderQueryService {
         sc.setViewStatus(PayStatusEnum.toViewStatus(order.getPayStatus()));
         sc.setLogicDel(order.getLogicDel());
         // todo查询物流信息，需优化
-        MLogisticsExample mLogisticsExample = new MLogisticsExample();
-        mLogisticsExample.createCriteria().andOrderNoEqualTo(order.getOrderNo());
-        List<MLogistics> listLogistic = mLogisticsMapper.selectByExample(mLogisticsExample);
-        if (listLogistic.size() > 0) {
-            MLogistics mLogistics = listLogistic.get(0);
-            if (StringUtils.isNotBlank(mLogistics.getConsigneeNewMobile())) {
-                sc.setConsigneeName(mLogistics.getConsigneeNewName());
-                sc.setConsigneeMobile(mLogistics.getConsigneeNewMobile());
-                sc.setConsigneeAddress(mLogistics.getNewProvince() + mLogistics.getNewCity()
-                        + mLogistics.getNewArea() + mLogistics.getConsigneeNewaddress());
-            } else {
-                sc.setConsigneeName(mLogistics.getConsigneeName());
-                sc.setConsigneeMobile(mLogistics.getConsigneeMobile());
-                sc.setConsigneeAddress(mLogistics.getProvince() + mLogistics.getCity()
-                        + mLogistics.getArea() + mLogistics.getConsigneeAddress());
-            }
-            //总的快递费
-            sc.setTotalExpressAmount(mLogistics.getExpressFee());
-        }
+        orderBuildService.buildConsigneeInfo(order.getOrderNo(), PlateFormEnum.APP.getPlateForm(), sc);
+        sc.setTotalExpressAmount(order.getTotalExpressAmount());
         //查询商品信息
         List<ProductInfo> productInfoList = orderProductService.queryProductInfosByOrderNo(order.getOrderNo());
         sc.setProductInfos(productInfoList);
