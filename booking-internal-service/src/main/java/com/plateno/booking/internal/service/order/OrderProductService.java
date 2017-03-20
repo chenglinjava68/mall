@@ -160,4 +160,10 @@ public class OrderProductService {
         return orderProductMapper.selectByExample(example);
     }
     
+    public List<OrderProduct> queryOrderProductByOrderSubNo(String orderSubNo){
+        OrderProductExample example = new OrderProductExample();
+        example.createCriteria().andOrderSubNoEqualTo(orderSubNo);
+        return orderProductMapper.selectByExample(example);
+    }
+    
 }

@@ -12,8 +12,6 @@ import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.pojo.LogisticsPackage;
 import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
-import com.plateno.booking.internal.base.pojo.OrderProductExample;
-import com.plateno.booking.internal.bean.response.custom.OrderDetail.DeliverDetail;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ProductInfo;
 import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
@@ -34,9 +32,7 @@ public class ProviderOrderBuildService {
     
     public void buildProductInfosAndCal(ProviderOrder provider){
       //查询商品信息
-        OrderProductExample example = new OrderProductExample();
-        example.createCriteria().andOrderSubNoEqualTo(provider.getOrderSubNo());
-        List<OrderProduct> listProduct = orderProductMapper.selectByExample(example);
+        List<OrderProduct> listProduct = orderProductService.queryOrderProductByOrderSubNo(provider.getOrderSubNo());
         List<ProductInfo> productInfoList = new ArrayList<ProductInfo>();
         Integer sumAmount = 0;//计算子订单实付金额
         Integer productAmount = 0;//商品总额

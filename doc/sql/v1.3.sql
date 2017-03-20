@@ -74,6 +74,11 @@ WHERE product.`order_no` = m.`order_no`
   `package_id` INT(11) DEFAULT NULL,
   `order_product_id` INT(11) DEFAULT NULL COMMENT '订单商品表主键',
   PRIMARY KEY (`id`)
-) ENGINE=INNODB AUTO_INCREMENT=83 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='包裹对应的商品';
+)  COMMENT='包裹对应的商品';
   
-  
+create unique index key_order_sub_no on m_order_sub (order_sub_no);
+CREATE  INDEX key_order_no ON m_order_sub (order_no);
+
+create  index key_order_sub_no on m_logistics_package (order_sub_no);
+CREATE  INDEX key_order_no ON m_logistics_package (order_no);
+CREATE  INDEX key_package_id ON m_logistics_product (package_id);

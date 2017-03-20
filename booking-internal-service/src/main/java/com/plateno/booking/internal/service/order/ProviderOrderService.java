@@ -3,19 +3,13 @@ package com.plateno.booking.internal.service.order;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
-import com.plateno.booking.internal.base.mapper.LogisticsPackageMapper;
-import com.plateno.booking.internal.base.mapper.OrderMapper;
-import com.plateno.booking.internal.base.mapper.OrderProductMapper;
 import com.plateno.booking.internal.base.model.ProviderOrderDetailParam;
 import com.plateno.booking.internal.base.model.ProviderOrderParam;
-import com.plateno.booking.internal.base.pojo.LogisticsPackage;
-import com.plateno.booking.internal.base.pojo.LogisticsPackageExample;
 import com.plateno.booking.internal.bean.request.common.LstOrder;
 import com.plateno.booking.internal.bean.response.custom.OrderDetail.ConsigneeInfo;
 import com.plateno.booking.internal.dao.mapper.ProviderOrderMapper;
@@ -29,15 +23,7 @@ import com.plateno.booking.internal.service.order.build.ProviderOrderBuildServic
 public class ProviderOrderService {
 
     @Autowired
-    private OrderMapper mallOrderMapper;
-    
-    @Autowired
     private ProviderOrderMapper providerOrderMapper;
-    
-    @Autowired
-    private OrderProductMapper orderProductMapper;
-    
-
     
     @Autowired
     private OrderBuildService orderBuildService;

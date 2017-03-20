@@ -32,5 +32,13 @@ public class CouponServiceTest {
         System.out.println(result.getData().toString());
     }
     
+    @Test
+    public void test(){
+        Integer a = new Integer(3);
+        int b = 3;
+        Integer c = new Integer(3);
+        System.out.println(a==b);
+        System.out.println(a == c);
+    }
     
 }
