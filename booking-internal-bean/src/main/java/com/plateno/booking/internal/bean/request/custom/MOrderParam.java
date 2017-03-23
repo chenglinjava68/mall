@@ -35,10 +35,20 @@ public class MOrderParam extends BaseParam implements Serializable {
 	private Integer payType;
 	
 
-	
+	/**
+	 * 储值金额
+	 */
+	private Integer currencyDepositAmount;
 
 
 
+    public Integer getCurrencyDepositAmount() {
+        return currencyDepositAmount;
+    }
+
+    public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+        this.currencyDepositAmount = currencyDepositAmount;
+    }
 
     public String getOrderNo() {
         return orderNo;

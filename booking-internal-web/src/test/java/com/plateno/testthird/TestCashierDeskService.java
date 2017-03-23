@@ -7,6 +7,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.cashierdesk.CashierDeskService;
+import com.plateno.booking.internal.cashierdesk.vo.CancelOrderReq;
 import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryReq;
 import com.plateno.booking.internal.cashierdesk.vo.PayQueryReq;
 import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
@@ -43,5 +44,14 @@ public class TestCashierDeskService {
         req.setUpdatePayStatusFlag(1);
         cashierDeskService.refundQuery(req);
     }
+    
+    @Test
+    public void testCancelOrder(){
+        CancelOrderReq req = new CancelOrderReq();
+        req.setTradeNo("L1489720280168588800");
+        System.out.println(req.toString());
+        System.out.println(cashierDeskService.cancelOrder(req).toString());
+    }
+    
     
 }

@@ -12,28 +12,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.plateno.booking.internal.base.constant.PayStatusEnum;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
-import com.plateno.booking.internal.base.mapper.MOrderCouponMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
-import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
 import com.plateno.booking.internal.base.pojo.Order;
-import com.plateno.booking.internal.base.pojo.OrderExample;
-import com.plateno.booking.internal.base.vo.MOrderCouponSearchVO;
-import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
+import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
 import com.plateno.booking.internal.bean.contants.OperateLogEnum;
 import com.plateno.booking.internal.bean.contants.ViewStatusEnum;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
-import com.plateno.booking.internal.bean.request.point.ValueBean;
-import com.plateno.booking.internal.common.util.LogUtils;
+import com.plateno.booking.internal.cashierdesk.CashierDeskService;
+import com.plateno.booking.internal.cashierdesk.vo.CancelOrderReq;
+import com.plateno.booking.internal.cashierdesk.vo.CashierCancelOrderResponse;
+import com.plateno.booking.internal.cashierdesk.vo.CashierDeskConstant;
 import com.plateno.booking.internal.common.util.redis.RedisLock;
 import com.plateno.booking.internal.common.util.redis.RedisLock.Holder;
-import com.plateno.booking.internal.coupon.service.CouponService;
-import com.plateno.booking.internal.coupon.vo.CancelParam;
-import com.plateno.booking.internal.coupon.vo.CancelResponse;
-import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultVo;
-import com.plateno.booking.internal.member.PointService;
 import com.plateno.booking.internal.service.log.OperateLogService;
 import com.plateno.booking.internal.service.log.OrderLogService;
 import com.plateno.booking.internal.validator.order.MOrderValidate;
@@ -53,23 +46,22 @@ public class OrderCancelService {
     private OrderLogService orderLogService;
 
     @Autowired
-    private PointService pointService;
-
-    @Autowired
-    private MOrderCouponMapper mOrderCouponMapper;
-
-    @Autowired
     private OperateLogService operateLogService;
 
     @Autowired
-    private CouponService couponService;
-
-    @Autowired
     private OrderStockService orderStockService;
+    
     @Autowired
     private OrderSubService orderSubService;
+    
     @Autowired
     private OrderRefundActorService orderRefundService;
+    
+    @Autowired
+    private CashierDeskService cashierDeskService;
+    
+    @Autowired
+    private OrderPayLogService orderPayLogService;
     
     /**
      * 更新订单状态(取消)
@@ -111,6 +103,7 @@ public class OrderCancelService {
             return output;
         }
         Order order = (Order) output.getData();
+        int olderOrderStatus = order.getPayStatus();
         //查询订单是否可以取消
         orderValidate.checkCancelOrder(order, output);
         if (!output.getResultCode().equals(MsgCode.SUCCESSFUL.getMsgCode())) {
@@ -126,17 +119,44 @@ public class OrderCancelService {
         updateOrderStatus(order, PayStatusEnum.PAY_STATUS_2.getPayStatus());
         orderSubService.updateToPayStatus(orderParam.getOrderNo(), PayStatusEnum.PAY_STATUS_2.getPayStatus());
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
-                BookingResultCodeContants.PAY_STATUS_2, PayStatusEnum.PAY_STATUS_2.getDesc(), desc,
+                PayStatusEnum.PAY_STATUS_2.getPayStatus(), PayStatusEnum.PAY_STATUS_2.getDesc(), desc,
                 0, ViewStatusEnum.VIEW_STATUS_CANNEL.getCode(), desc);
         //返还利益
         orderRefundService.returnBenefit(order);
         // 退还库存
         orderStockService.returnStock( order.getOrderNo());
+        //调用支付取消接口，如果部分储值已支付，则可主动触发，调用返回
+        payCancelOrder(order,olderOrderStatus);
         // 如果是后台操作，取消记录操作日志
         recordCancelLog(orderParam);
         return output;
     }
 
+    /**
+     * 
+    * @Title: payCancelOrder 
+    * @Description: 支付中的订单，需要查看流水，并主动通知收银台，发起部分退款，如储值已支付，第三方支付不成功等情况
+    * @param @param order    
+    * @return void    
+    * @throws
+     */
+    private void payCancelOrder(Order order,int olderOrderStatus){
+        if(PayStatusEnum.PAY_STATUS_11.getPayStatus() != olderOrderStatus)
+            return;
+        List<OrderPayLog> orderPayLogs = orderPayLogService.queryOrderPayLogInPayByOrderId(order.getId());
+        for(OrderPayLog orderPayLog : orderPayLogs){
+           //有储值支付的金额
+            if(null != orderPayLog.getCurrencyDepositAmount() && orderPayLog.getCurrencyDepositAmount() > 0){
+                CancelOrderReq req = new CancelOrderReq();
+                req.setTradeNo(orderPayLog.getTrandNo());
+                CashierCancelOrderResponse response = cashierDeskService.cancelOrder(req);
+                if(null == response || CashierDeskConstant.SUCCESS_MSG_CODE.compareTo(response.getMsgCode()) != 0){
+                    logger.warn("orderId:{},发起主动取消失败,req:{}，返回:{}",order.getId(),req.toString(),response.toString());
+                }
+            }
+        }
+    }
+    
     /**
      * 
     * @Title: queryOrder 

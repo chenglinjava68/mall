@@ -76,7 +76,7 @@ WHERE product.`order_no` = m.`order_no`
   PRIMARY KEY (`id`)
 )  COMMENT='包裹对应的商品';
   
-create unique index key_order_sub_no on m_order_sub (order_sub_no);
+create  index key_order_sub_no on m_order_sub (order_sub_no);
 CREATE  INDEX key_order_no ON m_order_sub (order_no);
 
 create  index key_order_sub_no on m_logistics_package (order_sub_no);

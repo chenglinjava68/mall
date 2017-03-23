@@ -125,6 +125,7 @@ public class PayService {
         paylog.setPoint(order.getPoint());
         paylog.setType(1);// 1收入 2支出
         paylog.setUpTime(new Date());
+        paylog.setCurrencyDepositAmount(null != mOrderParam.getCurrencyDepositAmount() ? mOrderParam.getCurrencyDepositAmount() : 0);
         orderPayLogMapper.insert(paylog);
 
         orderLogService.saveGSOrderLog(order.getOrderNo(),
