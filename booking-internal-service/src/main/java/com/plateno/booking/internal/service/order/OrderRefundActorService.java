@@ -148,7 +148,7 @@ public class OrderRefundActorService {
             // 退款归还下单积分
             logger.info("orderNo:{}， 退还积分，point:{}", dbOrder.getOrderNo(), dbOrder.getRefundPoint());
             ValueBean vb = new ValueBean();
-            vb.setPointvalue(dbOrder.getRefundPoint());
+            vb.setPointvalue(dbOrder.getPoint());
             vb.setMebId(dbOrder.getMemberId());
             vb.setTrandNo(dbOrder.getOrderNo());
             int mallAddPoint = pointService.mallAddPoint(vb);

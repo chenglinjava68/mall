@@ -771,8 +771,8 @@ public class MOrderService {
         // 查询退款的申请的支付流水
         OrderPayLog refundOrderPayLog = findRefundOrderPayLog(orderParam, dbOrder);
         List<OrderPayLog> successOrderPayLogList = findSuccessOrderPayLog(dbOrder.getId());
-        if(CollectionUtils.isEmpty(successOrderPayLogList)){
-            logger.error("该订单:{}无成功支付流水",dbOrder.getOrderNo());
+        if (CollectionUtils.isEmpty(successOrderPayLogList)) {
+            logger.error("该订单:{}无成功支付流水", dbOrder.getOrderNo());
             return new ResultVo<Object>(ResultCode.FAILURE, null, "无成功支付流水！");
         }
         OrderPayLog successOrderPayLog = successOrderPayLogList.get(0);
@@ -782,7 +782,7 @@ public class MOrderService {
             return new ResultVo<Object>(ResultCode.SUCCESS, null,
                     MsgCode.REFUND_HANDLING.getMessage());
         } else {
-            //收银台发起退款
+            // 收银台发起退款
             cashierRefund(refundOrderPayLog, successOrderPayLog, orderParam);
             return new ResultVo<Object>(ResultCode.SUCCESS, null,
                     MsgCode.REFUND_HANDLING.getMessage());
@@ -791,18 +791,18 @@ public class MOrderService {
 
     /**
      * 
-    * @Title: refundOrderByOldPay 
-    * @Description: 旧的网关发起退款
-    * @param @param refundOrderPayLog
-    * @param @param successOrderPayLog
-    * @param @param orderParam
-    * @param @throws BizException
-    * @param @throws IOException    
-    * @return void    
-    * @throws
+     * @Title: refundOrderByOldPay
+     * @Description: 旧的网关发起退款
+     * @param @param refundOrderPayLog
+     * @param @param successOrderPayLog
+     * @param @param orderParam
+     * @param @throws BizException
+     * @param @throws IOException
+     * @return void
+     * @throws
      */
     private void refundOrderByOldPay(OrderPayLog refundOrderPayLog, OrderPayLog successOrderPayLog,
-            MOrderParam orderParam) throws BizException, IOException{
+            MOrderParam orderParam) throws BizException, IOException {
         // 封装退款参数
         RefundOrderParam refundOrderParam = new RefundOrderParam();
         refundOrderParam.setRefundAmount(-refundOrderPayLog.getAmount());
@@ -820,18 +820,18 @@ public class MOrderService {
         logger.info(String.format("refundOrderNo:%s, 网关申请退款, 返回:%s",
                 refundOrderPayLog.getTrandNo(), JsonUtils.toJsonString(response)));
     }
-    
+
     /**
      * 
-    * @Title: cashierRefund 
-    * @Description: 收银台发起退款
-    * @param @param refundOrderPayLog
-    * @param @param successOrderPayLog
-    * @param @param orderParam
-    * @param @throws IOException
-    * @param @throws BizException    
-    * @return void    
-    * @throws
+     * @Title: cashierRefund
+     * @Description: 收银台发起退款
+     * @param @param refundOrderPayLog
+     * @param @param successOrderPayLog
+     * @param @param orderParam
+     * @param @throws IOException
+     * @param @throws BizException
+     * @return void
+     * @throws
      */
     private void cashierRefund(OrderPayLog refundOrderPayLog, OrderPayLog successOrderPayLog,
             MOrderParam orderParam) throws IOException, BizException {
@@ -868,8 +868,7 @@ public class MOrderService {
      * @return OrderPayLog
      * @throws
      */
-    private List<OrderPayLog> findSuccessOrderPayLog(int orderId)
-            throws Exception {
+    private List<OrderPayLog> findSuccessOrderPayLog(int orderId) throws Exception {
         OrderPayLogExample logExample = new OrderPayLogExample();
         logExample.createCriteria().andOrderIdEqualTo(orderId).andTypeEqualTo(1)
                 .andStatusEqualTo(BookingConstants.BILL_LOG_SUCCESS); // 下单直流的流水，且是支付成功的
@@ -984,14 +983,14 @@ public class MOrderService {
             return output;
         }
 
-        //更新退款申请订单状态
+        // 更新退款申请订单状态
         updateRefundOrder(order, orderParam);
         orderSubService.updateToPayStatus(order.getOrderNo(),
                 PayStatusEnum.PAY_STATUS_6.getPayStatus());
 
         // 使用优惠券，有可能支付金额是0，这时退款不需要和支付网关交互
         if (order.getPayMoney() > 0) {
-            //插入退款流水
+            // 插入退款流水
             insertRefundOrderPayLog(order, orderParam);
         }
         orderLogService.saveGSOrderLog(orderParam.getOrderNo(),
@@ -1002,8 +1001,8 @@ public class MOrderService {
         return output;
     }
 
-    
-    private void recordRefundingLog(MOrderParam orderParam){
+
+    private void recordRefundingLog(MOrderParam orderParam) {
         // 后台操作记录操作日志
         if (orderParam.getPlateForm() != null
                 && (orderParam.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || orderParam
@@ -1019,9 +1018,9 @@ public class MOrderService {
             operateLogService.saveOperateLog(paramlog);
         }
     }
-    
-    
-    private void insertRefundOrderPayLog(Order order,MOrderParam orderParam){
+
+
+    private void insertRefundOrderPayLog(Order order, MOrderParam orderParam) {
         OrderPayLog orderPayLog = new OrderPayLog();
         orderPayLog.setAmount(-order.getPayMoney());
         orderPayLog.setCurrencyDepositAmount(-order.getCurrencyDepositAmount());
@@ -1038,8 +1037,8 @@ public class MOrderService {
         orderPayLog.setOrderId(order.getId());
         orderPayLogMapper.insertSelective(orderPayLog);
     }
-    
-    private void updateRefundOrder(Order order,MOrderParam orderParam){
+
+    private void updateRefundOrder(Order order, MOrderParam orderParam) {
         order.setRefundAmount(order.getPayMoney());
         order.setPoint(order.getPoint());
         order.setRefundTime(new Date());
@@ -1048,7 +1047,7 @@ public class MOrderService {
         order.setUpTime(new Date());
         updateOrderStatus(order, PayStatusEnum.PAY_STATUS_6.getPayStatus());
     }
-    
+
     public Integer updateOrderStatusByNo(Order order, String orderNo) throws Exception {
         OrderExample example = new OrderExample();
         example.createCriteria().andOrderNoEqualTo(orderNo);
@@ -1070,17 +1069,10 @@ public class MOrderService {
      * @return
      * @throws Exception
      */
-    public Integer updateOrderStatusByNo(Order order, String orderNo, List<Integer> oldStatus)
-            throws Exception {
+    public Integer updateOrderStatusByNo(Order order, String orderNo, List<Integer> oldStatus){
         OrderExample example = new OrderExample();
         example.createCriteria().andOrderNoEqualTo(orderNo).andPayStatusIn(oldStatus);
-        try {
-            return mallOrderMapper.updateByExampleSelective(order, example);
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogUtils.sysErrorLoggerError("更新数据库失败", e);
-        }
-        return 0;
+        return mallOrderMapper.updateByExampleSelective(order, example);
     }
 
 
@@ -1174,10 +1166,10 @@ public class MOrderService {
             return;
         // 获取成功支付的流水
         List<OrderPayLog> successPayLogList = findSuccessOrderPayLog(order.getId());
-        if(CollectionUtils.isEmpty(successPayLogList))
+        if (CollectionUtils.isEmpty(successPayLogList))
             return;
         for (OrderPayLog orderPayLog : listpayLog) {
-            //旧的网关，支付成功的流水refenceid有值，以此来判断是否为新旧服务
+            // 旧的网关，支付成功的流水refenceid有值，以此来判断是否为新旧服务
             if (StringUtils.isNotBlank(successPayLogList.get(0).getReferenceid())) {
                 // 获取网关的订单状态
                 int flag = refundOldQuery(orderPayLog, order);
@@ -1196,11 +1188,11 @@ public class MOrderService {
 
     }
 
-    private int refundOldQuery(OrderPayLog orderPayLog,Order order){
+    private int refundOldQuery(OrderPayLog orderPayLog, Order order) {
         RefundQueryResponse response;
         try {
             response = paymentService.refundOrderQuery(orderPayLog.getTrandNo());
-            logger.info("查询退款状态，返回：{}",response.toString());
+            logger.info("查询退款状态，返回：{}", response.toString());
             if (response == null || StringUtils.isBlank(response.getCode())) {
                 logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
                 return 0;
@@ -1222,24 +1214,23 @@ public class MOrderService {
         }
         return 1;
     }
-    
+
     /**
      * 
-    * @Title: findRefundOrderPayLog 
-    * @Description: 查询退款流水
-    * @param @param orderId
-    * @param @return    
-    * @return List<OrderPayLog>    
-    * @throws
+     * @Title: findRefundOrderPayLog
+     * @Description: 查询退款流水
+     * @param @param orderId
+     * @param @return
+     * @return List<OrderPayLog>
+     * @throws
      */
-    private List<OrderPayLog> findRefundOrderPayLog(int orderId){
+    private List<OrderPayLog> findRefundOrderPayLog(int orderId) {
         OrderPayLogExample example = new OrderPayLogExample();
-        example.createCriteria().andOrderIdEqualTo(orderId).andTypeEqualTo(2)
-                .andStatusEqualTo(1);
+        example.createCriteria().andOrderIdEqualTo(orderId).andTypeEqualTo(2).andStatusEqualTo(1);
         List<OrderPayLog> listpayLog = orderPayLogMapper.selectByExample(example);
         return listpayLog;
     }
-    
+
     /**
      * 
      * @Title: updateOrderPayLog

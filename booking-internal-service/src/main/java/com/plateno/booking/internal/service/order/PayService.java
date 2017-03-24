@@ -1,5 +1,6 @@
 package com.plateno.booking.internal.service.order;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,13 +71,12 @@ public class PayService {
 
     @Autowired
     private CashierDeskService cashierDeskService;
-    
+
     @Autowired
     private OrderSubService orderSubService;
 
-    
-    
-    
+
+
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public ResultVo<Object> pullerPay(MOrderParam mOrderParam) throws OrderException, Exception {
         ResultVo<Object> output = new ResultVo<Object>();
@@ -125,7 +125,8 @@ public class PayService {
         paylog.setPoint(order.getPoint());
         paylog.setType(1);// 1收入 2支出
         paylog.setUpTime(new Date());
-        paylog.setCurrencyDepositAmount(null != mOrderParam.getCurrencyDepositAmount() ? mOrderParam.getCurrencyDepositAmount() : 0);
+        paylog.setCurrencyDepositAmount(null != mOrderParam.getCurrencyDepositAmount() ? mOrderParam
+                .getCurrencyDepositAmount() : 0);
         orderPayLogMapper.insert(paylog);
 
         orderLogService.saveGSOrderLog(order.getOrderNo(),
@@ -266,18 +267,16 @@ public class PayService {
 
     /**
      * 处理支付中的流水
+     * @throws Exception 
      */
-    public void handlePaying() {
+    @Transactional(rollbackFor = Exception.class)
+    public void handlePaying() throws Exception {
         Date startTime = DateUtil.getDate(new Date(), -4, 0, 0, 0);
         Date endTime = DateUtil.getDate(new Date(), 0, 0, -5, 0);
         int num = 3000;
         List<OrderPayLog> list = orderPayLogMapper.queryPayingLog(startTime, endTime, num);
         for (OrderPayLog log : list) {
-            try {
-                handlePayingLog(log);
-            } catch (Exception e) {
-                logger.error("支付中流水处理失败:" + log.getTrandNo(), e);
-            }
+            handlePayingLog(log);
         }
     }
 
@@ -285,16 +284,16 @@ public class PayService {
      * 每一条支付中的流水处理
      * 
      * @param log
+     * @throws InvocationTargetException 
+     * @throws IllegalAccessException 
      * @throws Exception
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
-    public void handlePayingLog(OrderPayLog orderPayLog) throws Exception {
+    public void handlePayingLog(OrderPayLog orderPayLog) throws Exception{
         logger.info("支付中订单处理，orderId:{}, trandNo:{}", orderPayLog.getOrderId(),
                 orderPayLog.getTrandNo());
         // 获取网关的订单状态
-
         CashierPayQueryResponse cashierPayQueryResponse = queryPayFromCashier(orderPayLog);
-        if(null == cashierPayQueryResponse)
+        if (null == cashierPayQueryResponse)
             return;
         PayQueryVo payQueryVo = cashierPayQueryResponse.getResult();
         BookingPayQueryVo bookingPayQueryVo = new BookingPayQueryVo();
@@ -306,44 +305,47 @@ public class PayService {
 
     /**
      * 
-    * @Title: queryPayFromCashier 
-    * @Description: 查询收银台支付状态
-    * @param @param orderPayLog
-    * @param @return    
-    * @return CashierPayQueryResponse    
-    * @throws
+     * @Title: queryPayFromCashier
+     * @Description: 查询收银台支付状态
+     * @param @param orderPayLog
+     * @param @return
+     * @return CashierPayQueryResponse
+     * @throws
      */
-    private CashierPayQueryResponse queryPayFromCashier(OrderPayLog orderPayLog){
-     // 获取网关的订单状态
+    private CashierPayQueryResponse queryPayFromCashier(OrderPayLog orderPayLog) {
+        // 获取网关的订单状态
         PayQueryReq req = new PayQueryReq();
         req.setTradeNo(orderPayLog.getTrandNo());
         req.setUpdatePayStatusFlag(1);
         CashierPayQueryResponse cashierPayQueryResponse = cashierDeskService.payQuery(req);
-        logger.info("trandNo:{}, 查询支付网关支付状态:{}", orderPayLog.getTrandNo(),cashierPayQueryResponse.toString());
-        //失败状态则直接返回
+        logger.info("trandNo:{}, 查询支付网关支付状态:{}", orderPayLog.getTrandNo(),
+                cashierPayQueryResponse.toString());
+        // 失败状态则直接返回
         if (cashierPayQueryResponse == null
                 || cashierPayQueryResponse.getMsgCode() != CashierDeskConstant.SUCCESS_MSG_CODE) {
             logger.error("查询支付网关订单失败, trandNo:" + orderPayLog.getTrandNo());
-            //明确查询支付中失败才记录，0100，其他情况返回继续轮询
-            if(null != cashierPayQueryResponse.getResult() && "0100".equals(cashierPayQueryResponse.getResult().getCode())){
+            // 明确查询支付中失败才记录，0100，其他情况返回继续轮询
+            if (null != cashierPayQueryResponse.getResult()
+                    && "0100".equals(cashierPayQueryResponse.getResult().getCode())) {
                 updateOrderPayLogToFail(orderPayLog, cashierPayQueryResponse);
             }
             return null;
         }
         return cashierPayQueryResponse;
     }
-    
-    
-    private void updateOrderPayLogToFail(OrderPayLog orderPayLog,CashierPayQueryResponse cashierPayQueryResponse){
+
+
+    private void updateOrderPayLogToFail(OrderPayLog orderPayLog,
+            CashierPayQueryResponse cashierPayQueryResponse) {
         orderPayLog.setStatus(BookingConstants.BILL_LOG_FAIL);
         orderPayLog.setUpTime(new Date());
         String remark = "";
-        if(null != cashierPayQueryResponse.getResult())
+        if (null != cashierPayQueryResponse.getResult())
             remark = cashierPayQueryResponse.getResult().toString();
-        orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage()+ "," + remark);
+        orderPayLog.setRemark("主动查询支付中的状态:" + cashierPayQueryResponse.getMessage() + "," + remark);
         orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
     }
-    
+
     /**
      * 
      * @Title: doWithOrderPayLogAndOrder
@@ -355,7 +357,7 @@ public class PayService {
      * @throws
      */
     public void doWithOrderPayLogAndOrder(OrderPayLog orderPayLog,
-            BookingPayQueryVo bookingPayQueryVo) throws Exception {
+            BookingPayQueryVo bookingPayQueryVo){
         checkOrderPayLog(bookingPayQueryVo, orderPayLog);
         doSuccessOrderPayLog(bookingPayQueryVo, orderPayLog);
         Order order = orderMapper.selectByPrimaryKey(orderPayLog.getOrderId());
@@ -363,13 +365,12 @@ public class PayService {
         checkOrderStatus(order, orderPayLog);
         // 更新订单状态
         doUpdateOrderStatus(order, bookingPayQueryVo);
-        //更新子订单状态
+        // 更新子订单状态
         orderSubService.doUpdateOrderSubStatusToPay(order);
     }
 
 
 
-    
     private void checkOrderPayLog(BookingPayQueryVo bookingPayQueryVo, OrderPayLog orderPayLog) {
         // 判断是否已经处理
         if (orderPayLog.getStatus() != BookingConstants.BILL_LOG_NORMAL) {
@@ -394,7 +395,8 @@ public class PayService {
         orderPayLog.setGatewayAmount(bookingPayQueryVo.getGatewayAmount());
         // 更新支付流水
         orderPayLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-        orderPayLog.setRemark(StringUtils.isNotBlank(orderPayLog.getRemark()) ? orderPayLog.getRemark() : "收银台支付回调成功");
+        orderPayLog.setRemark(StringUtils.isNotBlank(orderPayLog.getRemark()) ? orderPayLog
+                .getRemark() : "收银台支付回调成功");
         int row = orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
         if (row < 1) {
             logger.warn("流水已经处理, trand_no：" + bookingPayQueryVo.getTradeNo());
@@ -415,8 +417,7 @@ public class PayService {
         }
     }
 
-    private void doUpdateOrderStatus(Order order, BookingPayQueryVo bookingPayQueryVo)
-            throws Exception {
+    private void doUpdateOrderStatus(Order order, BookingPayQueryVo bookingPayQueryVo){
         Order updateOrder = new Order();
         updateOrder.setUpTime(new Date());
         updateOrder.setPayStatus(BookingResultCodeContants.PAY_STATUS_3);
