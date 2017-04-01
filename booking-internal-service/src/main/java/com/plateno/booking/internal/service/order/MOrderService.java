@@ -1,10 +1,7 @@
 package com.plateno.booking.internal.service.order;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -30,14 +27,12 @@ import com.plateno.booking.internal.base.mapper.OperatelogMapper;
 import com.plateno.booking.internal.base.mapper.OrderMapper;
 import com.plateno.booking.internal.base.mapper.OrderPayLogMapper;
 import com.plateno.booking.internal.base.mapper.OrderProductMapper;
-import com.plateno.booking.internal.base.model.NotifyReturn;
 import com.plateno.booking.internal.base.model.bill.ProdSellAmountData;
 import com.plateno.booking.internal.base.pojo.MOrderCouponPO;
 import com.plateno.booking.internal.base.pojo.Operatelog;
 import com.plateno.booking.internal.base.pojo.OperatelogExample;
 import com.plateno.booking.internal.base.pojo.Order;
 import com.plateno.booking.internal.base.pojo.OrderExample;
-import com.plateno.booking.internal.base.pojo.OrderExample.Criteria;
 import com.plateno.booking.internal.base.pojo.OrderPayLog;
 import com.plateno.booking.internal.base.pojo.OrderPayLogExample;
 import com.plateno.booking.internal.base.pojo.OrderProduct;
@@ -76,7 +71,6 @@ import com.plateno.booking.internal.coupon.service.CouponService;
 import com.plateno.booking.internal.coupon.vo.CancelParam;
 import com.plateno.booking.internal.coupon.vo.CancelResponse;
 import com.plateno.booking.internal.gateway.PaymentService;
-import com.plateno.booking.internal.goods.MallGoodsService;
 import com.plateno.booking.internal.goods.vo.OrderCheckDetail;
 import com.plateno.booking.internal.goods.vo.OrderCheckInfo;
 import com.plateno.booking.internal.interceptor.adam.common.bean.ResultCode;
@@ -238,6 +232,9 @@ public class MOrderService {
             orderPayLog.setStatus(1);// 状态 1初始化，2成功，3失败
             orderPayLog.setUpTime(new Date());
             orderPayLog.setOrderId(order.getId());
+            orderPayLog.setCurrencyDepositAmount(null != order.getCurrencyDepositAmount() ? -order.getCurrencyDepositAmount() : 0);
+            orderPayLog.setGatewayAmount(-order.getGatewayAmount());
+            
             orderPayLogMapper.insertSelective(orderPayLog);
         }
 
@@ -516,8 +513,7 @@ public class MOrderService {
         op.setExpressCost(orderCheckInfo.getCostExpress());
         op.setOrderSubNo(order.getOrderNo() + orderCheckInfo.getChannelId());
         op.setChannelId(orderCheckInfo.getChannelId());
-        op.setProvidedId(null != orderCheckInfo.getProviderId() ? orderCheckInfo.getProviderId()
-                : null);
+        op.setProvidedId(orderCheckInfo.getProviderId() == null ? 0 : orderCheckInfo.getProviderId());
         op.setExpressAmount(orderCheckInfo.getExpressFee());
         if (order.getCouponAmount() > 0) {
             // 单个商品占用的优惠券金额
@@ -840,7 +836,7 @@ public class MOrderService {
         refundOrderReq.setRefundTradeNo(refundOrderPayLog.getTrandNo());
         refundOrderReq.setRefundOrderNo(orderParam.getOrderNo());
         refundOrderReq.setAmount(-refundOrderPayLog.getAmount());// 总金额
-        refundOrderReq.setCurrencyAmount(-refundOrderPayLog.getCurrencyDepositAmount());// 储值金额
+        refundOrderReq.setCurrencyAmount(null != refundOrderPayLog.getCurrencyDepositAmount() ? -refundOrderPayLog.getCurrencyDepositAmount() : 0);// 储值金额
         refundOrderReq.setMemberId(orderParam.getMemberId());// 会员id
         CashierRefundOrderResponse refundOrderResponse =
                 cashierDeskService.refundOrder(refundOrderReq);
@@ -1023,7 +1019,7 @@ public class MOrderService {
     private void insertRefundOrderPayLog(Order order, MOrderParam orderParam) {
         OrderPayLog orderPayLog = new OrderPayLog();
         orderPayLog.setAmount(-order.getPayMoney());
-        orderPayLog.setCurrencyDepositAmount(-order.getCurrencyDepositAmount());
+        orderPayLog.setCurrencyDepositAmount(null != order.getCurrencyDepositAmount() ? -order.getCurrencyDepositAmount() : 0);
         orderPayLog.setGatewayAmount(-order.getGatewayAmount());
         orderPayLog.setType(2);// 支出
         orderPayLog.setPoint(order.getPoint());
@@ -1168,6 +1164,7 @@ public class MOrderService {
         List<OrderPayLog> successPayLogList = findSuccessOrderPayLog(order.getId());
         if (CollectionUtils.isEmpty(successPayLogList))
             return;
+        //避免插入多个退款流水
         for (OrderPayLog orderPayLog : listpayLog) {
             // 旧的网关，支付成功的流水refenceid有值，以此来判断是否为新旧服务
             if (StringUtils.isNotBlank(successPayLogList.get(0).getReferenceid())) {

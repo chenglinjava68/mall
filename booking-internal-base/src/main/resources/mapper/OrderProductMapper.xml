@@ -540,6 +540,7 @@
 			o.order_no = p.order_no
 		where
 			o.member_id = #{memberId} and p.product_id = #{productId} and pay_status in (1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13)
+			and DATE(p.create_time) = DATE(now())
 	]]>
 	</select>
 

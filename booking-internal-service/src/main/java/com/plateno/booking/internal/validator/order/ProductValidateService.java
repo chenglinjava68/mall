@@ -149,8 +149,7 @@ public class ProductValidateService {
         if (orderCheckInfo.getMaxSaleQty() != null && orderCheckInfo.getMaxSaleQty() > 0) {
             // 查询用户已经购买的数量
             int queryUserProductSum =
-                    mOrderService.queryUserProductSum(addBookingParam.getMemberId(), orderCheckInfo
-                            .getGoodsId().intValue());
+                    mOrderService.queryUserProductSum(addBookingParam.getMemberId(), orderCheckInfo.getSpuId().intValue());
 
             logger.warn("限购：{}， 已购：{}， 准备购：{}", orderCheckInfo.getMaxSaleQty(),
                     queryUserProductSum, orderGoodsParam.getQuantity());

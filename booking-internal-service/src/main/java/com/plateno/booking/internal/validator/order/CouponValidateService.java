@@ -166,7 +166,34 @@ public class CouponValidateService {
                 return 0;
             }
             orderCheckDetail.setCouponProductList(couponProductList);
-        } else {
+        }else if(null != extAttrs.get("categoryId")){
+            List<AttrValInfo> productAttrValInfoList = extAttrs.get("categoryId");
+            AttrValInfo attrValInfo = productAttrValInfoList.get(0);
+            String categoryIds = attrValInfo.getAttrVal1();
+            String[] categoryIdArr = categoryIds.split(",");
+            boolean hasCategory = false;
+            for (OrderCheckInfo orderCheckInfo : orderCheckInfos) {
+                for (String temp : categoryIdArr) {
+                    // 优惠券的适用类目
+                    if (orderCheckInfo.getCategoryId().compareTo(Integer.valueOf(temp)) == 0) {
+                        productApplyAmout +=
+                                orderCheckInfo.getPrice() * orderCheckInfo.getQuantity();
+                        couponProductList.add(orderCheckInfo);
+                        hasCategory = true;
+                        break;
+                    }
+                }
+            }
+            // 订单中的商品都不符合优惠券的类目
+            if (!hasCategory) {
+                logger.error("memberId:{}, couponId:{}, 订单中的商品都不符合优惠券适用商品:{}",
+                        addBookingParam.getMemberId(), addBookingParam.getCouponId(), categoryIds);
+                output.setResultCode(getClass(), ResultCode.FAILURE);
+                output.setResultMsg("订单中的商品都不符合优惠券适用类目");
+                return 0;
+            }
+            orderCheckDetail.setCouponProductList(couponProductList);
+        }else {
             productApplyAmout = orderCheckDetail.getTotalPrice();
             //没找到使用商品，则插入全部商品
             orderCheckDetail.setCouponProductList(orderCheckDetail.getOrderCheckInfo());

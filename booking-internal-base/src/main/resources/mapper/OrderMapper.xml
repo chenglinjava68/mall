@@ -769,7 +769,9 @@
 		<if test="record.mobile != null &amp;&amp; record.mobile != ''">
 			AND mobile = #{record.mobile,jdbcType=VARCHAR}
 		</if>
-
+		<if test="record.subResource != null and record.subResource > 0">
+			AND sub_resource = #{record.subResource}
+		</if>
 		<if
 			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
         	<![CDATA[ 
@@ -1105,7 +1107,7 @@
 				<![CDATA[ and member_id = #{memberId,jdbcType=INTEGER}]]>
 		</if>
 		<if test="channelId != null">
-				<![CDATA[ and chanelid = #{channelId,jdbcType=INTEGER}]]>
+				<![CDATA[ and channel_id = #{channelId,jdbcType=INTEGER}]]>
 		</if>
 		)
 	</select>
