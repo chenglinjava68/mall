@@ -38,7 +38,22 @@ public class MOrderCouponPO implements Serializable {
 	/** 创建时间 */
 	protected Date createTime;
 	
-	public Long getId() {
+	/**
+	 * 优惠券配置id
+	 */
+	private Integer configId;
+	
+	
+	
+	public Integer getConfigId() {
+        return configId;
+    }
+
+    public void setConfigId(Integer configId) {
+        this.configId = configId;
+    }
+
+    public Long getId() {
 		return id;
 	}
 	

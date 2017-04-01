@@ -10,6 +10,7 @@
     <result column="plate_form" property="plateForm" jdbcType="INTEGER" />
     <result column="order_code" property="orderCode" jdbcType="VARCHAR" />
     <result column="operate_time" property="operateTime" jdbcType="TIMESTAMP" />
+    <result column="order_sub_no" property="orderSubNo" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -71,13 +72,14 @@
   </sql>
   <sql id="Base_Column_List" >
     id, operate_type, operate_userid, operate_username, remark, plate_form, order_code, 
-    operate_time
+    operate_time, order_sub_no
   </sql>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OperatelogExample" >
     select
     <if test="distinct" >
       distinct
     </if>
+    'true' as QUERYID,
     <include refid="Base_Column_List" />
     from operate_log
     <if test="_parameter != null" >
@@ -104,22 +106,21 @@
     </if>
   </delete>
   <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.Operatelog" >
-    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    insert into operate_log (operate_type, operate_userid, operate_username, 
-      remark, plate_form, order_code, 
-      operate_time)
-    values (#{operateType,jdbcType=INTEGER}, #{operateUserid,jdbcType=VARCHAR}, #{operateUsername,jdbcType=VARCHAR}, 
-      #{remark,jdbcType=VARCHAR}, #{plateForm,jdbcType=INTEGER}, #{orderCode,jdbcType=VARCHAR}, 
-      #{operateTime,jdbcType=TIMESTAMP})
+    insert into operate_log (id, operate_type, operate_userid, 
+      operate_username, remark, plate_form, 
+      order_code, operate_time, order_sub_no
+      )
+    values (#{id,jdbcType=INTEGER}, #{operateType,jdbcType=INTEGER}, #{operateUserid,jdbcType=VARCHAR}, 
+      #{operateUsername,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{plateForm,jdbcType=INTEGER}, 
+      #{orderCode,jdbcType=VARCHAR}, #{operateTime,jdbcType=TIMESTAMP}, #{orderSubNo,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Operatelog" >
-    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
-      SELECT LAST_INSERT_ID()
-    </selectKey>
     insert into operate_log
     <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
       <if test="operateType != null" >
         operate_type,
       </if>
@@ -141,8 +142,14 @@
       <if test="operateTime != null" >
         operate_time,
       </if>
+      <if test="orderSubNo != null" >
+        order_sub_no,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
       <if test="operateType != null" >
         #{operateType,jdbcType=INTEGER},
       </if>
@@ -163,6 +170,9 @@
       </if>
       <if test="operateTime != null" >
         #{operateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="orderSubNo != null" >
+        #{orderSubNo,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -199,6 +209,9 @@
       <if test="record.operateTime != null" >
         operate_time = #{record.operateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="record.orderSubNo != null" >
+        order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -213,7 +226,8 @@
       remark = #{record.remark,jdbcType=VARCHAR},
       plate_form = #{record.plateForm,jdbcType=INTEGER},
       order_code = #{record.orderCode,jdbcType=VARCHAR},
-      operate_time = #{record.operateTime,jdbcType=TIMESTAMP}
+      operate_time = #{record.operateTime,jdbcType=TIMESTAMP},
+      order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -242,6 +256,9 @@
       <if test="operateTime != null" >
         operate_time = #{operateTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="orderSubNo != null" >
+        order_sub_no = #{orderSubNo,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -253,21 +270,8 @@
       remark = #{remark,jdbcType=VARCHAR},
       plate_form = #{plateForm,jdbcType=INTEGER},
       order_code = #{orderCode,jdbcType=VARCHAR},
-      operate_time = #{operateTime,jdbcType=TIMESTAMP}
+      operate_time = #{operateTime,jdbcType=TIMESTAMP},
+      order_sub_no = #{orderSubNo,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OperatelogExample" id="selectByExampleWithRowbounds" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from operate_log
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
 </mapper>

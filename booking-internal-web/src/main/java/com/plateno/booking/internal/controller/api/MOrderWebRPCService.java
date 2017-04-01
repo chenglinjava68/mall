@@ -20,13 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.plateno.booking.internal.base.constant.PlateFormEnum;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants;
 import com.plateno.booking.internal.bean.contants.BookingResultCodeContants.MsgCode;
-import com.plateno.booking.internal.bean.contants.LogisticsEnum;
 import com.plateno.booking.internal.bean.request.custom.GetProductBuyNumParam;
 import com.plateno.booking.internal.bean.request.custom.MOperateLogParam;
 import com.plateno.booking.internal.bean.request.custom.MOrderParam;
 import com.plateno.booking.internal.bean.request.custom.ModifyOrderParams;
 import com.plateno.booking.internal.bean.request.custom.OrderSkuQueryParam;
-import com.plateno.booking.internal.bean.request.custom.ReceiptParam;
 import com.plateno.booking.internal.bean.response.custom.MOperateLogResponse;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.conf.data.LogisticsTypeData;
@@ -94,120 +92,12 @@ public class MOrderWebRPCService extends BaseController{
 	}
 	
 	
-	@ResponseBody
-	@RequestMapping(value = "/deliverGoods" ,method = RequestMethod.POST)
-	public ResultVo<Object> deliverGoods(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("订单发货通知接口,请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		if(StringUtils.isBlank(param.getOperateUserid())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入操作人ID");
-			return response;
-		}
-		
-		if(StringUtils.isBlank(param.getOperateUsername())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入操作用户");
-			return response;
-		}
-		
-		if(param.getLogisticsType() == null || !LogisticsTypeData.hasType(param.getLogisticsType())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
-			return response;
-		}
-		
-		//自提不去要物流编号
-		if(LogisticsEnum.from(param.getLogisticsType()) != LogisticsEnum.ZT) {
-			if(StringUtils.isBlank(param.getLogisticsNo())) {
-				ResultVo<Object> response = new ResultVo<Object>();
-				response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-				response.setResultMsg("请输入物流编号");
-				return response;
-			}
-		}
-		
-		return mOrderService.deliverOrder(param);
-	}
 	
-	@ResponseBody
-	@RequestMapping(value = "/modifydeliverInfo" ,method = RequestMethod.POST)
-	public ResultVo<Object> modifydeliverInfo(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("修改发货信息,请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		if(StringUtils.isBlank(param.getOperateUserid())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入操作人ID");
-			return response;
-		}
-		
-		if(StringUtils.isBlank(param.getOperateUsername())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入操作用户");
-			return response;
-		}
-		
-		if(param.getLogisticsType() == null || !LogisticsTypeData.hasType(param.getLogisticsType())) {
-			ResultVo<Object> response = new ResultVo<Object>();
-			response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-			response.setResultMsg("请输入正确的物流类型:" + param.getLogisticsType());
-			return response;
-		}
-		
-		//自提不去要物流编号
-		if(LogisticsEnum.from(param.getLogisticsType()) != LogisticsEnum.ZT) {
-			if(StringUtils.isBlank(param.getLogisticsNo())) {
-				ResultVo<Object> response = new ResultVo<Object>();
-				response.setResultCode(this.getClass(), BookingResultCodeContants.MsgCode.BAD_REQUEST.getMsgCode());
-				response.setResultMsg("请输入物流编号");
-				return response;
-			}
-		}
-
-		return mOrderService.modifydeliverOrder(param);
-	}
-	
-	
-	@ResponseBody
-	@RequestMapping(value = "/enterReceipt" ,method = RequestMethod.POST)
-	public ResultVo<Object> enterReceipt(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
-		log.info("确定收货的操作,请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		if(param.getPlateForm() != null && (param.getPlateForm() == PlateFormEnum.ADMIN.getPlateForm() || param.getPlateForm() == PlateFormEnum.PROVIDER_ADMIN.getPlateForm())) {
-			
-			if(StringUtils.isBlank(param.getOperateUserid())) {
-				ResultVo<Object> out = new ResultVo<Object>();
-				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-				out.setResultMsg("请输入操作人ID");
-				return out;
-			}
-			
-			if(StringUtils.isBlank(param.getOperateUsername())) {
-				ResultVo<Object> out = new ResultVo<Object>();
-				out.setResultCode(getClass(), MsgCode.BAD_REQUEST.getMsgCode());
-				out.setResultMsg("请输入操作人姓名");
-				return out;
-			}
-		}
-		
-		return mOrderService.enterReceipt(param);
-	}
 	
 	
 	@ResponseBody
 	@RequestMapping(value = "/userRefund" ,method = RequestMethod.POST)
-	public ResultVo<Object> userRefund(@RequestBody @Valid MOrderParam param,BindingResult result) throws Exception{
+	public ResultVo<Object> userRefund(@RequestBody MOrderParam param,BindingResult result) throws Exception{
 		log.info("用户申请退款的操作,请求参数:"+ JsonUtils.toJsonString(param));
 		bindingResultHandler(result);
 		checkBaseParam(param);
@@ -285,15 +175,7 @@ public class MOrderWebRPCService extends BaseController{
 	
 	
 	
-	@ResponseBody
-	@RequestMapping(value = "/modifyReceiptInfo" ,method = RequestMethod.POST)
-	public ResultVo<Object> modifyReceiptInfo(@RequestBody @Valid ReceiptParam param,BindingResult result) throws Exception{
-		log.info("修改收货人请求参数:"+ JsonUtils.toJsonString(param));
-		bindingResultHandler(result);
-		checkBaseParam(param);
-		
-		return mOrderService.modifyReceiptInfo(param);
-	}
+
 	
 	
 	@ResponseBody

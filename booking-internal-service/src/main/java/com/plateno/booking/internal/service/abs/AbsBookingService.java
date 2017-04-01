@@ -4,7 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.plateno.booking.internal.bean.contants.ServiceEnum;
-
 public class AbsBookingService {
 
 	private static Logger log = Logger.getLogger(AbsBookingService.class);

@@ -1,4 +1,4 @@
-package com.plateno.booking.internal.wechat.model;
+package com.plateno.booking.internal.goods.vo;
 
 import java.util.List;
 
@@ -22,50 +22,31 @@ public class ProductSkuBean implements java.io.Serializable {
 	
 	private Integer expressFee;
 	
-	private Integer marketPrice;
+	/**
+	 * 商品价格
+	 */
+	private int price;
 	
-	private Integer regularPrice;
-	
-	private Integer favorPrice;
-	
-	private Integer favorPoints;
 	
 	private String imgPath;
 	
-	private Integer sellStrategy; //1 非积分价格 2 积分+价格
 
 	private Integer stock; //库存为0 禁止下单 
 	
 	private Integer status; //1 上架 2下架 状态为2，禁止下单
 	
-	/**
-	 * 价格策略	1 默认价格 2 促销价
-	 */
-	private Integer priceStrategy;
-	/**
-	 * 价格策略名称
-	 */
-	private String priceName;
 	
 	/**
 	 * 渠道号
 	 */
 	private Integer channelId; 
 	
-	/**
-	 * 积分抵扣金额
-	 */
-	private Integer deductPrice;
 	
 	/**
 	 * 限购数量（null不限购）
 	 */
 	private Integer maxSaleQty;
 	
-	/**
-	 * 促销价
-	 */
-	private Integer promotPrice;
 	
 	/**
 	 * 成本价
@@ -88,71 +69,57 @@ public class ProductSkuBean implements java.io.Serializable {
 	private Integer providerId;
 
 	
-	public Integer getCostPrice() {
-		return costPrice;
-	}
-
-	public void setCostPrice(Integer costPrice) {
-		this.costPrice = costPrice;
-	}
-
-	public Integer getCostExpress() {
-		return costExpress;
-	}
-
-	public void setCostExpress(Integer costExpress) {
-		this.costExpress = costExpress;
-	}
-
-	public Integer getPromotPrice() {
-		return promotPrice;
-	}
-
-	public void setPromotPrice(Integer promotPrice) {
-		this.promotPrice = promotPrice;
-	}
+	
 
 	public List<SkuPropertyInfos> getSkuPropertyInfos() {
-		return skuPropertyInfos;
-	}
+        return skuPropertyInfos;
+    }
 
-	public void setSkuPropertyInfos(List<SkuPropertyInfos> skuPropertyInfos) {
-		this.skuPropertyInfos = skuPropertyInfos;
-	}
+    public void setSkuPropertyInfos(List<SkuPropertyInfos> skuPropertyInfos) {
+        this.skuPropertyInfos = skuPropertyInfos;
+    }
 
-	public Integer getChannelId() {
-		return channelId;
-	}
+    public int getPrice() {
+        return price;
+    }
 
-	public void setChannelId(Integer channelId) {
-		this.channelId = channelId;
-	}
+    public void setPrice(int price) {
+        this.price = price;
+    }
 
-	public String getImgPath() {
-		return imgPath;
-	}
+    public String getImgPath() {
+        return imgPath;
+    }
 
-	public void setImgPath(String imgPath) {
-		this.imgPath = imgPath;
-	}
+    public void setImgPath(String imgPath) {
+        this.imgPath = imgPath;
+    }
 
-	public Integer getPriceStrategy() {
-		return priceStrategy;
-	}
+    public Integer getChannelId() {
+        return channelId;
+    }
 
-	public void setPriceStrategy(Integer priceStrategy) {
-		this.priceStrategy = priceStrategy;
-	}
+    public void setChannelId(Integer channelId) {
+        this.channelId = channelId;
+    }
 
-	public String getPriceName() {
-		return priceName;
-	}
+    public Integer getCostPrice() {
+        return costPrice;
+    }
 
-	public void setPriceName(String priceName) {
-		this.priceName = priceName;
-	}
+    public void setCostPrice(Integer costPrice) {
+        this.costPrice = costPrice;
+    }
 
-	public static class  SkuPropertyInfos implements java.io.Serializable{
+    public Integer getCostExpress() {
+        return costExpress;
+    }
+
+    public void setCostExpress(Integer costExpress) {
+        this.costExpress = costExpress;
+    }
+
+    public static class  SkuPropertyInfos implements java.io.Serializable{
 		private static final long serialVersionUID = -3241250582252552167L;
 		private String proName;
 		private String proValue;
@@ -215,45 +182,7 @@ public class ProductSkuBean implements java.io.Serializable {
 		this.expressFee = expressFee;
 	}
 
-	public Integer getMarketPrice() {
-		return marketPrice;
-	}
-
-	public void setMarketPrice(Integer marketPrice) {
-		this.marketPrice = marketPrice;
-	}
-
-	public Integer getRegularPrice() {
-		return regularPrice;
-	}
-
-	public void setRegularPrice(Integer regularPrice) {
-		this.regularPrice = regularPrice;
-	}
-
-	public Integer getFavorPrice() {
-		return favorPrice;
-	}
-
-	public void setFavorPrice(Integer favorPrice) {
-		this.favorPrice = favorPrice;
-	}
-
-	public Integer getFavorPoints() {
-		return favorPoints;
-	}
-
-	public void setFavorPoints(Integer favorPoints) {
-		this.favorPoints = favorPoints;
-	}
-
-	public Integer getSellStrategy() {
-		return sellStrategy;
-	}
-
-	public void setSellStrategy(Integer sellStrategy) {
-		this.sellStrategy = sellStrategy;
-	}
+	
 
 	public Integer getStock() {
 		return stock;
@@ -271,13 +200,7 @@ public class ProductSkuBean implements java.io.Serializable {
 		this.status = status;
 	}
 
-	public Integer getDeductPrice() {
-		return deductPrice;
-	}
 
-	public void setDeductPrice(Integer deductPrice) {
-		this.deductPrice = deductPrice;
-	}
 
 	public Integer getMaxSaleQty() {
 		return maxSaleQty;

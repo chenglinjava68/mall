@@ -1,5 +1,7 @@
 package com.plateno.booking.internal.base.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
 import com.plateno.booking.internal.base.pojo.OrderProduct;
@@ -30,5 +32,29 @@ public interface OrderProductMapper extends BaseMapper<OrderProduct,OrderProduct
 	 * @return
 	 */
 	int querySkuSoldNum(@Param("skuId")Integer skuId);
+	
+	/**
+	 * 
+	* @Title: queryProductByPackageId 
+	* @Description: 根据包裹id查询出关联的商品
+	* @param @param packageId
+	* @param @return    
+	* @return List<OrderProduct>    
+	* @throws
+	 */
+	List<OrderProduct> queryProductByPackageId(@Param("packageId")Integer packageId);
+	
+	int queryOrderSubNoCount(@Param("orderNo")String orderNo);
+	
+	/**
+	 * 
+	* @Title: queryOrderSubNoByOrderNo 
+	* @Description: 根据父订单号查询子订单
+	* @param @param orderNo
+	* @param @return    
+	* @return List<String>    
+	* @throws
+	 */
+	List<String> queryOrderSubNoByOrderNo(@Param("orderNo")String orderNo);
    
 }

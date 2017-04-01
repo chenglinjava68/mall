@@ -19,4 +19,13 @@ public class RefundQueryResponse extends BaseParam {
 		this.orderAmount = orderAmount;
 	}
 
+    @Override
+    public String toString() {
+        return "RefundQueryResponse [orderAmount=" + orderAmount + "]";
+    }
+
+
+
+	
+	
 }

@@ -50,7 +50,7 @@ public class PayNotifyService {
 
     @Autowired
     private PayService payService;
-    
+
     /**
      * 支付网关回调，更新订单的状态
      * 
@@ -66,10 +66,10 @@ public class PayNotifyService {
             logger.warn("支付网关支付回调,获取不到对应的流水信息：" + payNotifyVo.getTradeNo());
             throw new RuntimeException("找不到支付流水信息");
         }
-       
+
         BookingPayQueryVo bookingPayQueryVo = new BookingPayQueryVo();
         BeanUtils.copyProperties(bookingPayQueryVo, payNotifyVo);
-        
+
         payService.doWithOrderPayLogAndOrder(orderPayLog, bookingPayQueryVo);
     }
 
@@ -98,9 +98,11 @@ public class PayNotifyService {
                     order.getPayStatus());
             return;
         }
-
-        parseRefundNotify(refundNotifyVo, orderPayLog, order);
-        logger.info(String.format("orderNo:%s, 收银台退款回调通知成功，进行后续操作", order.getOrderNo()));
+        // 校验金额是否一致
+        if (checkAmout(refundNotifyVo, orderPayLog) == 0)
+            return;
+        updateOrderPayLogToSuccess(orderPayLog);
+        logger.info("orderNo:{}, 收银台退款回调通知成功，进行后续操作", order.getOrderNo());
         orderRefundActorService.doSuccessOrderRefundActor(order);
 
 
@@ -108,23 +110,40 @@ public class PayNotifyService {
 
     /**
      * 
-     * @Title: parseRefundNotify
-     * @Description: 解析退款回调通知数据
+     * @Title: checkAmout
+     * @Description: 校验金额是否一致
      * @param @param refundNotifyVo
      * @param @param orderPayLog
-     * @param @param order
      * @param @return
-     * @return boolean
+     * @return int
      * @throws
      */
-    private void parseRefundNotify(RefundNotifyVo refundNotifyVo, OrderPayLog orderPayLog,
-            Order order) {
-        // 更新支付流水状态(success == 2)
+    private int checkAmout(RefundNotifyVo refundNotifyVo, OrderPayLog orderPayLog) {
+        if (refundNotifyVo.getAmount().compareTo(orderPayLog.getAmount()) != 0)
+            return 0;
+        if (refundNotifyVo.getCurrencyDepositAmount().compareTo(
+                orderPayLog.getCurrencyDepositAmount()) != 0)
+            return 0;
+        if (refundNotifyVo.getGatewayAmount().compareTo(orderPayLog.getGatewayAmount()) != 0)
+            return 0;
+        return 1;
+    }
+
+
+    /**
+     * 
+     * @Title: updateOrderPayLogToSuccess
+     * @Description: TODO
+     * @param @param orderPayLog
+     * @param @param order
+     * @return void
+     * @throws
+     */
+    private void updateOrderPayLogToSuccess(OrderPayLog orderPayLog) {
         orderPayLog.setStatus(BookingConstants.BILL_LOG_SUCCESS);
-        // record.setRemark("退款成功");
         orderPayLog.setUpTime(new Date());
+        orderPayLog.setRemark("收银台主动回调通知，更新退款状态");
         orderPayLogMapper.updateByPrimaryKeySelective(orderPayLog);
-        logger.info("order_pay_log,orderNo:{}, 退款成功", order.getOrderNo());
     }
 
 

@@ -93,7 +93,32 @@ public class Order implements Serializable {
      */
     private Integer gatewayAmount;
     
+    private Integer pointMoney;
+    
+    /**
+     * 总快递费
+     */
+    private Integer totalExpressAmount;
+    
     private Integer offline;
+    
+    public Integer getTotalExpressAmount() {
+        return totalExpressAmount;
+    }
+
+    public void setTotalExpressAmount(Integer totalExpressAmount) {
+        this.totalExpressAmount = totalExpressAmount;
+    }
+
+    public Integer getPointMoney() {
+        return pointMoney;
+    }
+
+    public void setPointMoney(Integer pointMoney) {
+        this.pointMoney = pointMoney;
+    }
+
+
     
     private static final long serialVersionUID = 1L;
 

@@ -7,6 +7,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.plateno.booking.internal.cashierdesk.CashierDeskService;
+import com.plateno.booking.internal.cashierdesk.vo.CancelOrderReq;
 import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryReq;
 import com.plateno.booking.internal.cashierdesk.vo.PayQueryReq;
 import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
@@ -28,11 +29,11 @@ public class TestCashierDeskService {
     @Test
     public void testRefundOrder(){
         RefundOrderReq req = new RefundOrderReq();
-        req.setAmount(6);
+        req.setAmount(10);
         req.setMemberId(135944358);
-        req.setRefundOrderNo("O1486456177539718741");
-        req.setRefundTradeNo("L1486456222418361347");
-        req.setTradeNo("L1486456181447341846");
+        req.setRefundOrderNo("O1488957571749377123");
+        req.setRefundTradeNo("L1488959352816254223");
+        req.setTradeNo("L1488957631625853136");
         cashierDeskService.refundOrder(req);
     }
     
@@ -42,6 +43,14 @@ public class TestCashierDeskService {
         req.setRefundTradeNo("L1486527054500868949");
         req.setUpdatePayStatusFlag(1);
         cashierDeskService.refundQuery(req);
+    }
+    
+    @Test
+    public void testCancelOrder(){
+        CancelOrderReq req = new CancelOrderReq();
+        req.setTradeNo("L1489720280168588800");
+        System.out.println(req.toString());
+        System.out.println(cashierDeskService.cancelOrder(req).toString());
     }
     
     

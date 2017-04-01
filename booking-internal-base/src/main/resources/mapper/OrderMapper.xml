@@ -1,855 +1,944 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.plateno.booking.internal.base.mapper.OrderMapper" >
-  <resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.Order" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="order_no" property="orderNo" jdbcType="VARCHAR" />
-    <result column="amount" property="amount" jdbcType="INTEGER" />
-    <result column="name" property="name" jdbcType="VARCHAR" />
-    <result column="mobile" property="mobile" jdbcType="VARCHAR" />
-    <result column="member_id" property="memberId" jdbcType="INTEGER" />
-    <result column="sid" property="sid" jdbcType="INTEGER" />
-    <result column="chanelid" property="chanelid" jdbcType="INTEGER" />
-    <result column="item_id" property="itemId" jdbcType="INTEGER" />
-    <result column="pay_type" property="payType" jdbcType="INTEGER" />
-    <result column="pay_time" property="payTime" jdbcType="TIMESTAMP" />
-    <result column="wait_pay_time" property="waitPayTime" jdbcType="TIMESTAMP" />
-    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="up_time" property="upTime" jdbcType="TIMESTAMP" />
-    <result column="point" property="point" jdbcType="INTEGER" />
-    <result column="refund_amount" property="refundAmount" jdbcType="INTEGER" />
-    <result column="refund_time" property="refundTime" jdbcType="TIMESTAMP" />
-    <result column="pay_status" property="payStatus" jdbcType="INTEGER" />
-    <result column="pay_money" property="payMoney" jdbcType="INTEGER" />
-    <result column="deliver_time" property="deliverTime" jdbcType="TIMESTAMP" />
-    <result column="refund_successtime" property="refundSuccesstime" jdbcType="TIMESTAMP" />
-    <result column="refund_reason" property="refundReason" jdbcType="VARCHAR" />
-    <result column="resource" property="resource" jdbcType="INTEGER" />
-    <result column="refund_point" property="refundPoint" jdbcType="INTEGER" />
-    <result column="remark" property="remark" jdbcType="VARCHAR" />
-    <result column="refund_fail_reason" property="refundFailReason" jdbcType="VARCHAR" />
-    <result column="logic_del" property="logicDel" jdbcType="TINYINT" />
-    <result column="sub_resource" property="subResource" jdbcType="INTEGER" />
-    <result column="total_product_cost" property="totalProductCost" jdbcType="INTEGER" />
-    <result column="total_express_cost" property="totalExpressCost" jdbcType="INTEGER" />
-    <result column="coupon_amount" property="couponAmount" jdbcType="INTEGER" />
-    <result column="currency_deposit_amount" property="currencyDepositAmount" jdbcType="INTEGER" />
-    <result column="gateway_amount" property="gatewayAmount" jdbcType="INTEGER" />
-    <result column="offline" property="offline" jdbcType="INTEGER" />
-  </resultMap>
-  <sql id="Example_Where_Clause" >
-    <where >
-      <foreach collection="oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Update_By_Example_Where_Clause" >
-    <where >
-      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
-        <if test="criteria.valid" >
-          <trim prefix="(" suffix=")" prefixOverrides="and" >
-            <foreach collection="criteria.criteria" item="criterion" >
-              <choose >
-                <when test="criterion.noValue" >
-                  and ${criterion.condition}
-                </when>
-                <when test="criterion.singleValue" >
-                  and ${criterion.condition} #{criterion.value}
-                </when>
-                <when test="criterion.betweenValue" >
-                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
-                </when>
-                <when test="criterion.listValue" >
-                  and ${criterion.condition}
-                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
-                    #{listItem}
-                  </foreach>
-                </when>
-              </choose>
-            </foreach>
-          </trim>
-        </if>
-      </foreach>
-    </where>
-  </sql>
-  <sql id="Base_Column_List" >
-    id, order_no, amount, name, mobile, member_id, sid, chanelid, item_id, pay_type, 
-    pay_time, wait_pay_time, create_time, up_time, point, refund_amount, refund_time, 
-    pay_status, pay_money, deliver_time, refund_successtime, refund_reason, resource, 
-    refund_point, remark, refund_fail_reason, logic_del, sub_resource, total_product_cost, 
-    total_express_cost, coupon_amount, currency_deposit_amount, gateway_amount, offline
-  </sql>
-  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    'true' as QUERYID,
-    <include refid="Base_Column_List" />
-    from m_order
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    from m_order
-    where id = #{id,jdbcType=INTEGER}
-  </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
-    delete from m_order
-    where id = #{id,jdbcType=INTEGER}
-  </delete>
-  <delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" >
-    delete from m_order
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </delete>
-  <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.Order" >
-    insert into m_order (id, order_no, amount, 
-      name, mobile, member_id, 
-      sid, chanelid, item_id, 
-      pay_type, pay_time, wait_pay_time, 
-      create_time, up_time, point, 
-      refund_amount, refund_time, pay_status, 
-      pay_money, deliver_time, refund_successtime, 
-      refund_reason, resource, refund_point, 
-      remark, refund_fail_reason, logic_del, 
-      sub_resource, total_product_cost, total_express_cost, 
-      coupon_amount, currency_deposit_amount, gateway_amount, 
-      offline)
-    values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, #{amount,jdbcType=INTEGER}, 
-      #{name,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{memberId,jdbcType=INTEGER}, 
-      #{sid,jdbcType=INTEGER}, #{chanelid,jdbcType=INTEGER}, #{itemId,jdbcType=INTEGER}, 
-      #{payType,jdbcType=INTEGER}, #{payTime,jdbcType=TIMESTAMP}, #{waitPayTime,jdbcType=TIMESTAMP}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP}, #{point,jdbcType=INTEGER}, 
-      #{refundAmount,jdbcType=INTEGER}, #{refundTime,jdbcType=TIMESTAMP}, #{payStatus,jdbcType=INTEGER}, 
-      #{payMoney,jdbcType=INTEGER}, #{deliverTime,jdbcType=TIMESTAMP}, #{refundSuccesstime,jdbcType=TIMESTAMP}, 
-      #{refundReason,jdbcType=VARCHAR}, #{resource,jdbcType=INTEGER}, #{refundPoint,jdbcType=INTEGER}, 
-      #{remark,jdbcType=VARCHAR}, #{refundFailReason,jdbcType=VARCHAR}, #{logicDel,jdbcType=TINYINT}, 
-      #{subResource,jdbcType=INTEGER}, #{totalProductCost,jdbcType=INTEGER}, #{totalExpressCost,jdbcType=INTEGER}, 
-      #{couponAmount,jdbcType=INTEGER}, #{currencyDepositAmount,jdbcType=INTEGER}, #{gatewayAmount,jdbcType=INTEGER}, 
-      #{offline,jdbcType=INTEGER})
-  </insert>
-  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Order" >
-    insert into m_order
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        id,
-      </if>
-      <if test="orderNo != null" >
-        order_no,
-      </if>
-      <if test="amount != null" >
-        amount,
-      </if>
-      <if test="name != null" >
-        name,
-      </if>
-      <if test="mobile != null" >
-        mobile,
-      </if>
-      <if test="memberId != null" >
-        member_id,
-      </if>
-      <if test="sid != null" >
-        sid,
-      </if>
-      <if test="chanelid != null" >
-        chanelid,
-      </if>
-      <if test="itemId != null" >
-        item_id,
-      </if>
-      <if test="payType != null" >
-        pay_type,
-      </if>
-      <if test="payTime != null" >
-        pay_time,
-      </if>
-      <if test="waitPayTime != null" >
-        wait_pay_time,
-      </if>
-      <if test="createTime != null" >
-        create_time,
-      </if>
-      <if test="upTime != null" >
-        up_time,
-      </if>
-      <if test="point != null" >
-        point,
-      </if>
-      <if test="refundAmount != null" >
-        refund_amount,
-      </if>
-      <if test="refundTime != null" >
-        refund_time,
-      </if>
-      <if test="payStatus != null" >
-        pay_status,
-      </if>
-      <if test="payMoney != null" >
-        pay_money,
-      </if>
-      <if test="deliverTime != null" >
-        deliver_time,
-      </if>
-      <if test="refundSuccesstime != null" >
-        refund_successtime,
-      </if>
-      <if test="refundReason != null" >
-        refund_reason,
-      </if>
-      <if test="resource != null" >
-        resource,
-      </if>
-      <if test="refundPoint != null" >
-        refund_point,
-      </if>
-      <if test="remark != null" >
-        remark,
-      </if>
-      <if test="refundFailReason != null" >
-        refund_fail_reason,
-      </if>
-      <if test="logicDel != null" >
-        logic_del,
-      </if>
-      <if test="subResource != null" >
-        sub_resource,
-      </if>
-      <if test="totalProductCost != null" >
-        total_product_cost,
-      </if>
-      <if test="totalExpressCost != null" >
-        total_express_cost,
-      </if>
-      <if test="couponAmount != null" >
-        coupon_amount,
-      </if>
-      <if test="currencyDepositAmount != null" >
-        currency_deposit_amount,
-      </if>
-      <if test="gatewayAmount != null" >
-        gateway_amount,
-      </if>
-      <if test="offline != null" >
-        offline,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
-        #{id,jdbcType=INTEGER},
-      </if>
-      <if test="orderNo != null" >
-        #{orderNo,jdbcType=VARCHAR},
-      </if>
-      <if test="amount != null" >
-        #{amount,jdbcType=INTEGER},
-      </if>
-      <if test="name != null" >
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="memberId != null" >
-        #{memberId,jdbcType=INTEGER},
-      </if>
-      <if test="sid != null" >
-        #{sid,jdbcType=INTEGER},
-      </if>
-      <if test="chanelid != null" >
-        #{chanelid,jdbcType=INTEGER},
-      </if>
-      <if test="itemId != null" >
-        #{itemId,jdbcType=INTEGER},
-      </if>
-      <if test="payType != null" >
-        #{payType,jdbcType=INTEGER},
-      </if>
-      <if test="payTime != null" >
-        #{payTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="waitPayTime != null" >
-        #{waitPayTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="upTime != null" >
-        #{upTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="point != null" >
-        #{point,jdbcType=INTEGER},
-      </if>
-      <if test="refundAmount != null" >
-        #{refundAmount,jdbcType=INTEGER},
-      </if>
-      <if test="refundTime != null" >
-        #{refundTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="payStatus != null" >
-        #{payStatus,jdbcType=INTEGER},
-      </if>
-      <if test="payMoney != null" >
-        #{payMoney,jdbcType=INTEGER},
-      </if>
-      <if test="deliverTime != null" >
-        #{deliverTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="refundSuccesstime != null" >
-        #{refundSuccesstime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="refundReason != null" >
-        #{refundReason,jdbcType=VARCHAR},
-      </if>
-      <if test="resource != null" >
-        #{resource,jdbcType=INTEGER},
-      </if>
-      <if test="refundPoint != null" >
-        #{refundPoint,jdbcType=INTEGER},
-      </if>
-      <if test="remark != null" >
-        #{remark,jdbcType=VARCHAR},
-      </if>
-      <if test="refundFailReason != null" >
-        #{refundFailReason,jdbcType=VARCHAR},
-      </if>
-      <if test="logicDel != null" >
-        #{logicDel,jdbcType=TINYINT},
-      </if>
-      <if test="subResource != null" >
-        #{subResource,jdbcType=INTEGER},
-      </if>
-      <if test="totalProductCost != null" >
-        #{totalProductCost,jdbcType=INTEGER},
-      </if>
-      <if test="totalExpressCost != null" >
-        #{totalExpressCost,jdbcType=INTEGER},
-      </if>
-      <if test="couponAmount != null" >
-        #{couponAmount,jdbcType=INTEGER},
-      </if>
-      <if test="currencyDepositAmount != null" >
-        #{currencyDepositAmount,jdbcType=INTEGER},
-      </if>
-      <if test="gatewayAmount != null" >
-        #{gatewayAmount,jdbcType=INTEGER},
-      </if>
-      <if test="offline != null" >
-        #{offline,jdbcType=INTEGER},
-      </if>
-    </trim>
-  </insert>
-  <select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" resultType="java.lang.Integer" >
-    select count(*) from m_order
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-  </select>
-  <update id="updateByExampleSelective" parameterType="map" >
-    update m_order
-    <set >
-      <if test="record.id != null" >
-        id = #{record.id,jdbcType=INTEGER},
-      </if>
-      <if test="record.orderNo != null" >
-        order_no = #{record.orderNo,jdbcType=VARCHAR},
-      </if>
-      <if test="record.amount != null" >
-        amount = #{record.amount,jdbcType=INTEGER},
-      </if>
-      <if test="record.name != null" >
-        name = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.mobile != null" >
-        mobile = #{record.mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="record.memberId != null" >
-        member_id = #{record.memberId,jdbcType=INTEGER},
-      </if>
-      <if test="record.sid != null" >
-        sid = #{record.sid,jdbcType=INTEGER},
-      </if>
-      <if test="record.chanelid != null" >
-        chanelid = #{record.chanelid,jdbcType=INTEGER},
-      </if>
-      <if test="record.itemId != null" >
-        item_id = #{record.itemId,jdbcType=INTEGER},
-      </if>
-      <if test="record.payType != null" >
-        pay_type = #{record.payType,jdbcType=INTEGER},
-      </if>
-      <if test="record.payTime != null" >
-        pay_time = #{record.payTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.waitPayTime != null" >
-        wait_pay_time = #{record.waitPayTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.createTime != null" >
-        create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.upTime != null" >
-        up_time = #{record.upTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.point != null" >
-        point = #{record.point,jdbcType=INTEGER},
-      </if>
-      <if test="record.refundAmount != null" >
-        refund_amount = #{record.refundAmount,jdbcType=INTEGER},
-      </if>
-      <if test="record.refundTime != null" >
-        refund_time = #{record.refundTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.payStatus != null" >
-        pay_status = #{record.payStatus,jdbcType=INTEGER},
-      </if>
-      <if test="record.payMoney != null" >
-        pay_money = #{record.payMoney,jdbcType=INTEGER},
-      </if>
-      <if test="record.deliverTime != null" >
-        deliver_time = #{record.deliverTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.refundSuccesstime != null" >
-        refund_successtime = #{record.refundSuccesstime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="record.refundReason != null" >
-        refund_reason = #{record.refundReason,jdbcType=VARCHAR},
-      </if>
-      <if test="record.resource != null" >
-        resource = #{record.resource,jdbcType=INTEGER},
-      </if>
-      <if test="record.refundPoint != null" >
-        refund_point = #{record.refundPoint,jdbcType=INTEGER},
-      </if>
-      <if test="record.remark != null" >
-        remark = #{record.remark,jdbcType=VARCHAR},
-      </if>
-      <if test="record.refundFailReason != null" >
-        refund_fail_reason = #{record.refundFailReason,jdbcType=VARCHAR},
-      </if>
-      <if test="record.logicDel != null" >
-        logic_del = #{record.logicDel,jdbcType=TINYINT},
-      </if>
-      <if test="record.subResource != null" >
-        sub_resource = #{record.subResource,jdbcType=INTEGER},
-      </if>
-      <if test="record.totalProductCost != null" >
-        total_product_cost = #{record.totalProductCost,jdbcType=INTEGER},
-      </if>
-      <if test="record.totalExpressCost != null" >
-        total_express_cost = #{record.totalExpressCost,jdbcType=INTEGER},
-      </if>
-      <if test="record.couponAmount != null" >
-        coupon_amount = #{record.couponAmount,jdbcType=INTEGER},
-      </if>
-      <if test="record.currencyDepositAmount != null" >
-        currency_deposit_amount = #{record.currencyDepositAmount,jdbcType=INTEGER},
-      </if>
-      <if test="record.gatewayAmount != null" >
-        gateway_amount = #{record.gatewayAmount,jdbcType=INTEGER},
-      </if>
-      <if test="record.offline != null" >
-        offline = #{record.offline,jdbcType=INTEGER},
-      </if>
-    </set>
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map" >
-    update m_order
-    set id = #{record.id,jdbcType=INTEGER},
-      order_no = #{record.orderNo,jdbcType=VARCHAR},
-      amount = #{record.amount,jdbcType=INTEGER},
-      name = #{record.name,jdbcType=VARCHAR},
-      mobile = #{record.mobile,jdbcType=VARCHAR},
-      member_id = #{record.memberId,jdbcType=INTEGER},
-      sid = #{record.sid,jdbcType=INTEGER},
-      chanelid = #{record.chanelid,jdbcType=INTEGER},
-      item_id = #{record.itemId,jdbcType=INTEGER},
-      pay_type = #{record.payType,jdbcType=INTEGER},
-      pay_time = #{record.payTime,jdbcType=TIMESTAMP},
-      wait_pay_time = #{record.waitPayTime,jdbcType=TIMESTAMP},
-      create_time = #{record.createTime,jdbcType=TIMESTAMP},
-      up_time = #{record.upTime,jdbcType=TIMESTAMP},
-      point = #{record.point,jdbcType=INTEGER},
-      refund_amount = #{record.refundAmount,jdbcType=INTEGER},
-      refund_time = #{record.refundTime,jdbcType=TIMESTAMP},
-      pay_status = #{record.payStatus,jdbcType=INTEGER},
-      pay_money = #{record.payMoney,jdbcType=INTEGER},
-      deliver_time = #{record.deliverTime,jdbcType=TIMESTAMP},
-      refund_successtime = #{record.refundSuccesstime,jdbcType=TIMESTAMP},
-      refund_reason = #{record.refundReason,jdbcType=VARCHAR},
-      resource = #{record.resource,jdbcType=INTEGER},
-      refund_point = #{record.refundPoint,jdbcType=INTEGER},
-      remark = #{record.remark,jdbcType=VARCHAR},
-      refund_fail_reason = #{record.refundFailReason,jdbcType=VARCHAR},
-      logic_del = #{record.logicDel,jdbcType=TINYINT},
-      sub_resource = #{record.subResource,jdbcType=INTEGER},
-      total_product_cost = #{record.totalProductCost,jdbcType=INTEGER},
-      total_express_cost = #{record.totalExpressCost,jdbcType=INTEGER},
-      coupon_amount = #{record.couponAmount,jdbcType=INTEGER},
-      currency_deposit_amount = #{record.currencyDepositAmount,jdbcType=INTEGER},
-      gateway_amount = #{record.gatewayAmount,jdbcType=INTEGER},
-      offline = #{record.offline,jdbcType=INTEGER}
-    <if test="_parameter != null" >
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.Order" >
-    update m_order
-    <set >
-      <if test="orderNo != null" >
-        order_no = #{orderNo,jdbcType=VARCHAR},
-      </if>
-      <if test="amount != null" >
-        amount = #{amount,jdbcType=INTEGER},
-      </if>
-      <if test="name != null" >
-        name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="mobile != null" >
-        mobile = #{mobile,jdbcType=VARCHAR},
-      </if>
-      <if test="memberId != null" >
-        member_id = #{memberId,jdbcType=INTEGER},
-      </if>
-      <if test="sid != null" >
-        sid = #{sid,jdbcType=INTEGER},
-      </if>
-      <if test="chanelid != null" >
-        chanelid = #{chanelid,jdbcType=INTEGER},
-      </if>
-      <if test="itemId != null" >
-        item_id = #{itemId,jdbcType=INTEGER},
-      </if>
-      <if test="payType != null" >
-        pay_type = #{payType,jdbcType=INTEGER},
-      </if>
-      <if test="payTime != null" >
-        pay_time = #{payTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="waitPayTime != null" >
-        wait_pay_time = #{waitPayTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="upTime != null" >
-        up_time = #{upTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="point != null" >
-        point = #{point,jdbcType=INTEGER},
-      </if>
-      <if test="refundAmount != null" >
-        refund_amount = #{refundAmount,jdbcType=INTEGER},
-      </if>
-      <if test="refundTime != null" >
-        refund_time = #{refundTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="payStatus != null" >
-        pay_status = #{payStatus,jdbcType=INTEGER},
-      </if>
-      <if test="payMoney != null" >
-        pay_money = #{payMoney,jdbcType=INTEGER},
-      </if>
-      <if test="deliverTime != null" >
-        deliver_time = #{deliverTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="refundSuccesstime != null" >
-        refund_successtime = #{refundSuccesstime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="refundReason != null" >
-        refund_reason = #{refundReason,jdbcType=VARCHAR},
-      </if>
-      <if test="resource != null" >
-        resource = #{resource,jdbcType=INTEGER},
-      </if>
-      <if test="refundPoint != null" >
-        refund_point = #{refundPoint,jdbcType=INTEGER},
-      </if>
-      <if test="remark != null" >
-        remark = #{remark,jdbcType=VARCHAR},
-      </if>
-      <if test="refundFailReason != null" >
-        refund_fail_reason = #{refundFailReason,jdbcType=VARCHAR},
-      </if>
-      <if test="logicDel != null" >
-        logic_del = #{logicDel,jdbcType=TINYINT},
-      </if>
-      <if test="subResource != null" >
-        sub_resource = #{subResource,jdbcType=INTEGER},
-      </if>
-      <if test="totalProductCost != null" >
-        total_product_cost = #{totalProductCost,jdbcType=INTEGER},
-      </if>
-      <if test="totalExpressCost != null" >
-        total_express_cost = #{totalExpressCost,jdbcType=INTEGER},
-      </if>
-      <if test="couponAmount != null" >
-        coupon_amount = #{couponAmount,jdbcType=INTEGER},
-      </if>
-      <if test="currencyDepositAmount != null" >
-        currency_deposit_amount = #{currencyDepositAmount,jdbcType=INTEGER},
-      </if>
-      <if test="gatewayAmount != null" >
-        gateway_amount = #{gatewayAmount,jdbcType=INTEGER},
-      </if>
-      <if test="offline != null" >
-        offline = #{offline,jdbcType=INTEGER},
-      </if>
-    </set>
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.Order" >
-    update m_order
-    set order_no = #{orderNo,jdbcType=VARCHAR},
-      amount = #{amount,jdbcType=INTEGER},
-      name = #{name,jdbcType=VARCHAR},
-      mobile = #{mobile,jdbcType=VARCHAR},
-      member_id = #{memberId,jdbcType=INTEGER},
-      sid = #{sid,jdbcType=INTEGER},
-      chanelid = #{chanelid,jdbcType=INTEGER},
-      item_id = #{itemId,jdbcType=INTEGER},
-      pay_type = #{payType,jdbcType=INTEGER},
-      pay_time = #{payTime,jdbcType=TIMESTAMP},
-      wait_pay_time = #{waitPayTime,jdbcType=TIMESTAMP},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
-      up_time = #{upTime,jdbcType=TIMESTAMP},
-      point = #{point,jdbcType=INTEGER},
-      refund_amount = #{refundAmount,jdbcType=INTEGER},
-      refund_time = #{refundTime,jdbcType=TIMESTAMP},
-      pay_status = #{payStatus,jdbcType=INTEGER},
-      pay_money = #{payMoney,jdbcType=INTEGER},
-      deliver_time = #{deliverTime,jdbcType=TIMESTAMP},
-      refund_successtime = #{refundSuccesstime,jdbcType=TIMESTAMP},
-      refund_reason = #{refundReason,jdbcType=VARCHAR},
-      resource = #{resource,jdbcType=INTEGER},
-      refund_point = #{refundPoint,jdbcType=INTEGER},
-      remark = #{remark,jdbcType=VARCHAR},
-      refund_fail_reason = #{refundFailReason,jdbcType=VARCHAR},
-      logic_del = #{logicDel,jdbcType=TINYINT},
-      sub_resource = #{subResource,jdbcType=INTEGER},
-      total_product_cost = #{totalProductCost,jdbcType=INTEGER},
-      total_express_cost = #{totalExpressCost,jdbcType=INTEGER},
-      coupon_amount = #{couponAmount,jdbcType=INTEGER},
-      currency_deposit_amount = #{currencyDepositAmount,jdbcType=INTEGER},
-      gateway_amount = #{gatewayAmount,jdbcType=INTEGER},
-      offline = #{offline,jdbcType=INTEGER}
-    where id = #{id,jdbcType=INTEGER}
-  </update>
-  <select resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.OrderExample" id="selectByExampleWithRowbounds" >
-    select
-    <if test="distinct" >
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from m_order
-    <if test="_parameter != null" >
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null" >
-      order by ${orderByClause}
-    </if>
-  </select>
-  
-  
-   <select id="getOrderByNo" resultMap="BaseResultMap" >
-    select *
-    from m_order
-     where order_no= #{orderNo,jdbcType=VARCHAR}
-  </select>
-  
-  <select id="getPre30Min" resultMap="BaseResultMap" >
-    select *
-    from m_order 
-     where pay_status= #{status,jdbcType=INTEGER} and create_time &lt; date_sub(now(), interval 30 MINUTE)
-  </select>
-  
-    <select id="getOrderByStatusAndDeliverTime" resultMap="BaseResultMap" >
-    select *
-    from m_order 
-     where pay_status= #{status,jdbcType=INTEGER} and deliver_time &lt; date_sub(
-				now(),
-				INTERVAL #{day,jdbcType=INTEGER} day)
-  </select>
-  
-  
-  <select id="getPageOrders" resultMap="BaseResultMap" >
-    select *
-    from m_order 
-     where 1=1
-      <if test="record.plateForm != null &amp;&amp; record.plateForm == 3" >
-        AND member_id = #{record.memberId,jdbcType=VARCHAR}
-      </if>
-	  <if test="record.orderNo != null &amp;&amp; record.orderNo != '' " >
-        AND order_no = #{record.orderNo,jdbcType=VARCHAR}
-      </if>
-      <if test="record.mobile != null &amp;&amp; record.mobile != ''" >
-        AND mobile = #{record.mobile,jdbcType=VARCHAR}
-      </if>
-      
-      <if test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0" >
+<mapper namespace="com.plateno.booking.internal.base.mapper.OrderMapper">
+
+	<resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.Order">
+		<id column="id" property="id" jdbcType="INTEGER" />
+		<result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+		<result column="amount" property="amount" jdbcType="INTEGER" />
+		<result column="name" property="name" jdbcType="VARCHAR" />
+		<result column="mobile" property="mobile" jdbcType="VARCHAR" />
+		<result column="member_id" property="memberId" jdbcType="INTEGER" />
+		<result column="sid" property="sid" jdbcType="INTEGER" />
+		<result column="chanelid" property="chanelid" jdbcType="INTEGER" />
+		<result column="item_id" property="itemId" jdbcType="INTEGER" />
+		<result column="pay_type" property="payType" jdbcType="INTEGER" />
+		<result column="pay_time" property="payTime" jdbcType="TIMESTAMP" />
+		<result column="wait_pay_time" property="waitPayTime" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="up_time" property="upTime" jdbcType="TIMESTAMP" />
+		<result column="point" property="point" jdbcType="INTEGER" />
+		<result column="refund_amount" property="refundAmount"
+			jdbcType="INTEGER" />
+		<result column="refund_time" property="refundTime" jdbcType="TIMESTAMP" />
+		<result column="pay_status" property="payStatus" jdbcType="INTEGER" />
+		<result column="pay_money" property="payMoney" jdbcType="INTEGER" />
+		<result column="deliver_time" property="deliverTime" jdbcType="TIMESTAMP" />
+		<result column="refund_successtime" property="refundSuccesstime"
+			jdbcType="TIMESTAMP" />
+		<result column="refund_reason" property="refundReason"
+			jdbcType="VARCHAR" />
+		<result column="resource" property="resource" jdbcType="INTEGER" />
+		<result column="refund_point" property="refundPoint" jdbcType="INTEGER" />
+		<result column="remark" property="remark" jdbcType="VARCHAR" />
+		<result column="refund_fail_reason" property="refundFailReason"
+			jdbcType="VARCHAR" />
+		<result column="logic_del" property="logicDel" jdbcType="TINYINT" />
+		<result column="sub_resource" property="subResource" jdbcType="INTEGER" />
+		<result column="total_product_cost" property="totalProductCost"
+			jdbcType="INTEGER" />
+		<result column="total_express_cost" property="totalExpressCost"
+			jdbcType="INTEGER" />
+		<result column="coupon_amount" property="couponAmount"
+			jdbcType="INTEGER" />
+		<result column="currency_deposit_amount" property="currencyDepositAmount"
+			jdbcType="INTEGER" />
+		<result column="gateway_amount" property="gatewayAmount"
+			jdbcType="INTEGER" />
+		<result column="point_money" property="pointMoney" jdbcType="INTEGER" />
+		<result column="total_express_amount" property="totalExpressAmount"
+			jdbcType="INTEGER" />
+		<result column="offline" property="offline" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Example_Where_Clause">
+		<where>
+			<foreach collection="oredCriteria" item="criteria" separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Update_By_Example_Where_Clause">
+		<where>
+			<foreach collection="example.oredCriteria" item="criteria"
+				separator="or">
+				<if test="criteria.valid">
+					<trim prefix="(" suffix=")" prefixOverrides="and">
+						<foreach collection="criteria.criteria" item="criterion">
+							<choose>
+								<when test="criterion.noValue">
+									and ${criterion.condition}
+								</when>
+								<when test="criterion.singleValue">
+									and ${criterion.condition} #{criterion.value}
+								</when>
+								<when test="criterion.betweenValue">
+									and ${criterion.condition} #{criterion.value} and
+									#{criterion.secondValue}
+								</when>
+								<when test="criterion.listValue">
+									and ${criterion.condition}
+									<foreach collection="criterion.value" item="listItem"
+										open="(" close=")" separator=",">
+										#{listItem}
+									</foreach>
+								</when>
+							</choose>
+						</foreach>
+					</trim>
+				</if>
+			</foreach>
+		</where>
+	</sql>
+	<sql id="Base_Column_List">
+		id, order_no, amount, name, mobile, member_id, sid, chanelid, item_id,
+		pay_type,
+		pay_time, wait_pay_time, create_time, up_time, point, refund_amount,
+		refund_time,
+		pay_status, pay_money, deliver_time, refund_successtime, refund_reason, resource,
+		refund_point, remark, refund_fail_reason, logic_del, sub_resource,
+		total_product_cost,
+		total_express_cost, coupon_amount, currency_deposit_amount, gateway_amount, point_money,
+		total_express_amount, offline
+	</sql>
+	<select id="selectByExample" resultMap="BaseResultMap"
+		parameterType="com.plateno.booking.internal.base.pojo.OrderExample">
+		select
+		<if test="distinct">
+			distinct
+		</if>
+		'true' as QUERYID,
+		<include refid="Base_Column_List" />
+		from m_order
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+		<if test="orderByClause != null">
+			order by ${orderByClause}
+		</if>
+	</select>
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select
+		<include refid="Base_Column_List" />
+		from m_order
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from m_order
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.OrderExample">
+		delete from m_order
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</delete>
+	<insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.Order">
+		insert into m_order (id, order_no, amount,
+		name, mobile, member_id,
+		sid, chanelid, item_id,
+		pay_type, pay_time, wait_pay_time,
+		create_time, up_time, point,
+		refund_amount, refund_time, pay_status,
+		pay_money, deliver_time, refund_successtime,
+		refund_reason, resource, refund_point,
+		remark, refund_fail_reason, logic_del,
+		sub_resource, total_product_cost, total_express_cost,
+		coupon_amount, currency_deposit_amount, gateway_amount,
+		point_money, total_express_amount, offline
+		)
+		values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR},
+		#{amount,jdbcType=INTEGER},
+		#{name,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{memberId,jdbcType=INTEGER},
+		#{sid,jdbcType=INTEGER}, #{chanelid,jdbcType=INTEGER},
+		#{itemId,jdbcType=INTEGER},
+		#{payType,jdbcType=INTEGER}, #{payTime,jdbcType=TIMESTAMP}, #{waitPayTime,jdbcType=TIMESTAMP},
+		#{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP},
+		#{point,jdbcType=INTEGER},
+		#{refundAmount,jdbcType=INTEGER}, #{refundTime,jdbcType=TIMESTAMP}, #{payStatus,jdbcType=INTEGER},
+		#{payMoney,jdbcType=INTEGER}, #{deliverTime,jdbcType=TIMESTAMP},
+		#{refundSuccesstime,jdbcType=TIMESTAMP},
+		#{refundReason,jdbcType=VARCHAR}, #{resource,jdbcType=INTEGER},
+		#{refundPoint,jdbcType=INTEGER},
+		#{remark,jdbcType=VARCHAR}, #{refundFailReason,jdbcType=VARCHAR}, #{logicDel,jdbcType=TINYINT},
+		#{subResource,jdbcType=INTEGER}, #{totalProductCost,jdbcType=INTEGER},
+		#{totalExpressCost,jdbcType=INTEGER},
+		#{couponAmount,jdbcType=INTEGER},
+		#{currencyDepositAmount,jdbcType=INTEGER},
+		#{gatewayAmount,jdbcType=INTEGER},
+		#{pointMoney,jdbcType=INTEGER}, #{totalExpressAmount,jdbcType=INTEGER}, #{offline,jdbcType=INTEGER}
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.Order">
+		insert into m_order
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="orderNo != null">
+				order_no,
+			</if>
+			<if test="amount != null">
+				amount,
+			</if>
+			<if test="name != null">
+				name,
+			</if>
+			<if test="mobile != null">
+				mobile,
+			</if>
+			<if test="memberId != null">
+				member_id,
+			</if>
+			<if test="sid != null">
+				sid,
+			</if>
+			<if test="chanelid != null">
+				chanelid,
+			</if>
+			<if test="itemId != null">
+				item_id,
+			</if>
+			<if test="payType != null">
+				pay_type,
+			</if>
+			<if test="payTime != null">
+				pay_time,
+			</if>
+			<if test="waitPayTime != null">
+				wait_pay_time,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="upTime != null">
+				up_time,
+			</if>
+			<if test="point != null">
+				point,
+			</if>
+			<if test="refundAmount != null">
+				refund_amount,
+			</if>
+			<if test="refundTime != null">
+				refund_time,
+			</if>
+			<if test="payStatus != null">
+				pay_status,
+			</if>
+			<if test="payMoney != null">
+				pay_money,
+			</if>
+			<if test="deliverTime != null">
+				deliver_time,
+			</if>
+			<if test="refundSuccesstime != null">
+				refund_successtime,
+			</if>
+			<if test="refundReason != null">
+				refund_reason,
+			</if>
+			<if test="resource != null">
+				resource,
+			</if>
+			<if test="refundPoint != null">
+				refund_point,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+			<if test="refundFailReason != null">
+				refund_fail_reason,
+			</if>
+			<if test="logicDel != null">
+				logic_del,
+			</if>
+			<if test="subResource != null">
+				sub_resource,
+			</if>
+			<if test="totalProductCost != null">
+				total_product_cost,
+			</if>
+			<if test="totalExpressCost != null">
+				total_express_cost,
+			</if>
+			<if test="couponAmount != null">
+				coupon_amount,
+			</if>
+			<if test="currencyDepositAmount != null">
+				currency_deposit_amount,
+			</if>
+			<if test="gatewayAmount != null">
+				gateway_amount,
+			</if>
+			<if test="pointMoney != null">
+				point_money,
+			</if>
+			<if test="totalExpressAmount != null">
+				total_express_amount,
+			</if>
+			<if test="offline != null">
+				offline,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=INTEGER},
+			</if>
+			<if test="orderNo != null">
+				#{orderNo,jdbcType=VARCHAR},
+			</if>
+			<if test="amount != null">
+				#{amount,jdbcType=INTEGER},
+			</if>
+			<if test="name != null">
+				#{name,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				#{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="memberId != null">
+				#{memberId,jdbcType=INTEGER},
+			</if>
+			<if test="sid != null">
+				#{sid,jdbcType=INTEGER},
+			</if>
+			<if test="chanelid != null">
+				#{chanelid,jdbcType=INTEGER},
+			</if>
+			<if test="itemId != null">
+				#{itemId,jdbcType=INTEGER},
+			</if>
+			<if test="payType != null">
+				#{payType,jdbcType=INTEGER},
+			</if>
+			<if test="payTime != null">
+				#{payTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="waitPayTime != null">
+				#{waitPayTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="upTime != null">
+				#{upTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="point != null">
+				#{point,jdbcType=INTEGER},
+			</if>
+			<if test="refundAmount != null">
+				#{refundAmount,jdbcType=INTEGER},
+			</if>
+			<if test="refundTime != null">
+				#{refundTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="payStatus != null">
+				#{payStatus,jdbcType=INTEGER},
+			</if>
+			<if test="payMoney != null">
+				#{payMoney,jdbcType=INTEGER},
+			</if>
+			<if test="deliverTime != null">
+				#{deliverTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="refundSuccesstime != null">
+				#{refundSuccesstime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="refundReason != null">
+				#{refundReason,jdbcType=VARCHAR},
+			</if>
+			<if test="resource != null">
+				#{resource,jdbcType=INTEGER},
+			</if>
+			<if test="refundPoint != null">
+				#{refundPoint,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="refundFailReason != null">
+				#{refundFailReason,jdbcType=VARCHAR},
+			</if>
+			<if test="logicDel != null">
+				#{logicDel,jdbcType=TINYINT},
+			</if>
+			<if test="subResource != null">
+				#{subResource,jdbcType=INTEGER},
+			</if>
+			<if test="totalProductCost != null">
+				#{totalProductCost,jdbcType=INTEGER},
+			</if>
+			<if test="totalExpressCost != null">
+				#{totalExpressCost,jdbcType=INTEGER},
+			</if>
+			<if test="couponAmount != null">
+				#{couponAmount,jdbcType=INTEGER},
+			</if>
+			<if test="currencyDepositAmount != null">
+				#{currencyDepositAmount,jdbcType=INTEGER},
+			</if>
+			<if test="gatewayAmount != null">
+				#{gatewayAmount,jdbcType=INTEGER},
+			</if>
+			<if test="pointMoney != null">
+				#{pointMoney,jdbcType=INTEGER},
+			</if>
+			<if test="totalExpressAmount != null">
+				#{totalExpressAmount,jdbcType=INTEGER},
+			</if>
+			<if test="offline != null">
+				#{offline,jdbcType=INTEGER},
+			</if>
+		</trim>
+	</insert>
+	<select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.OrderExample"
+		resultType="java.lang.Integer">
+		select count(*) from m_order
+		<if test="_parameter != null">
+			<include refid="Example_Where_Clause" />
+		</if>
+	</select>
+	<update id="updateByExampleSelective" parameterType="map">
+		update m_order
+		<set>
+			<if test="record.id != null">
+				id = #{record.id,jdbcType=INTEGER},
+			</if>
+			<if test="record.orderNo != null">
+				order_no = #{record.orderNo,jdbcType=VARCHAR},
+			</if>
+			<if test="record.amount != null">
+				amount = #{record.amount,jdbcType=INTEGER},
+			</if>
+			<if test="record.name != null">
+				name = #{record.name,jdbcType=VARCHAR},
+			</if>
+			<if test="record.mobile != null">
+				mobile = #{record.mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="record.memberId != null">
+				member_id = #{record.memberId,jdbcType=INTEGER},
+			</if>
+			<if test="record.sid != null">
+				sid = #{record.sid,jdbcType=INTEGER},
+			</if>
+			<if test="record.chanelid != null">
+				chanelid = #{record.chanelid,jdbcType=INTEGER},
+			</if>
+			<if test="record.itemId != null">
+				item_id = #{record.itemId,jdbcType=INTEGER},
+			</if>
+			<if test="record.payType != null">
+				pay_type = #{record.payType,jdbcType=INTEGER},
+			</if>
+			<if test="record.payTime != null">
+				pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.waitPayTime != null">
+				wait_pay_time = #{record.waitPayTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.createTime != null">
+				create_time = #{record.createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.upTime != null">
+				up_time = #{record.upTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.point != null">
+				point = #{record.point,jdbcType=INTEGER},
+			</if>
+			<if test="record.refundAmount != null">
+				refund_amount = #{record.refundAmount,jdbcType=INTEGER},
+			</if>
+			<if test="record.refundTime != null">
+				refund_time = #{record.refundTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.payStatus != null">
+				pay_status = #{record.payStatus,jdbcType=INTEGER},
+			</if>
+			<if test="record.payMoney != null">
+				pay_money = #{record.payMoney,jdbcType=INTEGER},
+			</if>
+			<if test="record.deliverTime != null">
+				deliver_time = #{record.deliverTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.refundSuccesstime != null">
+				refund_successtime = #{record.refundSuccesstime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="record.refundReason != null">
+				refund_reason = #{record.refundReason,jdbcType=VARCHAR},
+			</if>
+			<if test="record.resource != null">
+				resource = #{record.resource,jdbcType=INTEGER},
+			</if>
+			<if test="record.refundPoint != null">
+				refund_point = #{record.refundPoint,jdbcType=INTEGER},
+			</if>
+			<if test="record.remark != null">
+				remark = #{record.remark,jdbcType=VARCHAR},
+			</if>
+			<if test="record.refundFailReason != null">
+				refund_fail_reason = #{record.refundFailReason,jdbcType=VARCHAR},
+			</if>
+			<if test="record.logicDel != null">
+				logic_del = #{record.logicDel,jdbcType=TINYINT},
+			</if>
+			<if test="record.subResource != null">
+				sub_resource = #{record.subResource,jdbcType=INTEGER},
+			</if>
+			<if test="record.totalProductCost != null">
+				total_product_cost = #{record.totalProductCost,jdbcType=INTEGER},
+			</if>
+			<if test="record.totalExpressCost != null">
+				total_express_cost = #{record.totalExpressCost,jdbcType=INTEGER},
+			</if>
+			<if test="record.couponAmount != null">
+				coupon_amount = #{record.couponAmount,jdbcType=INTEGER},
+			</if>
+			<if test="record.currencyDepositAmount != null">
+				currency_deposit_amount =
+				#{record.currencyDepositAmount,jdbcType=INTEGER},
+			</if>
+			<if test="record.gatewayAmount != null">
+				gateway_amount = #{record.gatewayAmount,jdbcType=INTEGER},
+			</if>
+			<if test="record.pointMoney != null">
+				point_money = #{record.pointMoney,jdbcType=INTEGER},
+			</if>
+			<if test="record.totalExpressAmount != null">
+				total_express_amount = #{record.totalExpressAmount,jdbcType=INTEGER},
+			</if>
+			<if test="record.offline != null">
+				offline = #{record.offline,jdbcType=INTEGER},
+			</if>
+		</set>
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByExample" parameterType="map">
+		update m_order
+		set id = #{record.id,jdbcType=INTEGER},
+		order_no = #{record.orderNo,jdbcType=VARCHAR},
+		amount = #{record.amount,jdbcType=INTEGER},
+		name = #{record.name,jdbcType=VARCHAR},
+		mobile = #{record.mobile,jdbcType=VARCHAR},
+		member_id = #{record.memberId,jdbcType=INTEGER},
+		sid = #{record.sid,jdbcType=INTEGER},
+		chanelid = #{record.chanelid,jdbcType=INTEGER},
+		item_id = #{record.itemId,jdbcType=INTEGER},
+		pay_type = #{record.payType,jdbcType=INTEGER},
+		pay_time = #{record.payTime,jdbcType=TIMESTAMP},
+		wait_pay_time = #{record.waitPayTime,jdbcType=TIMESTAMP},
+		create_time = #{record.createTime,jdbcType=TIMESTAMP},
+		up_time = #{record.upTime,jdbcType=TIMESTAMP},
+		point = #{record.point,jdbcType=INTEGER},
+		refund_amount = #{record.refundAmount,jdbcType=INTEGER},
+		refund_time = #{record.refundTime,jdbcType=TIMESTAMP},
+		pay_status = #{record.payStatus,jdbcType=INTEGER},
+		pay_money = #{record.payMoney,jdbcType=INTEGER},
+		deliver_time = #{record.deliverTime,jdbcType=TIMESTAMP},
+		refund_successtime = #{record.refundSuccesstime,jdbcType=TIMESTAMP},
+		refund_reason = #{record.refundReason,jdbcType=VARCHAR},
+		resource = #{record.resource,jdbcType=INTEGER},
+		refund_point = #{record.refundPoint,jdbcType=INTEGER},
+		remark = #{record.remark,jdbcType=VARCHAR},
+		refund_fail_reason = #{record.refundFailReason,jdbcType=VARCHAR},
+		logic_del = #{record.logicDel,jdbcType=TINYINT},
+		sub_resource = #{record.subResource,jdbcType=INTEGER},
+		total_product_cost = #{record.totalProductCost,jdbcType=INTEGER},
+		total_express_cost = #{record.totalExpressCost,jdbcType=INTEGER},
+		coupon_amount = #{record.couponAmount,jdbcType=INTEGER},
+		currency_deposit_amount = #{record.currencyDepositAmount,jdbcType=INTEGER},
+		gateway_amount = #{record.gatewayAmount,jdbcType=INTEGER},
+		point_money = #{record.pointMoney,jdbcType=INTEGER},
+		total_express_amount = #{record.totalExpressAmount,jdbcType=INTEGER},
+		offline = #{record.offline,jdbcType=INTEGER}
+		<if test="_parameter != null">
+			<include refid="Update_By_Example_Where_Clause" />
+		</if>
+	</update>
+	<update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.Order">
+		update m_order
+		<set>
+			<if test="orderNo != null">
+				order_no = #{orderNo,jdbcType=VARCHAR},
+			</if>
+			<if test="amount != null">
+				amount = #{amount,jdbcType=INTEGER},
+			</if>
+			<if test="name != null">
+				name = #{name,jdbcType=VARCHAR},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile,jdbcType=VARCHAR},
+			</if>
+			<if test="memberId != null">
+				member_id = #{memberId,jdbcType=INTEGER},
+			</if>
+			<if test="sid != null">
+				sid = #{sid,jdbcType=INTEGER},
+			</if>
+			<if test="chanelid != null">
+				chanelid = #{chanelid,jdbcType=INTEGER},
+			</if>
+			<if test="itemId != null">
+				item_id = #{itemId,jdbcType=INTEGER},
+			</if>
+			<if test="payType != null">
+				pay_type = #{payType,jdbcType=INTEGER},
+			</if>
+			<if test="payTime != null">
+				pay_time = #{payTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="waitPayTime != null">
+				wait_pay_time = #{waitPayTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="createTime != null">
+				create_time = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="upTime != null">
+				up_time = #{upTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="point != null">
+				point = #{point,jdbcType=INTEGER},
+			</if>
+			<if test="refundAmount != null">
+				refund_amount = #{refundAmount,jdbcType=INTEGER},
+			</if>
+			<if test="refundTime != null">
+				refund_time = #{refundTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="payStatus != null">
+				pay_status = #{payStatus,jdbcType=INTEGER},
+			</if>
+			<if test="payMoney != null">
+				pay_money = #{payMoney,jdbcType=INTEGER},
+			</if>
+			<if test="deliverTime != null">
+				deliver_time = #{deliverTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="refundSuccesstime != null">
+				refund_successtime = #{refundSuccesstime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="refundReason != null">
+				refund_reason = #{refundReason,jdbcType=VARCHAR},
+			</if>
+			<if test="resource != null">
+				resource = #{resource,jdbcType=INTEGER},
+			</if>
+			<if test="refundPoint != null">
+				refund_point = #{refundPoint,jdbcType=INTEGER},
+			</if>
+			<if test="remark != null">
+				remark = #{remark,jdbcType=VARCHAR},
+			</if>
+			<if test="refundFailReason != null">
+				refund_fail_reason = #{refundFailReason,jdbcType=VARCHAR},
+			</if>
+			<if test="logicDel != null">
+				logic_del = #{logicDel,jdbcType=TINYINT},
+			</if>
+			<if test="subResource != null">
+				sub_resource = #{subResource,jdbcType=INTEGER},
+			</if>
+			<if test="totalProductCost != null">
+				total_product_cost = #{totalProductCost,jdbcType=INTEGER},
+			</if>
+			<if test="totalExpressCost != null">
+				total_express_cost = #{totalExpressCost,jdbcType=INTEGER},
+			</if>
+			<if test="couponAmount != null">
+				coupon_amount = #{couponAmount,jdbcType=INTEGER},
+			</if>
+			<if test="currencyDepositAmount != null">
+				currency_deposit_amount = #{currencyDepositAmount,jdbcType=INTEGER},
+			</if>
+			<if test="gatewayAmount != null">
+				gateway_amount = #{gatewayAmount,jdbcType=INTEGER},
+			</if>
+			<if test="pointMoney != null">
+				point_money = #{pointMoney,jdbcType=INTEGER},
+			</if>
+			<if test="totalExpressAmount != null">
+				total_express_amount = #{totalExpressAmount,jdbcType=INTEGER},
+			</if>
+			<if test="offline != null">
+				offline = #{offline,jdbcType=INTEGER},
+			</if>
+		</set>
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.Order">
+		update m_order
+		set order_no = #{orderNo,jdbcType=VARCHAR},
+		amount = #{amount,jdbcType=INTEGER},
+		name = #{name,jdbcType=VARCHAR},
+		mobile = #{mobile,jdbcType=VARCHAR},
+		member_id = #{memberId,jdbcType=INTEGER},
+		sid = #{sid,jdbcType=INTEGER},
+		chanelid = #{chanelid,jdbcType=INTEGER},
+		item_id = #{itemId,jdbcType=INTEGER},
+		pay_type = #{payType,jdbcType=INTEGER},
+		pay_time = #{payTime,jdbcType=TIMESTAMP},
+		wait_pay_time = #{waitPayTime,jdbcType=TIMESTAMP},
+		create_time = #{createTime,jdbcType=TIMESTAMP},
+		up_time = #{upTime,jdbcType=TIMESTAMP},
+		point = #{point,jdbcType=INTEGER},
+		refund_amount = #{refundAmount,jdbcType=INTEGER},
+		refund_time = #{refundTime,jdbcType=TIMESTAMP},
+		pay_status = #{payStatus,jdbcType=INTEGER},
+		pay_money = #{payMoney,jdbcType=INTEGER},
+		deliver_time = #{deliverTime,jdbcType=TIMESTAMP},
+		refund_successtime = #{refundSuccesstime,jdbcType=TIMESTAMP},
+		refund_reason = #{refundReason,jdbcType=VARCHAR},
+		resource = #{resource,jdbcType=INTEGER},
+		refund_point = #{refundPoint,jdbcType=INTEGER},
+		remark = #{remark,jdbcType=VARCHAR},
+		refund_fail_reason = #{refundFailReason,jdbcType=VARCHAR},
+		logic_del = #{logicDel,jdbcType=TINYINT},
+		sub_resource = #{subResource,jdbcType=INTEGER},
+		total_product_cost = #{totalProductCost,jdbcType=INTEGER},
+		total_express_cost = #{totalExpressCost,jdbcType=INTEGER},
+		coupon_amount = #{couponAmount,jdbcType=INTEGER},
+		currency_deposit_amount = #{currencyDepositAmount,jdbcType=INTEGER},
+		gateway_amount = #{gatewayAmount,jdbcType=INTEGER},
+		point_money = #{pointMoney,jdbcType=INTEGER},
+		total_express_amount = #{totalExpressAmount,jdbcType=INTEGER},
+		offline = #{offline,jdbcType=INTEGER}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+
+	<select id="getOrderByNo" resultMap="BaseResultMap">
+		select *
+		from m_order
+		where order_no= #{orderNo,jdbcType=VARCHAR}
+	</select>
+
+	<select id="getPre30Min" resultMap="BaseResultMap">
+		select *
+		from m_order
+		where pay_status= #{status,jdbcType=INTEGER} and create_time &lt;
+		date_sub(now(), interval 30 MINUTE)
+	</select>
+
+	<select id="getOrderByStatusAndDeliverTime" resultMap="BaseResultMap">
+		select *
+		from m_order
+		where pay_status= #{status,jdbcType=INTEGER} and deliver_time &lt;
+		date_sub(
+		now(),
+		INTERVAL #{day,jdbcType=INTEGER} day)
+	</select>
+
+
+	<select id="getPageOrders" resultMap="BaseResultMap">
+		select *
+		from m_order
+		where 1=1
+		<if test="record.plateForm != null &amp;&amp; record.plateForm == 3">
+			AND member_id = #{record.memberId,jdbcType=VARCHAR}
+		</if>
+		<if test="record.orderNo != null &amp;&amp; record.orderNo != '' ">
+			AND order_no = #{record.orderNo,jdbcType=VARCHAR}
+		</if>
+		<if test="record.mobile != null &amp;&amp; record.mobile != ''">
+			AND mobile = #{record.mobile,jdbcType=VARCHAR}
+		</if>
+		<if test="record.subResource != null and record.subResource > 0">
+			AND sub_resource = #{record.subResource}
+		</if>
+		<if
+			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
         	<![CDATA[ 
         		AND create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
         		]]>
-      </if>
-      
-      <if test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0" >
+		</if>
+
+		<if
+			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 
         		AND create_time <= FROM_UNIXTIME(#{record.bookingEndDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 23:59:59')
         		]]>
-      </if>
-      
-       <if test="record.payStatus != null &amp;&amp; record.payStatus != ''" >
-      AND pay_status = #{record.payStatus,jdbcType=VARCHAR}
-      </if>
-      
-       <if test="record.resource != null" >
-   	  AND resource = #{record.resource,jdbcType=INTEGER}
-     </if>
-     
-     <if test="record.channelId != null" >
-   	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
-     </if>
-     <if test="record.statusList != null and record.statusList.size() > 0">
+		</if>
+
+		<if test="record.payStatus != null &amp;&amp; record.payStatus != ''">
+			AND pay_status = #{record.payStatus,jdbcType=VARCHAR}
+		</if>
+
+		<if test="record.resource != null">
+			AND resource = #{record.resource,jdbcType=INTEGER}
+		</if>
+
+		<if test="record.channelId != null">
+			AND chanelid = #{record.channelId,jdbcType=INTEGER}
+		</if>
+		<if test="record.statusList != null and record.statusList.size() > 0">
 		<![CDATA[ and pay_status in  ]]>
-		<foreach item="item" index="index" collection="record.statusList"
-			open="(" separator="," close=")">
-			#{item}
-		</foreach>
-	</if>
-	
-	<if test="record.name != null and record.name != ''" >
-   	  AND name LIKE CONCAT('%',#{record.name},'%')
-     </if>
-     <if test="record.queryDel == null or record.queryDel == false" >
+			<foreach item="item" index="index" collection="record.statusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+
+		<if test="record.name != null and record.name != ''">
+			AND name LIKE CONCAT('%',#{record.name},'%')
+		</if>
+		<if test="record.queryDel == null or record.queryDel == false">
      	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
-     </if>
-     
-     <if test="record.memberId != null and record.memberId != ''" >
-     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
-     </if>
-     
-	  ORDER BY create_time desc
-	<if test="record.showLimit" >
-        LIMIT #{record.pageNo,jdbcType=INTEGER} ,#{record.pageNumber,jdbcType=INTEGER}
-    </if>
-				
-				
-  </select>
-  
-  <select id="getCountOrder" resultType="java.lang.Integer" >
-    select count(*)
-    from m_order 
-     where 1=1
-      <if test="record.plateForm != null &amp;&amp; record.plateForm == 3" >
-        AND member_id = #{record.memberId,jdbcType=VARCHAR}
-      </if>
-	  <if test="record.orderNo != null &amp;&amp; record.orderNo != '' " >
-        AND order_no = #{record.orderNo,jdbcType=VARCHAR}
-      </if>
-      <if test="record.mobile != null &amp;&amp; record.mobile != ''" >
-        AND mobile = #{record.mobile,jdbcType=VARCHAR}
-      </if>
-      
-      <if test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0" >
+		</if>
+
+		<if test="record.receiver != null and record.receiver != ''">
+			AND order_no in (select order_no from m_logistics where
+			consignee_name like
+			CONCAT('%',#{record.receiver},'%'))
+		</if>
+		<if test="record.receiverMobile != null and record.receiverMobile != ''">
+			AND order_no in (select order_no from m_logistics where
+			consignee_mobile =
+			#{record.receiverMobile})
+		</if>
+		<if test="record.productName != null and record.productName != ''">
+			AND order_no in (select order_no from m_order_product
+			where
+			product_name
+			like CONCAT('%',#{record.productName},'%'))
+		</if>
+		ORDER BY create_time desc
+		<if test="record.showLimit">
+			LIMIT #{record.pageNo,jdbcType=INTEGER}
+			,#{record.pageNumber,jdbcType=INTEGER}
+		</if>
+
+
+	</select>
+
+	<select id="getCountOrder" resultType="java.lang.Integer">
+		select count(*)
+		from m_order
+		where 1=1
+		<if test="record.plateForm != null &amp;&amp; record.plateForm == 3">
+			AND member_id = #{record.memberId,jdbcType=VARCHAR}
+		</if>
+		<if test="record.orderNo != null &amp;&amp; record.orderNo != '' ">
+			AND order_no = #{record.orderNo,jdbcType=VARCHAR}
+		</if>
+		<if test="record.mobile != null &amp;&amp; record.mobile != ''">
+			AND mobile = #{record.mobile,jdbcType=VARCHAR}
+		</if>
+		<if test="record.subResource != null and record.subResource > 0">
+			AND sub_resource = #{record.subResource}
+		</if>
+
+		<if
+			test="record.bookingStartDate != null &amp;&amp; record.bookingStartDate > 0">
         	<![CDATA[ 
         		AND create_time >= FROM_UNIXTIME(#{record.bookingStartDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 00:00:00')
         		]]>
-      </if>
-      
-      <if test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0" >
+		</if>
+
+		<if
+			test="record.bookingEndDate != null &amp;&amp; record.bookingEndDate > 0">
         	<![CDATA[ 
         		AND create_time <= FROM_UNIXTIME(#{record.bookingEndDate,jdbcType=TIMESTAMP}/1000, '%Y-%m-%d 23:59:59')
         		]]>
-      </if>
-      
-        <if test="record.resource != null" >
-   	  AND resource = #{record.resource,jdbcType=INTEGER}
-     </if>
-      
-       <if test="record.payStatus != null &amp;&amp; record.payStatus != ''" >
-      AND pay_status = #{record.payStatus,jdbcType=VARCHAR}
-      </if>
-      
-      <if test="record.channelId != null" >
-   	  AND chanelid = #{record.channelId,jdbcType=INTEGER}
-     </if>
-     
-     <if test="record.statusList != null and record.statusList.size() > 0">
+		</if>
+
+		<if test="record.payStatus != null &amp;&amp; record.payStatus != ''">
+			AND pay_status = #{record.payStatus,jdbcType=VARCHAR}
+		</if>
+
+		<if test="record.resource != null">
+			AND resource = #{record.resource,jdbcType=INTEGER}
+		</if>
+
+		<if test="record.channelId != null">
+			AND chanelid = #{record.channelId,jdbcType=INTEGER}
+		</if>
+		<if test="record.statusList != null and record.statusList.size() > 0">
 		<![CDATA[ and pay_status in  ]]>
-		<foreach item="item" index="index" collection="record.statusList"
-			open="(" separator="," close=")">
-			#{item}
-		</foreach>
-	</if>
-	
-	<if test="record.name != null and record.name != ''" >
-   	  AND name LIKE CONCAT('%',#{record.name},'%')
-     </if>
-     
-     <if test="record.queryDel == null or record.queryDel == false" >
+			<foreach item="item" index="index" collection="record.statusList"
+				open="(" separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+
+		<if test="record.name != null and record.name != ''">
+			AND name LIKE CONCAT('%',#{record.name},'%')
+		</if>
+		<if test="record.queryDel == null or record.queryDel == false">
      	<![CDATA[  AND (pay_status != 9 AND logic_del != 2)]]>
-     </if>
-     
-     <if test="record.memberId != null and record.memberId != ''" >
-     	<![CDATA[  AND member_id = #{record.memberId, jdbcType=INTEGER}]]>
-     </if>
-				
-  </select>
-  
-   <select id="getOrderNoByTradeNo" resultType="com.plateno.booking.internal.base.model.bill.BillOrderDetail">
-			
-		select  
+		</if>
+
+		<if test="record.receiver != null and record.receiver != ''">
+			AND order_no in (select order_no from m_logistics where
+			consignee_name like
+			CONCAT('%',#{record.receiver},'%'))
+		</if>
+		<if test="record.receiverMobile != null and record.receiverMobile != ''">
+			AND order_no in (select order_no from m_logistics where
+			consignee_mobile =
+			#{record.receiverMobile})
+		</if>
+		<if test="record.productName != null and record.productName != ''">
+			AND order_no in (select order_no from m_order_product
+			where
+			product_name
+			like CONCAT('%',#{record.productName},'%'))
+		</if>
+		ORDER BY create_time desc
+	</select>
+
+	<select id="getOrderNoByTradeNo"
+		resultType="com.plateno.booking.internal.base.model.bill.BillOrderDetail">
+
+		select
 		orders.order_no as orderNo,
-		orders.pay_status as status,
+		orders.pay_status as
+		status,
 		orders.id as orderId,
-		paylog.trand_no as tradeNo,      
+		paylog.trand_no as tradeNo,
 		orders.member_id as memberId,
 		orders.pay_type as payId,
 		orders.pay_money as amount
-		
-		FROM 
-		
+
+		FROM
+
 		order_pay_log as paylog
-		
-		LEFT JOIN m_order as orders on orders.id=paylog.order_id
-		where paylog.trand_no=#{tradeNo,jdbcType=VARCHAR}
-  </select>
-  
-  
-   <select id="getPruSellAmountByPreDay" resultType="com.plateno.booking.internal.base.model.bill.ProdSellAmountData">
+
+		LEFT JOIN m_order
+		as orders on orders.id=paylog.order_id
+		where
+		paylog.trand_no=#{tradeNo,jdbcType=VARCHAR}
+	</select>
+
+
+	<select id="getPruSellAmountByPreDay"
+		resultType="com.plateno.booking.internal.base.model.bill.ProdSellAmountData">
 	   <![CDATA[ 
 			SELECT
 				d.product_id  as productId,
@@ -867,9 +956,9 @@
 			GROUP BY 
 				d.product_id
 		 ]]>
-  </select>
-  
-  <select id="getPayingAndPayLogPre5Min" resultMap="BaseResultMap" >
+	</select>
+
+	<select id="getPayingAndPayLogPre5Min" resultMap="BaseResultMap">
 	  <![CDATA[ 
 	    select o.*
 	    from 
@@ -881,105 +970,146 @@
 	     where o.pay_status= #{status,jdbcType=INTEGER} and l.create_time < date_sub(now(), interval 5 MINUTE)
 	     group by o.id
 	  ]]>
-  </select>
-  
-  <select id="getOrderByNoAndMemberId" resultMap="BaseResultMap" >
+	</select>
+
+	<select id="getOrderByNoAndMemberId" resultMap="BaseResultMap">
   	<![CDATA[ 
     	select *
     	from m_order
      	where order_no= #{orderNo,jdbcType=VARCHAR} and member_id = #{memberId,jdbcType=INTEGER}
   	]]>
-  </select>
-  
-  
-  <select id="getOrderByNoAndMemberIdAndChannelId" resultMap="BaseResultMap" >
+	</select>
+
+
+	<select id="getOrderByNoAndMemberIdAndChannelId" resultMap="BaseResultMap">
 	  	<![CDATA[ 
 	    	select *
 	    	from m_order
 	  	]]>
-  	
-  		<where>
-  			order_no= #{orderNo,jdbcType=VARCHAR}
-			<if test="memberId != null" >
+
+		<where>
+			order_no= #{orderNo,jdbcType=VARCHAR}
+			<if test="memberId != null">
 				<![CDATA[ and member_id = #{memberId,jdbcType=INTEGER}]]>
 			</if>
-			<if test="channelId != null" >
+			<if test="channelId != null">
 				<![CDATA[ and chanelid = #{channelId,jdbcType=INTEGER}]]>
 			</if>
 		</where>
-  </select>
-  
-  <select id="getByOrderNoForUpdate" resultMap="BaseResultMap" >
+	</select>
+
+	<select id="getByOrderNoForUpdate" resultMap="BaseResultMap">
   	<![CDATA[ 
     	select *
     	from m_order
      	where order_no= #{orderNo,jdbcType=VARCHAR} for update
   	]]>
-  </select>
-  
-  
-  <select id="list" resultMap="BaseResultMap" parameterType="mOrderSearchVO">
+	</select>
+
+
+	<select id="list" resultMap="BaseResultMap" parameterType="mOrderSearchVO">
   	<![CDATA[ 
 		select 
 			*
 		from 
 			m_order
 	]]>
-	
-	<where>
-		<if test="memberId != null and memberId > 0" >
+
+		<where>
+			<if test="memberId != null and memberId > 0">
 			<![CDATA[ AND member_id = #{memberId} ]]>
-		</if>
-		<if test="channelId != null and channelId > 0" >
+			</if>
+			<if test="channelId != null and channelId > 0">
 			<![CDATA[ AND chanelid = #{channelId} ]]>
-		</if>
-		<if test="bookingStartDate != null and bookingStartDate > 0" >
+			</if>
+			<if test="bookingStartDate != null and bookingStartDate > 0">
 			<![CDATA[ AND create_time >= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
-		</if>
-		<if test="bookingEndDate != null and bookingEndDate > 0" >
+			</if>
+			<if test="bookingEndDate != null and bookingEndDate > 0">
 			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
-		</if>
-		<if test="queryDel != null and !queryDel" >
+			</if>
+			<if test="queryDel != null and !queryDel">
 			<![CDATA[ AND (pay_status != 9 AND logic_del != 2)]]>
-		</if>
-	</where>
+			</if>
+		</where>
 	<![CDATA[ ORDER BY id DESC  LIMIT #{start} , #{size}  ]]>
-		
-  </select>
-  
-  <select id="count" resultType="integer" parameterType="mOrderSearchVO">
+
+	</select>
+
+	<select id="count" resultType="integer" parameterType="mOrderSearchVO">
   	<![CDATA[ 
 		select 
 			count(*)
 		from 
 			m_order
 	]]>
-	
-	<where>
-		<if test="memberId != null and memberId > 0" >
-			<![CDATA[ AND member_id = #{memberId} ]]>
-		</if>
-		<if test="channelId != null and channelId > 0" >
-			<![CDATA[ AND chanelid = #{channelId} ]]>
-		</if>
-		<if test="bookingStartDate != null and bookingStartDate > 0" >
-			<![CDATA[ AND create_time >= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
-		</if>
-		<if test="bookingEndDate != null and bookingEndDate > 0" >
-			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
-		</if>
-		<if test="queryDel != null and !queryDel" >
-			<![CDATA[ AND (pay_status != 9 AND logic_del != 2) ]]>
-		</if>
-	</where>
-  </select>
 
-  <select id="getByOrderIdForUpdate" resultMap="BaseResultMap" >
+		<where>
+			<if test="memberId != null and memberId > 0">
+			<![CDATA[ AND member_id = #{memberId} ]]>
+			</if>
+			<if test="channelId != null and channelId > 0">
+			<![CDATA[ AND chanelid = #{channelId} ]]>
+			</if>
+			<if test="bookingStartDate != null and bookingStartDate > 0">
+			<![CDATA[ AND create_time >= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+			</if>
+			<if test="bookingEndDate != null and bookingEndDate > 0">
+			<![CDATA[ AND create_time <= FROM_UNIXTIME(#{bookingStartDate}/1000, '%Y-%m-%d %H:%i:%S') ]]>
+			</if>
+			<if test="queryDel != null and !queryDel">
+			<![CDATA[ AND (pay_status != 9 AND logic_del != 2) ]]>
+			</if>
+		</where>
+	</select>
+
+	<select id="getByOrderIdForUpdate" resultMap="BaseResultMap">
   	<![CDATA[ 
     	select *
     	from m_order
      	where id= #{orderId,jdbcType=INTEGER} for update
   	]]>
-  </select>
+	</select>
+
+
+	<select id="queryProviderOrder" resultMap="BaseResultMap">
+		SELECT
+		DISTINCT(product.`order_sub_no`) AS orderSubNo,
+		mo.`pay_type` AS
+		payType,
+		mo.`pay_status` AS subPayStatus,
+		mo.`resource` AS resource,
+		mo.`create_time`,
+		logistics.`consignee_name`,
+		logistics.`consignee_mobile`,
+		mo.`name`,
+		mo.`mobile`,
+		mo.`resource`
+		FROM
+		m_order_product product,
+		m_order mo ,m_logistics logistics
+		WHERE
+		product.`order_no` = mo.`order_no` AND product.`order_no` =
+		logistics.`order_no`
+		ORDER BY create_time desc
+		<if test="record.showLimit">
+			LIMIT #{record.pageNo,jdbcType=INTEGER}
+			,#{record.pageNumber,jdbcType=INTEGER}
+		</if>
+	</select>
+
+	<select id="queryOrderByOrderSubNo" resultMap="BaseResultMap">
+		SELECT * from
+		m_order where order_no in (select order_no from
+		m_order_product where
+		order_sub_no = #{orderSubNo}
+		<if test="memberId != null">
+				<![CDATA[ and member_id = #{memberId,jdbcType=INTEGER}]]>
+		</if>
+		<if test="channelId != null">
+				<![CDATA[ and channel_id = #{channelId,jdbcType=INTEGER}]]>
+		</if>
+		)
+	</select>
 
 </mapper>

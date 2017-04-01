@@ -2,6 +2,7 @@ package com.plateno.booking.internal.bean.request.custom;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
@@ -13,14 +14,12 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 
 	private static final long serialVersionUID = -5028619260613976314L;
 	
-	@NotNull(message = "商品ID,不能为空")
-	private Long goodsId;
+	
+	private List<MOrderGoodsParam> goodsList;
 	
 	@NotNull(message = "订单总价,不能为空")
 	private Integer totalAmount;
 	
-	@NotNull(message = "选购数量,不能为空")
-	private Integer quantity;
 
 	private String consigneeName;
 	
@@ -53,8 +52,6 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	
 	private Integer point;//积分
 	
-	private String skuProperties;//商品属性,按:分开;
-	
 	/**
 	 * 订单子来源
 	 */
@@ -75,10 +72,18 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 	 */
 	private BigDecimal couponAmount;
 	
+	
+	/**
+	 * 优惠券配置id
+	 */
+	private Integer configId;
+	
 	/**
 	 * 有效的优惠券金额（当商品需要支付的金额小于优惠券金额时，就是商品需要支付的金额）
 	 */
 	private BigDecimal validCouponAmount;
+	
+	
 	
 	/**
      * 省
@@ -94,11 +99,77 @@ public class MAddBookingParam extends BaseParam implements Serializable {
      * 县
      */
     private String area;
-
+    
+    /**
+     * 销售人员id
+     */
+    private int sid;
+    
     /**
      * 是否为线下交易，1是0否
      */
     private Integer offline;
+    
+    
+	@Override
+    public String toString() {
+        return "MAddBookingParam [goodsList=" + goodsList + ", totalAmount=" + totalAmount
+                + ", consigneeName=" + consigneeName + ", consigneeMobile=" + consigneeMobile
+                + ", consigneeAddress=" + consigneeAddress + ", shippingType=" + shippingType
+                + ", platformId=" + platformId + ", name=" + name + ", mobile=" + mobile
+                + ", resource=" + resource + ", chanelId=" + chanelId + ", sellStrategy="
+                + sellStrategy + ", point=" + point + ", subResource=" + subResource
+                + ", couponId=" + couponId + ", couponName=" + couponName + ", couponAmount="
+                + couponAmount + ", validCouponAmount=" + validCouponAmount + ", province="
+                + province + ", city=" + city + ", area=" + area + "]";
+    }
+
+
+
+
+
+    public Integer getConfigId() {
+        return configId;
+    }
+
+
+
+
+
+
+    public void setConfigId(Integer configId) {
+        this.configId = configId;
+    }
+
+
+
+
+
+    public int getSid() {
+        return sid;
+    }
+
+
+
+
+
+    public void setSid(int sid) {
+        this.sid = sid;
+    }
+
+
+
+
+
+    public List<MOrderGoodsParam> getGoodsList() {
+        return goodsList;
+    }
+
+    public void setGoodsList(List<MOrderGoodsParam> goodsList) {
+        this.goodsList = goodsList;
+    }
+        
+
     
     
     
@@ -108,6 +179,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 
     public void setOffline(Integer offline) {
         this.offline = offline;
+
     }
 
     public String getProvince() {
@@ -191,13 +263,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.resource = resource;
 	}
 
-	public Long getGoodsId() {
-		return goodsId;
-	}
 
-	public void setGoodsId(Long goodsId) {
-		this.goodsId = goodsId;
-	}
 
 	public Integer getTotalAmount() {
 		return totalAmount;
@@ -207,13 +273,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.totalAmount = totalAmount;
 	}
 
-	public Integer getQuantity() {
-		return quantity;
-	}
 
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
 
 	public String getConsigneeName() {
 		return consigneeName;
@@ -271,13 +331,7 @@ public class MAddBookingParam extends BaseParam implements Serializable {
 		this.mobile = mobile;
 	}
 
-	public String getSkuProperties() {
-		return skuProperties;
-	}
 
-	public void setSkuProperties(String skuProperties) {
-		this.skuProperties = skuProperties;
-	}
 
 	public Integer getChanelId() {
 		return chanelId;

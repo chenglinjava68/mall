@@ -1,9 +1,8 @@
 package com.plateno.booking.internal.base.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class GsOrderLog implements Serializable {
+public class GsOrderLog {
     private Long id;
 
     private String tradeNo;
@@ -22,15 +21,15 @@ public class GsOrderLog implements Serializable {
 
     private Integer channel;
 
-    private Integer createOprt;
+    private Long createOprt;
 
     private Date updateTime;
 
-    private Integer updateOprt;
+    private Long updateOprt;
+
+    private String orderSubNo;
 
     private String description;
-
-    private static final long serialVersionUID = 1L;
 
     public Long getId() {
         return id;
@@ -45,7 +44,7 @@ public class GsOrderLog implements Serializable {
     }
 
     public void setTradeNo(String tradeNo) {
-        this.tradeNo = tradeNo == null ? null : tradeNo.trim();
+        this.tradeNo = tradeNo;
     }
 
     public Integer getStatus() {
@@ -77,7 +76,7 @@ public class GsOrderLog implements Serializable {
     }
 
     public void setStatusDesc(String statusDesc) {
-        this.statusDesc = statusDesc == null ? null : statusDesc.trim();
+        this.statusDesc = statusDesc;
     }
 
     public String getRemark() {
@@ -85,7 +84,7 @@ public class GsOrderLog implements Serializable {
     }
 
     public void setRemark(String remark) {
-        this.remark = remark == null ? null : remark.trim();
+        this.remark = remark;
     }
 
     public Date getCreateTime() {
@@ -104,11 +103,11 @@ public class GsOrderLog implements Serializable {
         this.channel = channel;
     }
 
-    public Integer getCreateOprt() {
+    public Long getCreateOprt() {
         return createOprt;
     }
 
-    public void setCreateOprt(Integer createOprt) {
+    public void setCreateOprt(Long createOprt) {
         this.createOprt = createOprt;
     }
 
@@ -120,12 +119,20 @@ public class GsOrderLog implements Serializable {
         this.updateTime = updateTime;
     }
 
-    public Integer getUpdateOprt() {
+    public Long getUpdateOprt() {
         return updateOprt;
     }
 
-    public void setUpdateOprt(Integer updateOprt) {
+    public void setUpdateOprt(Long updateOprt) {
         this.updateOprt = updateOprt;
+    }
+
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
     }
 
     public String getDescription() {
@@ -133,6 +140,6 @@ public class GsOrderLog implements Serializable {
     }
 
     public void setDescription(String description) {
-        this.description = description == null ? null : description.trim();
+        this.description = description;
     }
 }

@@ -2145,6 +2145,125 @@ public class OrderExample {
             return (Criteria) this;
         }
 
+        public Criteria andPointMoneyIsNull() {
+            addCriterion("point_money is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyIsNotNull() {
+            addCriterion("point_money is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyEqualTo(Integer value) {
+            addCriterion("point_money =", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyNotEqualTo(Integer value) {
+            addCriterion("point_money <>", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyGreaterThan(Integer value) {
+            addCriterion("point_money >", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyGreaterThanOrEqualTo(Integer value) {
+            addCriterion("point_money >=", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyLessThan(Integer value) {
+            addCriterion("point_money <", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyLessThanOrEqualTo(Integer value) {
+            addCriterion("point_money <=", value, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyIn(List<Integer> values) {
+            addCriterion("point_money in", values, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyNotIn(List<Integer> values) {
+            addCriterion("point_money not in", values, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyBetween(Integer value1, Integer value2) {
+            addCriterion("point_money between", value1, value2, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andPointMoneyNotBetween(Integer value1, Integer value2) {
+            addCriterion("point_money not between", value1, value2, "pointMoney");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountIsNull() {
+            addCriterion("total_express_amount is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountIsNotNull() {
+            addCriterion("total_express_amount is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountEqualTo(Integer value) {
+            addCriterion("total_express_amount =", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotEqualTo(Integer value) {
+            addCriterion("total_express_amount <>", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountGreaterThan(Integer value) {
+            addCriterion("total_express_amount >", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("total_express_amount >=", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountLessThan(Integer value) {
+            addCriterion("total_express_amount <", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountLessThanOrEqualTo(Integer value) {
+            addCriterion("total_express_amount <=", value, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountIn(List<Integer> values) {
+            addCriterion("total_express_amount in", values, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotIn(List<Integer> values) {
+            addCriterion("total_express_amount not in", values, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_amount between", value1, value2, "totalExpressAmount");
+            return (Criteria) this;
+        }
+
+        public Criteria andTotalExpressAmountNotBetween(Integer value1, Integer value2) {
+            addCriterion("total_express_amount not between", value1, value2, "totalExpressAmount");
+            return (Criteria) this;
+        }
         public Criteria andOfflineIsNull() {
             addCriterion("offline is null");
             return (Criteria) this;

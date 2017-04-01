@@ -1,9 +1,8 @@
 package com.plateno.booking.internal.base.pojo;
 
-import java.io.Serializable;
 import java.util.Date;
 
-public class Operatelog implements Serializable {
+public class Operatelog {
     private Integer id;
 
     private Integer operateType;
@@ -20,7 +19,7 @@ public class Operatelog implements Serializable {
 
     private Date operateTime;
 
-    private static final long serialVersionUID = 1L;
+    private String orderSubNo;
 
     public Integer getId() {
         return id;
@@ -84,5 +83,13 @@ public class Operatelog implements Serializable {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo == null ? null : orderSubNo.trim();
     }
 }

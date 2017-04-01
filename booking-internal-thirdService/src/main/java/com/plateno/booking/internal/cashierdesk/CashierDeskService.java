@@ -9,13 +9,15 @@ import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.bean.config.Config;
 import com.plateno.booking.internal.bean.contants.BookingConstants;
+import com.plateno.booking.internal.cashierdesk.vo.CancelOrderReq;
 import com.plateno.booking.internal.cashierdesk.vo.CashierBaseParam;
+import com.plateno.booking.internal.cashierdesk.vo.CashierCancelOrderResponse;
+import com.plateno.booking.internal.cashierdesk.vo.CashierPayQueryResponse;
+import com.plateno.booking.internal.cashierdesk.vo.CashierRefundOrderResponse;
 import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryReq;
 import com.plateno.booking.internal.cashierdesk.vo.CashierRefundQueryResponse;
 import com.plateno.booking.internal.cashierdesk.vo.PayQueryReq;
-import com.plateno.booking.internal.cashierdesk.vo.CashierPayQueryResponse;
 import com.plateno.booking.internal.cashierdesk.vo.RefundOrderReq;
-import com.plateno.booking.internal.cashierdesk.vo.CashierRefundOrderResponse;
 import com.plateno.booking.internal.common.util.http.HttpUtils;
 import com.plateno.booking.internal.common.util.json.JsonUtils;
 import com.plateno.booking.internal.common.util.number.MD5Maker;
@@ -79,6 +81,23 @@ public class CashierDeskService {
         }
         return null;
     }
+
+    
+    public CashierCancelOrderResponse cancelOrder(CancelOrderReq req){
+        try{
+            String postData = sign(req);
+            logger.info("支付取消接口，传参：{}",postData);
+            String result = HttpUtils.httpPostRequest(Config.MERCHANT_CASHIER_PAY_URL + "/pay/cancelOrder", postData);
+            logger.info("支付取消接口，返回数据：{}",result);
+            if(StringUtils.isNotBlank(result)){
+                CashierCancelOrderResponse cashierCancelOrderResponse = JsonUtils.jsonToObject(result, CashierCancelOrderResponse.class);
+                return cashierCancelOrderResponse;
+            }
+        }catch(Exception e){
+            logger.error("支付取消接口异常,req:{}",req.toString(),e);
+        }
+        return null;
+    }
     
     /**
      * 
@@ -120,7 +139,6 @@ public class CashierDeskService {
         CashierJaxrsJacksonJsonObjectMapper jacksonMapper = new CashierJaxrsJacksonJsonObjectMapper();
         String signString = jacksonMapper.writeValueAsString(req);
         req.setSignData(MD5Maker.getMD5(signString));
-
         return jacksonMapper.writeValueAsString(req);
 
     }

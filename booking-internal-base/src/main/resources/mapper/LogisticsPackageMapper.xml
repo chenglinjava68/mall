@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.plateno.booking.internal.base.mapper.LogisticsPackageMapper" >
+  <resultMap id="BaseResultMap" type="com.plateno.booking.internal.base.pojo.LogisticsPackage" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="order_no" property="orderNo" jdbcType="VARCHAR" />
+    <result column="order_sub_no" property="orderSubNo" jdbcType="VARCHAR" />
+    <result column="logistics_type" property="logisticsType" jdbcType="INTEGER" />
+    <result column="logistics_no" property="logisticsNo" jdbcType="VARCHAR" />
+    <result column="express_fee" property="expressFee" jdbcType="INTEGER" />
+    <result column="package_flag" property="packageFlag" jdbcType="INTEGER" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="up_time" property="upTime" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, order_no, order_sub_no, logistics_type, logistics_no, express_fee, package_flag, 
+    create_time, up_time
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackageExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    'true' as QUERYID,
+    <include refid="Base_Column_List" />
+    from m_logistics_package
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from m_logistics_package
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from m_logistics_package
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackageExample" >
+    delete from m_logistics_package
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" >
+    insert into m_logistics_package (id, order_no, order_sub_no, 
+      logistics_type, logistics_no, express_fee, 
+      package_flag, create_time, up_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{orderNo,jdbcType=VARCHAR}, #{orderSubNo,jdbcType=VARCHAR}, 
+      #{logisticsType,jdbcType=INTEGER}, #{logisticsNo,jdbcType=VARCHAR}, #{expressFee,jdbcType=INTEGER}, 
+      #{packageFlag,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{upTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" keyProperty="id"
+     keyColumn="ID" useGeneratedKeys="true">
+    insert into m_logistics_package
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="orderSubNo != null" >
+        order_sub_no,
+      </if>
+      <if test="logisticsType != null" >
+        logistics_type,
+      </if>
+      <if test="logisticsNo != null" >
+        logistics_no,
+      </if>
+      <if test="expressFee != null" >
+        express_fee,
+      </if>
+      <if test="packageFlag != null" >
+        package_flag,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="upTime != null" >
+        up_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderSubNo != null" >
+        #{orderSubNo,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsType != null" >
+        #{logisticsType,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsNo != null" >
+        #{logisticsNo,jdbcType=VARCHAR},
+      </if>
+      <if test="expressFee != null" >
+        #{expressFee,jdbcType=INTEGER},
+      </if>
+      <if test="packageFlag != null" >
+        #{packageFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="upTime != null" >
+        #{upTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackageExample" resultType="java.lang.Integer" >
+    select count(*) from m_logistics_package
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update m_logistics_package
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.orderNo != null" >
+        order_no = #{record.orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.orderSubNo != null" >
+        order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.logisticsType != null" >
+        logistics_type = #{record.logisticsType,jdbcType=INTEGER},
+      </if>
+      <if test="record.logisticsNo != null" >
+        logistics_no = #{record.logisticsNo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.expressFee != null" >
+        express_fee = #{record.expressFee,jdbcType=INTEGER},
+      </if>
+      <if test="record.packageFlag != null" >
+        package_flag = #{record.packageFlag,jdbcType=INTEGER},
+      </if>
+      <if test="record.createTime != null" >
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.upTime != null" >
+        up_time = #{record.upTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update m_logistics_package
+    set id = #{record.id,jdbcType=INTEGER},
+      order_no = #{record.orderNo,jdbcType=VARCHAR},
+      order_sub_no = #{record.orderSubNo,jdbcType=VARCHAR},
+      logistics_type = #{record.logisticsType,jdbcType=INTEGER},
+      logistics_no = #{record.logisticsNo,jdbcType=VARCHAR},
+      express_fee = #{record.expressFee,jdbcType=INTEGER},
+      package_flag = #{record.packageFlag,jdbcType=INTEGER},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      up_time = #{record.upTime,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" >
+    update m_logistics_package
+    <set >
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=VARCHAR},
+      </if>
+      <if test="orderSubNo != null" >
+        order_sub_no = #{orderSubNo,jdbcType=VARCHAR},
+      </if>
+      <if test="logisticsType != null" >
+        logistics_type = #{logisticsType,jdbcType=INTEGER},
+      </if>
+      <if test="logisticsNo != null" >
+        logistics_no = #{logisticsNo,jdbcType=VARCHAR},
+      </if>
+      <if test="expressFee != null" >
+        express_fee = #{expressFee,jdbcType=INTEGER},
+      </if>
+      <if test="packageFlag != null" >
+        package_flag = #{packageFlag,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="upTime != null" >
+        up_time = #{upTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.plateno.booking.internal.base.pojo.LogisticsPackage" >
+    update m_logistics_package
+    set order_no = #{orderNo,jdbcType=VARCHAR},
+      order_sub_no = #{orderSubNo,jdbcType=VARCHAR},
+      logistics_type = #{logisticsType,jdbcType=INTEGER},
+      logistics_no = #{logisticsNo,jdbcType=VARCHAR},
+      express_fee = #{expressFee,jdbcType=INTEGER},
+      package_flag = #{packageFlag,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      up_time = #{upTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

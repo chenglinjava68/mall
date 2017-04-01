@@ -3,6 +3,7 @@ package com.plateno.booking.internal.base.pojo;
 import java.io.Serializable;
 import java.util.Date;
 
+
 public class OrderProduct implements Serializable {
     private Integer id;
 
@@ -60,7 +61,37 @@ public class OrderProduct implements Serializable {
      */
     private Integer returnSkuCount;
 
+    private String orderSubNo;//子订单编号
+    
+    private int  channelId;//仓库id
+    
+    private int providedId;//供应商id
+    
+    private Integer coupouReduceAmount;//优惠券优惠金额
+    
+    private Integer expressAmount;
+    
     private static final long serialVersionUID = 1L;
+
+    
+    
+
+
+    public Integer getCoupouReduceAmount() {
+        return coupouReduceAmount;
+    }
+
+    public void setCoupouReduceAmount(Integer coupouReduceAmount) {
+        this.coupouReduceAmount = coupouReduceAmount;
+    }
+
+    public Integer getExpressAmount() {
+        return expressAmount;
+    }
+
+    public void setExpressAmount(Integer expressAmount) {
+        this.expressAmount = expressAmount;
+    }
 
     public Integer getProductCost() {
 		return productCost;
@@ -213,4 +244,32 @@ public class OrderProduct implements Serializable {
 	public void setReturnSkuCount(Integer returnSkuCount) {
 		this.returnSkuCount = returnSkuCount;
 	}
+
+    public String getOrderSubNo() {
+        return orderSubNo;
+    }
+
+    public void setOrderSubNo(String orderSubNo) {
+        this.orderSubNo = orderSubNo;
+    }
+
+    public int getChannelId() {
+        return channelId;
+    }
+
+    public void setChannelId(int channelId) {
+        this.channelId = channelId;
+    }
+
+    public int getProvidedId() {
+        return providedId;
+    }
+
+    public void setProvidedId(int providedId) {
+        this.providedId = providedId;
+    }
+
+
+	
+	
 }

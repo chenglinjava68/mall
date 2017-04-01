@@ -49,8 +49,64 @@ public class SelectOrderParam extends BaseParam implements java.io.Serializable{
 	 */
 	private Integer viewStatus;
 
+	/**
+	 * 销售人员id
+	 */
+	private Integer subResource;
 
-	public String getName() {
+	/**
+	 * 收件人
+	 */
+	private String receiver;
+	
+	/**
+	 * 收件人手机号码
+	 */
+	private String receiverMobile;
+	
+	/**
+	 * 商品名称
+	 */
+	private String productName;
+	
+	
+	
+	
+	public String getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    public String getReceiverMobile() {
+        return receiverMobile;
+    }
+
+    public void setReceiverMobile(String receiverMobile) {
+        this.receiverMobile = receiverMobile;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+
+
+    public Integer getSubResource() {
+        return subResource;
+    }
+
+    public void setSubResource(Integer subResource) {
+        this.subResource = subResource;
+    }
+
+    public String getName() {
 		return name;
 	}
 

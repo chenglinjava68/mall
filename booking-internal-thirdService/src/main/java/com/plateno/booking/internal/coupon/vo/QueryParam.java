@@ -90,7 +90,7 @@ public class QueryParam {
 	/**
 	 * 根据限制条件查询可用抵用券 0：所有,1:可用
 	 */
-	private Integer isEnabledByUseLimit = 1;
+	private Integer isEnabledByUseLimit;
 	
 	/**
 	 * 开始使用时间

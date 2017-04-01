@@ -1,9 +1,7 @@
 package com.plateno.booking.internal.service.fromTicket;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import com.plateno.booking.internal.bean.annotation.service.ParamValid;
@@ -25,7 +23,6 @@ import com.plateno.booking.internal.service.fromTicket.vo.MAddBookingIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.PayTicketIncomeVo;
 import com.plateno.booking.internal.service.fromTicket.vo.RefundAccountIncomeVo;
 import com.plateno.booking.internal.service.log.OrderLogService;
-import com.plateno.booking.internal.sms.SMSSendService;
 import com.plateno.cache.lock.LockCallback;
 
 
@@ -36,19 +33,11 @@ import com.plateno.cache.lock.LockCallback;
 @ServiceErrorCode(BookingConstants.CODE_OTA_BOOK_ERROR)
 public class BOTAOMallBookingService extends AbsBookingService {
 
-	private final static Logger log = Logger.getLogger(BOTAOMallBookingService.class);
 
 	@Autowired
 	private ServiceChain serviceChain;
-	@Autowired
-	private OrderLogService orderLogService;
 
-	@Autowired
-	public TaskExecutor taskExecutor;
-	
-	@Autowired
-	private SMSSendService sendService;
-	
+
 	/**
 	 * 新增订单
 	 * 
@@ -160,7 +149,6 @@ public class BOTAOMallBookingService extends AbsBookingService {
 			public ResultVo<MAddBookResponse> exec() {
 				ResultVo<MAddBookResponse> resultVo = new ResultVo<MAddBookResponse>();
 				String serviceEnum = getBookingService(addBook.getChanelId(), BookingServiceEnumConstants.ADD);
-				//MAddBookingIncomeVo addBookingIncomeVo = initAddBookingIncomeVo(addBook);
 				MAddBookingIncomeVo addBookingIncomeVo = new MAddBookingIncomeVo();
 				addBookingIncomeVo.setAddBookingParam(addBook);
 				serviceChain.doServer(addBookingIncomeVo, resultVo, serviceEnum);

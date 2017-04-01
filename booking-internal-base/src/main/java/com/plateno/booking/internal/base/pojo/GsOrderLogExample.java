@@ -685,52 +685,52 @@ public class GsOrderLogExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtEqualTo(Integer value) {
+        public Criteria andCreateOprtEqualTo(Long value) {
             addCriterion("create_oprt =", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtNotEqualTo(Integer value) {
+        public Criteria andCreateOprtNotEqualTo(Long value) {
             addCriterion("create_oprt <>", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtGreaterThan(Integer value) {
+        public Criteria andCreateOprtGreaterThan(Long value) {
             addCriterion("create_oprt >", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtGreaterThanOrEqualTo(Integer value) {
+        public Criteria andCreateOprtGreaterThanOrEqualTo(Long value) {
             addCriterion("create_oprt >=", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtLessThan(Integer value) {
+        public Criteria andCreateOprtLessThan(Long value) {
             addCriterion("create_oprt <", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtLessThanOrEqualTo(Integer value) {
+        public Criteria andCreateOprtLessThanOrEqualTo(Long value) {
             addCriterion("create_oprt <=", value, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtIn(List<Integer> values) {
+        public Criteria andCreateOprtIn(List<Long> values) {
             addCriterion("create_oprt in", values, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtNotIn(List<Integer> values) {
+        public Criteria andCreateOprtNotIn(List<Long> values) {
             addCriterion("create_oprt not in", values, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtBetween(Integer value1, Integer value2) {
+        public Criteria andCreateOprtBetween(Long value1, Long value2) {
             addCriterion("create_oprt between", value1, value2, "createOprt");
             return (Criteria) this;
         }
 
-        public Criteria andCreateOprtNotBetween(Integer value1, Integer value2) {
+        public Criteria andCreateOprtNotBetween(Long value1, Long value2) {
             addCriterion("create_oprt not between", value1, value2, "createOprt");
             return (Criteria) this;
         }
@@ -805,68 +805,123 @@ public class GsOrderLogExample {
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtEqualTo(Integer value) {
+        public Criteria andUpdateOprtEqualTo(Long value) {
             addCriterion("update_oprt =", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtNotEqualTo(Integer value) {
+        public Criteria andUpdateOprtNotEqualTo(Long value) {
             addCriterion("update_oprt <>", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtGreaterThan(Integer value) {
+        public Criteria andUpdateOprtGreaterThan(Long value) {
             addCriterion("update_oprt >", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtGreaterThanOrEqualTo(Integer value) {
+        public Criteria andUpdateOprtGreaterThanOrEqualTo(Long value) {
             addCriterion("update_oprt >=", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtLessThan(Integer value) {
+        public Criteria andUpdateOprtLessThan(Long value) {
             addCriterion("update_oprt <", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtLessThanOrEqualTo(Integer value) {
+        public Criteria andUpdateOprtLessThanOrEqualTo(Long value) {
             addCriterion("update_oprt <=", value, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtIn(List<Integer> values) {
+        public Criteria andUpdateOprtIn(List<Long> values) {
             addCriterion("update_oprt in", values, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtNotIn(List<Integer> values) {
+        public Criteria andUpdateOprtNotIn(List<Long> values) {
             addCriterion("update_oprt not in", values, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtBetween(Integer value1, Integer value2) {
+        public Criteria andUpdateOprtBetween(Long value1, Long value2) {
             addCriterion("update_oprt between", value1, value2, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andUpdateOprtNotBetween(Integer value1, Integer value2) {
+        public Criteria andUpdateOprtNotBetween(Long value1, Long value2) {
             addCriterion("update_oprt not between", value1, value2, "updateOprt");
             return (Criteria) this;
         }
 
-        public Criteria andTradeNoLikeInsensitive(String value) {
-            addCriterion("upper(trade_no) like", value.toUpperCase(), "tradeNo");
+        public Criteria andOrderSubNoIsNull() {
+            addCriterion("order_sub_no is null");
             return (Criteria) this;
         }
 
-        public Criteria andStatusDescLikeInsensitive(String value) {
-            addCriterion("upper(status_desc) like", value.toUpperCase(), "statusDesc");
+        public Criteria andOrderSubNoIsNotNull() {
+            addCriterion("order_sub_no is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRemarkLikeInsensitive(String value) {
-            addCriterion("upper(remark) like", value.toUpperCase(), "remark");
+        public Criteria andOrderSubNoEqualTo(String value) {
+            addCriterion("order_sub_no =", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotEqualTo(String value) {
+            addCriterion("order_sub_no <>", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoGreaterThan(String value) {
+            addCriterion("order_sub_no >", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoGreaterThanOrEqualTo(String value) {
+            addCriterion("order_sub_no >=", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLessThan(String value) {
+            addCriterion("order_sub_no <", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLessThanOrEqualTo(String value) {
+            addCriterion("order_sub_no <=", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoLike(String value) {
+            addCriterion("order_sub_no like", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotLike(String value) {
+            addCriterion("order_sub_no not like", value, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoIn(List<String> values) {
+            addCriterion("order_sub_no in", values, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotIn(List<String> values) {
+            addCriterion("order_sub_no not in", values, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoBetween(String value1, String value2) {
+            addCriterion("order_sub_no between", value1, value2, "orderSubNo");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderSubNoNotBetween(String value1, String value2) {
+            addCriterion("order_sub_no not between", value1, value2, "orderSubNo");
             return (Criteria) this;
         }
     }

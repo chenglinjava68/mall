@@ -60,19 +60,5 @@ public class OrderQueryServiceTest {
         
     }
     
-    @Test
-    public void testQueryOrderList() throws OrderException, Exception{
-        
-        
-        MOrderSearchVO svo = new MOrderSearchVO();
-        
-        svo.setMemberId(181295316);
-        
-        ResultVo<PageInfo<SelectOrderResponse>> queryOrderList = orderQueryService.queryOrderList(svo );
-        
-        System.out.println(queryOrderList);
-        
-        
-    }
     
 }

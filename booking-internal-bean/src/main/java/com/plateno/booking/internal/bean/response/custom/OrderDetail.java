@@ -2,6 +2,8 @@ package com.plateno.booking.internal.bean.response.custom;
 
 import java.util.List;
 
+import com.plateno.booking.internal.bean.response.logistics.PackageProduct;
+
 public class OrderDetail implements java.io.Serializable{
 
 
@@ -9,14 +11,37 @@ public class OrderDetail implements java.io.Serializable{
 	
 	private OrderInfo orderInfo;
 	
-	private DeliverDetail deliverDetail;
 	
 	private ConsigneeInfo consigneeInfo;
 	
 	private List<ProductInfo> productInfo;
 	
+	private List<SubOrderDetail> subOrderDetails;
 	
-	public OrderInfo getOrderInfo() {
+	/**
+	 * 包裹数据
+	 */
+	private List<PackageProduct> packageProducts;
+	
+	
+	
+	public List<PackageProduct> getPackageProducts() {
+        return packageProducts;
+    }
+
+    public void setPackageProducts(List<PackageProduct> packageProducts) {
+        this.packageProducts = packageProducts;
+    }
+
+    public List<SubOrderDetail> getSubOrderDetails() {
+        return subOrderDetails;
+    }
+
+    public void setSubOrderDetails(List<SubOrderDetail> subOrderDetails) {
+        this.subOrderDetails = subOrderDetails;
+    }
+
+    public OrderInfo getOrderInfo() {
 		return orderInfo;
 	}
 
@@ -24,13 +49,6 @@ public class OrderDetail implements java.io.Serializable{
 		this.orderInfo = orderInfo;
 	}
 
-	public DeliverDetail getDeliverDetail() {
-		return deliverDetail;
-	}
-
-	public void setDeliverDetail(DeliverDetail deliverDetail) {
-		this.deliverDetail = deliverDetail;
-	}
 
 	public ConsigneeInfo getConsigneeInfo() {
 		return consigneeInfo;
@@ -96,6 +114,14 @@ public class OrderDetail implements java.io.Serializable{
 		 */
 		private Integer couponAmount;
 		
+	    /**
+	     * 储值金额
+	     */
+	    private Integer currencyDepositAmount;
+	    /**
+	     * 支付网关金额
+	     */
+	    private Integer gatewayAmount;
 		
 		public Integer getViewStatus() {
 			return viewStatus;
@@ -218,6 +244,18 @@ public class OrderDetail implements java.io.Serializable{
 		public void setCouponAmount(Integer couponAmount) {
 			this.couponAmount = couponAmount;
 		}
+        public Integer getCurrencyDepositAmount() {
+            return currencyDepositAmount;
+        }
+        public void setCurrencyDepositAmount(Integer currencyDepositAmount) {
+            this.currencyDepositAmount = currencyDepositAmount;
+        }
+        public Integer getGatewayAmount() {
+            return gatewayAmount;
+        }
+        public void setGatewayAmount(Integer gatewayAmount) {
+            this.gatewayAmount = gatewayAmount;
+        }
 		
 	}
 	
@@ -349,6 +387,11 @@ public class OrderDetail implements java.io.Serializable{
 		private static final long serialVersionUID = 7221564211594276296L;
 		
 		/**
+		 * order_product表的id
+		 */
+		private Integer orderProductId;
+		
+		/**
 		 * 商品ID
 		 */
 		private Integer productId;
@@ -367,9 +410,58 @@ public class OrderDetail implements java.io.Serializable{
 		
 		private Integer sellStrategy;//销售策略 1:金额(积分不足会员） 2：积分+金额 （够积分的会员使用）
 		
+		private String goodsUrl;//商品详情地址
 		
+		/**
+		 * 优惠券优惠金额
+		 */
+		private Integer coupouReduceAmount;
+		
+	    /**
+	     * 积分抵扣价格
+	     */
+	    private Integer deductPrice;
+		
+	    /**
+	     * 快递费
+	     */
+	    private Integer expressAmount;
 
-		public String getDisImages() {
+	    
+
+        public Integer getExpressAmount() {
+            return expressAmount;
+        }
+
+        public void setExpressAmount(Integer expressAmount) {
+            this.expressAmount = expressAmount;
+        }
+
+        public Integer getCoupouReduceAmount() {
+            return coupouReduceAmount;
+        }
+
+        public void setCoupouReduceAmount(Integer coupouReduceAmount) {
+            this.coupouReduceAmount = coupouReduceAmount;
+        }
+
+        public Integer getDeductPrice() {
+            return deductPrice;
+        }
+
+        public void setDeductPrice(Integer deductPrice) {
+            this.deductPrice = deductPrice;
+        }
+
+        public String getGoodsUrl() {
+            return goodsUrl;
+        }
+
+        public void setGoodsUrl(String goodsUrl) {
+            this.goodsUrl = goodsUrl;
+        }
+
+        public String getDisImages() {
 			return disImages;
 		}
 
@@ -432,6 +524,14 @@ public class OrderDetail implements java.io.Serializable{
 		public void setProductPropertis(String productPropertis) {
 			this.productPropertis = productPropertis;
 		}
+
+        public Integer getOrderProductId() {
+            return orderProductId;
+        }
+
+        public void setOrderProductId(Integer orderProductId) {
+            this.orderProductId = orderProductId;
+        }
 
 	}
 }

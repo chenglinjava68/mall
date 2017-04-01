@@ -90,6 +90,14 @@ public class MOperateLogResponse  implements Serializable{
 		this.operateTime = operateTime;
 	}
 
+    @Override
+    public String toString() {
+        return "MOperateLogResponse [id=" + id + ", operateType=" + operateType
+                + ", operateUserid=" + operateUserid + ", operateUserName=" + operateUserName
+                + ", remark=" + remark + ", plateForm=" + plateForm + ", orderCode=" + orderCode
+                + ", operateTime=" + operateTime + "]";
+    }
+
 	
 	
 	
